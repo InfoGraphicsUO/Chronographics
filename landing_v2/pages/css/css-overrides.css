@@ -1,0 +1,480 @@
+/*** NOTE THIS IS USED IN TIMELINES_V2 BIO, 
+MAY BE USED BY CHART OF HISTORY? ***/
+
+html {
+  scroll-behavior: smooth;
+}
+
+
+/*Scroll Bar styling*/
+::-webkit-scrollbar {
+    width: 14px;
+    height: 25px;
+}
+/*We use background-clip: padding-box; to get padding around scrollbar*/
+::-webkit-scrollbar-thumb {
+    height: 40px;
+    border: 4px solid rgba(1, 1, 1, 0);
+    background-clip: padding-box;
+    -webkit-border-radius: 7px;
+    background-color: rgba(0, 0, 0, 0.15);
+    -webkit-box-shadow: inset -1px -1px 0px rgba(0, 0, 0, 0.05), inset 1px 1px 0px rgba(0, 0, 0, 0.05);
+}
+::-webkit-scrollbar-button {
+    width: 0;
+    height: 0;
+    /*display: none;*/
+}
+::-webkit-scrollbar-corner {
+    background-color: transparent;
+}  
+.btn-drop {
+    border-style: none none solid;
+}
+/*End scroll bar styling*/
+
+body {
+	color: #3F3418;
+  overflow-x:hidden; /*remove x-scroll bar*/
+}
+
+.main-nav a {
+	color:#3F3418;
+}
+
+.main-nav .drop-down ul a {
+	color:#3F3418;
+}
+
+.main-nav a:hover,
+.main-nav .active > a,
+.main-nav li:hover > a {
+	color: #6f9e5a !important;
+  /* font-weight: bold; */
+  text-shadow: 0.75px 0 #6f9e5a;
+}
+
+#loaderButton button{
+      z-index: 999999;
+      position: absolute;
+      overflow: visible;
+      margin: auto;
+      top: 40%;
+      left: 40%;
+}
+/*#loaderButton button:hover:enabled{*/
+/*  color: #3F3418;*/
+/*    background-color: #e8f0e4;
+} */
+
+  /* Transparent Overlay */
+.loader:before {
+    content: '';
+    display: block;
+    position: absolute;
+    /* background-color: aqua; */
+    top: 40%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+.loader{
+  display: none;
+      position: absolute;
+      opacity: 80%;
+      border: 8px solid #3F3418;
+      border-radius: 50%;
+      border-top: 8px solid #6F9E5A;
+      width: 60px;
+      height: 60px;
+      -webkit-animation: spin 2s linear infinite; /* Safari */
+      animation: spin 2s linear infinite;
+      z-index: 999999;
+     
+      overflow: visible;
+      margin: 24% auto;
+      left: calc(50% - 30px);
+      top: 30px;
+
+}
+
+
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* adds white text and brown box to submenu*/
+/* .main-nav .drop-down ul li:hover > a {
+	background-color: #3F3418;
+	color:white;
+}
+*/
+
+/* submenu hover is green */
+.main-nav .drop-down ul a:hover, 
+.main-nav .drop-down ul .active > a, 
+.main-nav .drop-down ul li:hover > a {
+    color: #3F3418;
+    font-weight: 500;
+    background-color: #e8f0e4;
+}
+
+/*social media color*/
+#topbar .social-links a,
+#header .logo h1 a{
+  color: #3F3418;
+}
+
+/* social media header hover color*/
+#header .logo h1 a:hover,
+#topbar .social-links a:hover{
+	color: #6f9e5a;
+}
+
+/* add opacity to header*/
+#header {
+  background-color: rgba(255, 255, 255, 0.75);
+  box-shadow: 0px 0px 30px rgba(127, 137, 161, 0.3);
+        height: 70px;
+    padding: 15px 0;
+}
+
+/* heading section colors */
+#about .about-content h2, 
+.section-header h3, #Compare {
+    color: #3F3418;
+}
+
+/*underline the current tab*/
+.currentTab {
+    text-decoration: underline; /* for chrome*/
+    text-decoration: underline 1.5px;
+
+}
+
+/* underline the current tab when hovered */
+.currentTab:hover{
+    text-decoration: underline; /* for chrome*/
+    text-decoration:underline 1.5px #6f9e5a!important;
+
+}
+
+/*don't underline the chevron*/
+.main-nav .drop-down > a::after{
+  text-decoration: none!important;
+  display:inline-block;
+}
+
+.noSectionYet{
+    color: lightgray !important;
+}
+
+/*
+h2 {
+   font-weight: 700;
+}
+*/
+h4{
+    font-size: 1.3rem;
+}
+
+b, strong {
+    font-weight: 600;
+}
+
+.links {
+  padding-left: 50px;
+}
+
+.original-chart {
+	width: 100%
+}
+
+#chartRow{
+/*    height: calc(100vh - 70px);*/
+    height: 1150px
+
+}
+
+.container {
+	padding-left: 0px !important;
+	padding-right: 0px !important;
+}
+
+.container-mag {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  vertical-align: middle;
+  overflow: hidden;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* top button color */
+.back-to-top, .down-button {
+  /*background: #3F3418;*/
+  background: #78a761;
+
+}
+
+
+.down-button {
+  width: 2em;
+  height: 2em;
+  text-align: center;
+  line-height: 1;
+  font-size: 1.3em;
+  border-radius: 50%;
+/*  transition: background 0.5s;*/
+  padding-top: 0.5em;
+  color: rgba(255,255,255,0.88);
+}
+.down-button  {
+
+}
+
+
+
+/* get rid of bootstrap image */
+#intro{
+  background: none;
+}
+
+/* intro section background, allows opacity and saturation*/
+#intro-bg {
+  background: url(../img/original.jpg) no-repeat center center fixed;
+    /*  */
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100vh;
+    
+    filter:blur(6px) saturate(120%);
+    opacity: .8;
+
+/*
+
+    -webkit-filter:saturate(50%);
+*/
+/*
+    -moz-filter:    saturate(10%);
+    -ms-filter:     saturate(10%);
+    -o-filter:      saturate(10%);
+*/
+}
+
+
+/* intro section background, allows opacity and saturation*/
+#intro-bg-bio {
+/*
+  background: url(../img/Biography_small.jpg) no-repeat center center fixed;
+      
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    width: 100%;
+    height: 100vh;
+    
+
+    filter:blur(6px) saturate(120%);
+    opacity: .8;
+*/
+
+/*
+
+    -webkit-filter:saturate(50%);
+*/
+/*
+    -moz-filter:    saturate(10%);
+    -ms-filter:     saturate(10%);
+    -o-filter:      saturate(10%);
+*/
+}
+
+/*hides scrollbars in div, multibrowser support*/
+.hideScroll ::-webkit-scrollbar {
+    display: none;
+}
+.hideScroll {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+
+#bioExploration,#HistoryExploration{
+/* background-image: linear-gradient(to right, #f6f3ed, #f6f3ed, #574d34, #574d34); fades background using colors from knight lab story map tour  - DARK */
+    
+    background-image: linear-gradient(to right, #f6f3ed, #f6f3ed, #fefefe, #fefefe); /* fades background using colors from knight lab story map tour  - LIGHT */
+     /*display: flex;*/
+}
+
+iframe{ justify-content: center;}
+
+.sticky{
+  position: sticky;
+  top: 70px;
+}
+
+.sticky0{
+  position: sticky;
+  top: 0px;
+}
+
+#homeText{
+	background: rgba(255,255,255,0.55);
+	padding: 15px;
+	box-shadow: 0px 0px 30px rgba(127, 137, 161, 0.6);
+
+}
+
+#homeText h1{
+	font-size: 4em;
+/*	font-variant: small-caps;*/
+    text-transform: uppercase;
+	text-align: left !important;
+}
+
+
+/* font awsome in a label, eg question marks */
+label .fa {
+    color: #B8B8B8;
+}
+
+/*NOTE for small @ media queries, see style.css*/
+
+.old-looking-font {
+   font-family: 'STIX Two Text', 'PT Serif', serif;
+}
+
+.old-looking-font-bold {
+  font-weight: bold;  
+  font-family:'STIX Two Text', 'PT Serif', serif;  
+    
+}.old-looking-numbers {
+   font-family: 'Libre Baskerville', 'PT Serif',serif;
+}
+
+
+#team .member .social a:hover {
+	color: #9ebf8d;
+}
+
+#team .member .member-info-content {
+	transition: margin 0.2s;
+	height: 60px;
+	transition: height 0.4s;
+}
+
+#team .member:hover .member-info-content {
+ 	height: 90px;
+}
+
+.img-fluid {
+ width: 100%; /* for profile photos, make smaller images size up*/
+}
+
+.about-links {
+	padding-top: 15px;
+}
+
+/*adds color to the mobile small screen background*/
+.mobile-nav-overly {
+	background: #9ebf8d;
+	opacity: 80%;
+}
+
+.mobile-nav {
+	background: #78a761;
+	opacity: 90%;
+}
+
+.mobile-nav a:hover, .mobile-nav .active > a, .mobile-nav li:hover > a {
+	color: #3a522e;
+	text-decoration: none;
+    
+}
+
+.activeLink{
+    color:#1BB1DC !important;
+    padding: 0px !important;
+}
+
+.text-justify{
+  text-justify: inter-character;
+  text-rendering: optimizeLegibility!important;
+  font-feature-settings: "kern";
+   -webkit-font-feature-settings: "kern";
+  -moz-font-feature-settings: "kern";
+  -moz-font-feature-settings: "kern=1";
+
+}
+
+/* for tables */
+
+.max-vh-50 {
+  max-height: 50vh;
+}
+
+#table-sparkline{
+  width:100% !important;
+}
+
+/*
+#table-sparkline tr{
+  width:50%;
+}
+*/
+
+
+/* end tables */
+
+/* Smaller checkbox */
+
+input.smallCheckbox {
+    width: 11px;
+    height: 11px;
+}
+
+div.tooltip{
+    position: absolute;
+    display: inline-block;
+    padding: 1em;
+    font: 1.2em;
+/*    font-family: "Bodoni MT", Didot, "Didot LT STD", "Hoefler Text", Goudy Old Style, Garamond, Big Caslon, Times New Roman, serif;*/
+    margin-left: 10px;
+    margin-top: 25px;
+    background-color: #F0F0F0;
+    color: #3F3418;
+    /*text color*/
+    box-shadow: 0px 8px 5px -5px RGBA(0, 0, 0, .6), inset 3px 3px 5px 0px RGBA(0, 0, 0, .1);
+
+}
+
+div.tooltip .larger{
+    font-size: 120%;
+
+}

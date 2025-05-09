@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Cartogram</title>
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico" />
+
+    <!-- CSS IMPORTS -->
+    <!-- Bootstrap Core CSS -->
+    <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<!--      Bootstrap Theme (Menu Alignment) 
+    <link href="../dist/css/sb-admin-2.css" rel="stylesheet"> -->
+    <!-- Custom CSS -->
+    <link href="css/css-overrides.css" rel="stylesheet">
+    <!-- Custom Fonts -->
+     <link href="../vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"> 
+    <!-- END CSS IMPORTS -->
+
+    <!-- JSON DATA -->
+    <script src="cartogram/json/worldbasemap_regions_2_28.json"></script>
+    <script src="cartogram/json/DegreeClipped.json"></script>
+    <!-- END JSON DATA -->
+
+    <style>
+        .chartImage{
+            background-color: #f5f8fd !important;
+            background-image: url("cartogram/img/chart_background.jpg");
+            background-size: cover;
+            background-position: center;
+            height:100%;
+            width:100%;
+  
+        } 
+        .section-bg{
+            background-color: #f5f8fd !important;
+        }
+
+        .p-0{
+            padding: 0px;
+        }
+
+        .pl-30{
+            padding-left: 30px;
+        }
+
+        .m-0{
+            margin-left: 0px;
+            margin-right: 0px;
+        }
+        
+        button {
+            background-color: transparent;
+            padding: 0px 5px;
+            border-color: rgba(63, 52, 24, 0.3);
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width:95px;
+        }
+    </style>
+</head>
+
+<body class="section-bg">
+    <!--HACK TO MAKE SVG SCALABLE. CSS ABOVE-->
+    <!-- https://tympanus.net/codrops/2014/08/19/making-svgs-responsive-with-css/ -->
+    <div class="row section-bg m-0 p-0 text-center">
+        <div class="col-sm-5 section-bg p-0">
+            <!-- left/top column -->
+    <!--                                        <img src="cartogram/img/chart.jpg" width=95% alt="Image of chart colored by region." hspace="20">-->
+            <br>
+            <div id = "chartImage" class="chartImage old-looking-font section-bg pt" width=95% hspace="20">
+    <!--
+                <object type="image/svg+xml" data="cartogram/img/TimelineRegions.svg">
+                  Your browser does not support SVG
+                </object>
+    -->
+            </div>
+        </div> <!-- /.left/top column -->
+        
+        <div class="col-sm-7 section-bg p-0">
+            <button id="distortButton"> Distort map </button>
+            <!-- right/bottom column -->
+<div id="tooltip" class="text-center h4 section-bg mb-0"><br></div>
+                <svg version="1.1" width=100% height=100% viewBox="0 0 1040 600"
+                    vector-effect="non-scaling-stroke">
+
+                    <!-- <svg version="1.1" height =400 viewBox="0 0 1240 600" preserveAspectRatio="xMinYMin meet" class="content" overflow="visible"> -->
+                    <!-- <svg version="1.1" width="100%" height =300 style="outline: 5px solid #630" viewBox="0 0 200 400" preserveAspectRatio="xMinYMin meet" class="content"> -->
+                </svg>
+        </div><!-- /.right/bottom column -->
+    </div>
+
+
+
+    <!-- JS SOURCES -->
+    <!-- D3 -->
+    <script src="../dist/js/d3.v3.min.js"></script>
+    <script src="../dist/js/d3.geo.projection.v0.min.js"></script>
+    <script src="cartogram/lib/d3.legend.js"></script>
+    <script src="cartogram/lib/pym.js"></script>
+    <!-- jQuery -->
+    <script src="../dist/js/jquery.min.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
+    <!-- Custom Theme JavaScript -->
+    <script src="../dist/js/sb-admin-2.js"></script>
+    <!-- Cartogram js -->
+    <script src="cartogram/carto2.js"></script>    
+
+    <!-- END JS SOURCES -->
+
+
+</body>
+
+</html>

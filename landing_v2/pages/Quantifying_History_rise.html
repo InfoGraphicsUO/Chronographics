@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="robots" content="noindex"> <!-- hide from search engines -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Chronographics: The Time Charts of Joseph Priestley</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+    
+  <!-- Favicons -->
+  <link href="img/favicon.png" rel="icon">
+    
+      <!-- Bootstrap CSS File -->
+  <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+      <!-- Libraries CSS Files -->
+  <link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+  <link href="lib/animate/animate.min.css" rel="stylesheet">
+  <link href="lib/ionicons/css/ionicons.min.css" rel="stylesheet">
+  <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+  <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+
+   <!-- Bootstrap Core CSS -->
+    <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Theme (Menu Alignment) -->
+    <link href="../dist/css/sb-admin-2.css" rel="stylesheet">
+    <!-- Custom CSS -->
+     <link href="css/css-overrides.css" rel="stylesheet">
+    <!-- Sidebar CSS -->
+    <!-- <link href="../dist/css/sidebar.css" rel="stylesheet"> -->
+    <!-- Custom Fonts -->
+    <link href="../vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <!-- Multi Select -->
+    <link href="../dist/css/multi-select.css" media="screen" rel="stylesheet" type="text/css">
+    <!-- END CSS IMPORTS -->
+
+  <!-- Main Stylesheet File -->
+  <link href="css/style.css" rel="stylesheet">
+    <!-- Tour CSS -->
+  <link rel="stylesheet" type="text/css" href="tour/css/style.css" />
+  <!-- css override -->
+  <link href="css/css-overrides.css" rel="stylesheet">
+  <!-- Biography -->
+  <!-- <link rel="stylesheet" href="biography/priestley.css" /> -->
+  <!-- JSON DATA -->
+   <script src="json/conversion/polyPowerJSON.json"></script>
+   <script src="json/conversion/powerYearJSON.json"></script>  
+   <script src="json/conversion/powerYearAreaJSON.json"></script>
+
+
+        <!-- Biography -->
+          <link href="css/mapStyle.css" rel="stylesheet">  <!-- for the map -->
+<!--     <link rel="stylesheet" href="biography/priestley.css" />
+    <link rel="stylesheet" href="biography/fullBioExtra.css" /> -->
+  <!-- =======================================================
+    Theme Name: Rapid
+    Theme URL: https://bootstrapmade.com/rapid-multipurpose-bootstrap-business-template/
+    Author: BootstrapMade.com
+    License: https://bootstrapmade.com/license/
+  ======================================================= -->
+
+
+    <style>
+
+    .highcharts-root {
+        font-family: "Montserrat", sans-serif !important;
+    }
+
+     /* formatting table holding sparkline graphs  */
+
+    #table-sparkline {
+        margin: 0 auto;
+        border-collapse: collapse;
+    }
+    
+    th {
+        font-weight: normal;
+        text-align: left;
+        background-color: #E8D5B6
+    }
+
+    td,
+    th {
+        padding: 2px 5px;
+        border-bottom: 1px solid #EEE; /* lines between rows*/
+        height: 20px;
+        background-color: #FFF;
+        overflow: visible !important;
+    }
+
+    thead th {
+        background-color: #FFF;
+        font-weight: bold;
+        border-top: none;
+        border-bottom: 2px solid #3F3418;
+    }
+    
+    .highcharts-xaxis .highcharts-axis-line{
+        stroke: #B4A58A; 
+    }
+
+    .year-0{
+      position: absolute;
+      right: 60%
+    }
+
+    #riseBox{
+      background-color: #FFF; 
+      /*border:1px solid #CCC;*/
+      /*border-left:none; */
+      height: 20rem;
+    }
+
+    #timelineRULE{
+      margin-top: 18px;
+      margin-bottom: 5px;
+      border: 0;
+      border-top: 1px solid #B4A58A;
+    }
+
+    /*   end  sparkline style */
+
+    </style>
+</head>
+
+<body>
+
+ <!--==========================
+  Header
+  ============================-->
+  <header id="header">
+    <div class="container">
+      <nav class="main-nav float-left d-none d-lg-block">
+        <ul>
+          <li><a href="index.html"><i class="fa fa-home" aria-hidden="true"></i></a>
+          </li>
+          <li class="drop-down"><a href="sandbox.html">Sandbox</a>
+            <ul>
+<!--
+                <li><a href="../HistoryInteractive/twoCharts.html">Mapping the chart of biography</a>
+                </li>
+-->
+                <li><a href="sandbox.html#digitizingProcess">Digitizing Process</a></li>
+                <li><a href="CartDist_History.html#Cartogram">Cartograms and chartograms</a></li>
+                <li class="drop-down"><a href="#">Quantifying history</a>
+                    <ul>
+                      <li><a href="Quantifying_History_extent.html">Extent of empires</a></li>
+                      <li><a href="Quantifying_History_control.html">Control of places</a></li>
+                      <li><a href="Quantifying_History_rise.html">Rise and fall of empires</a></li>
+                    </ul>
+                </li>
+            </ul>
+          </li>
+          
+        </ul>
+      </nav><!-- .main-nav -->
+      
+    </div>
+  </header><!-- #header -->
+
+    
+  <!--==========================
+    Intro Section
+  ============================-->
+  <section id="intro" class="clearfix">
+    <div id="intro-bg"></div> <!-- #intro-bg-bio -->
+        <div class="container d-flex h-100 ">
+          <div  id="homeText"  class=" d-flex row justify-content-end align-self-center flex-column">
+                <h1 class="old-looking-font">Sandbox</h1>
+                <h5>Scroll down to explore!</h5>
+                 <a  class="down-button" href="#Quantifying_History.html" ><i class="fa fa-chevron-down"></i></a> 
+
+          </div>
+        </div>
+
+  </section> <!-- #intro -->
+    
+    <!--==========================
+      "Rise and Fall" Section
+============================-->
+
+    <section id="Rise" class="section-bg">
+    	<br>
+    	<br>
+    	<br>
+    	<div class="row justify-content-md-center" style="padding: 0px 50px;">
+    		<div class="col-12">
+    		<h2> Rise and Fall</h2>
+    		</div>
+    		<div class="col">
+                        <p>The line graphs below illustrate the rise and fall of regimes in Priestley’s <i>New Chart of History</i>. Each row or "sparkline" shows the total chart space (measure in row height) attributed to a regime during each year of its existence. To make the sparklines clear, each is individually normalized to its maximum as represented on the chart. Select empires from the menu on the left to compare their stories.</p>
+           </div>
+                    <div class="col-12">
+                    	<div class="row">
+                       <p><i class="fa fa-mouse-pointer fa-xs" ></i> Click the list at left to select empires to display.
+                                <br>Click the list at right to deselect.
+                                <br>Hover on the graph for numerical data.</p>
+                            </div>
+                            <div class="row font-weight-bold">
+                        		<div class="col-4 p-0">
+                        		Empire (all)
+                     			</div>
+                              <div class="col-3 p-0">
+                              Empire (selected)
+                              </div>
+                         			<div class="col-5 pl-2 pr-5">
+                                Rise and Fall (year)
+                         			<div class='w-100 mb-2'>
+                              <span class='font-weight-normal small h-100'><span class='pull-left'>1200 BC</span><span class='year-0'>0</span><span class='pull-right'>1800 AD</span></span></div>
+<HR id="timelineRULE">
+                         		</div>
+
+                         </div>
+
+                       <div class="row">
+                        <span class="old-looking-font col-7 p-0">
+                        	<select multiple="multiple" id="riseFallSelector" name="riseFallSelector[]" class="p5" style="overflow: scroll;">
+                            </select>
+                        </span>
+                    <div class="m-0 col-5 p-0" id="riseBox">
+                       <div class="row">
+                       </div>
+                        <div class="max-vh-50 h-100" id="riseChart"style="overflow-y: scroll; overflow-x: visible; width: auto;">
+                            <table id="table-sparkline">
+     <!--                            <thead>
+                                    <tr>
+                                        <th>Empire</th>
+                                        <th>Rise and fall over time</th>
+                                    </tr>
+                                </thead> -->
+                                <tbody id="tbody-sparkline" class="old-looking-font ">
+                            </table>
+                        </div>
+                    </div>
+
+
+                        </div>
+                        <br>
+                        <button class="btn" id='clearRise' >Clear Selected</button>
+                        <br>
+                        <br>
+                        <div>
+                            <p class="mb-2"><strong>Example Selections</strong></p>                        
+                                <div><button class="btn" onclick="applyPresetRise(preset4)">Select</button>&nbsp;&nbsp;Romans, Vandals, English </div>
+                                <div><button class="btn" onclick="applyPresetRise(preset5)">Select</button>&nbsp;&nbsp;French, English, Spanish </div>
+                                <!-- <div><button class="btn" onclick="applyPresetRise(preset6)">Select</button>&nbsp;&nbsp;Macedonian, Eastern, Turks  </div> --> 
+                                <div><button class="btn" onclick="applyPresetRise(preset7)">Select</button>&nbsp;&nbsp;Long list </div>
+                     
+                        </div>
+                    </div>
+    	</div>
+    </section>
+
+
+<!--========================== -->
+
+    <!-- JS SOURCES -->
+    <!-- jQuery -->
+    <script src="../dist/js/jquery.min.js"></script>
+
+    <!-- RAPID JavaScript Libraries -->
+    <script src="lib/jquery/jquery-migrate.min.js"></script>
+    <script src="lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/mobile-nav/mobile-nav.js"></script>
+    <script src="lib/wow/wow.min.js"></script>
+
+    <!-- RAPID Template Main Javascript File -->
+    <script src="js/main.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../dist/js/sb-admin-2.js"></script>
+
+    <!-- Navbar JavaScript -->
+<!--     <script src="js/navbar.js"></script> -->
+
+    <!-- Highcharts -->
+    <!-- <script src="lib/highcharts/highcharts.js"></script> -->
+     <script src="https://code.highcharts.com/highcharts.js"></script>
+
+     <!-- JS for interactive chart of history -->
+    <!-- <script src="js/variables.js"></script>
+    <script src="js/dropdown.js"></script>
+    <script src="js/functionsPlace.js"></script>
+    <script src="js/functionsAxis.js"></script>
+    <script src="js/functionsMouse.js"></script>
+    <script src="js/functionsText.js"></script>
+    <script src="js/chart.js"></script>
+    <script src="js/mapPlace.js"></script>
+    <script src="js/bar.js"></script> -->
+
+    <!-- Tour JavaScripts... -->
+    <!-- D3 -->
+    <script src="../dist/js/d3.v3.min.js"></script>
+   <script src="../dist/js/jquery.multi-select.js"></script>
+    <!-- <script src="tour/js/d3.js"></script>-->
+    <!-- <script src="tour/js/queue.js"></script>
+    <script src="tour/js/scroller.js"></script>
+    <script src="tour/js/sections-digitalExploration.js"></script> -->
+    
+    <!-- END JS SOURCES -->    
+    <script>
+
+
+
+         function lookupColor(inputColor) {
+            switch (inputColor) {
+                case "pink":
+                    return '#ffb6c1';
+                case "blue":
+                    return '#87cefa';
+                case "yellow":
+                    return '#FCCB8D';
+                case "green":
+                    return '#8fbc8f';
+                default:
+                    return "#1a160a";
+            }
+        }
+
+
+       // ** EXTENT OF EMPIRES ** //
+
+       // d3.json("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/json/conversion/pureJSON/powerYearArea.json", function(error, data) {
+       //    if (error) throw error;
+       //    powerYearsArea = data;
+       //    applyPreset(preset1)
+       //  });
+
+
+          var powerVar = powers_json.features;
+          var regimes = [];
+          // get regimes from JSON
+          $.each(powerVar, function (key, value) {
+              regimes.push(value.properties.regime);
+          });
+          // delete duplicates
+          regimes = $.uniqueSort(regimes);
+          // sort regime alphabetical
+          regimes.sort();
+          extSelectedEmpires = [];
+          riseSelectedEmpires = [];
+          // this is only used for the legend
+          selectedColors = [];
+          // adds regimes to html dropdown
+          $.each(regimes, function (key, value) {
+              if (value != "FOOTER"){
+                  $("#empireExtSelector").append($('<option></option>').val(value).html(value));
+              }
+          });
+          $('#empireExtSelector').multiSelect({
+              afterSelect: function (values) {
+                  if (!extSelectedEmpires.includes(values[0].trim())) {
+                      selectedColors = [];
+                      extSelectedEmpires.push(values[0].trim())
+                      fillData(extSelectedEmpires);
+                      fillDataArea(extSelectedEmpires);
+
+                  }
+              },
+              afterDeselect: function (values) {
+                  extSelectedEmpires = extSelectedEmpires.filter(e => e !== values[0]);
+                      selectedColors = [];
+                      fillData(extSelectedEmpires);
+                      fillDataArea(extSelectedEmpires);
+
+              }
+          });
+
+
+          function fillData(selected) {
+
+              //jquery to fix legend loading below map
+              $(document).ready(function () {
+                  // Hide the div
+                  $("#borderimg").hide();
+                  $("#wait").show();
+                  // Show the div after 5s
+                  $("#wait").hide(2000);
+                  $("#borderimg").delay(500).fadeIn(200);
+              });
+              var series = [];
+              // colorIterator needs to be outside scope of the for loop
+              let colorIterator = 0;
+              for (i = 0; i < selected.length; i++) {
+                  var data = [];
+                  for (var j = 498800; j < 501800; j = j + 1) {
+                      if (typeof powerYears[selected[i]][j] === 'undefined') {
+                          data.push(0);
+                      } else {
+                          data.push(powerYears[selected[i]][j])
+                      }
+                  }
+                  // Getting the color from the chart
+                  var regimeColor;
+                  for (var k = 0; k < powerVar.length; k++) {
+                      if (powerVar[k].properties.regime == selected[i]) {
+                          regimeColor = lookupColor(powerVar[k].properties.color);
+                      }
+                  }
+                  //If the color is the base color - change it to something else
+                  let replacementColors = [
+                                          '#FCCB8D',
+                                          '#bebada',
+                                          '#fb8072',
+                                          '#80b1d3',
+                                          '#fdb462',
+                                          '#8dd3c7',
+                                          '#b3de69',
+                                          '#f781bf',
+                                          '#999999'];
+                  // color iterator changes each time a replacement is used
+                  if (regimeColor == lookupColor(null)){
+                      regimeColor = replacementColors[colorIterator];
+                      colorIterator+=1;
+                      if(colorIterator == 8){colorIterator = 0}
+                        console.log("col" + colorIterator)
+                  }
+
+                  selectedColors.push(regimeColor);
+
+
+                  // add it!
+                  series.push({
+                      name: selected[i],
+                      color: regimeColor,
+                      data: data
+                  });
+              }
+
+              // console.log(selectedColors)
+
+              Highcharts.setOptions({
+                  colors: selectedColors
+                  
+              });
+
+              Highcharts.chart('empireReignChart', {
+                  chart: {
+                      type: 'area',
+                      // backgroundColor: "#E8D5B6"
+                  },
+                  title: {
+                      text: "Selected Regime in Chart Space"
+                  },
+                  yAxis: {
+                      title: {
+                          text: 'Row Height'
+                      }
+                  },
+                  xAxis: {
+                      title: {
+                          text: 'Year'
+                      },
+                      labels: {
+                          formatter: function () {
+                              return Highcharts.numberFormat(this.value, 0);
+                          }
+                      }
+                  },
+                  legend: {
+                      layout: 'vertical',
+                      align: 'right',
+                      verticalAlign: 'middle',
+                      itemStyle:{
+                        // color:'#f0f',
+                        fontFamily: '"PT Serif", block, serif'
+                      }
+                  },
+
+                  plotOptions: {
+                      area: {
+                          lineWidth: 1,
+                          marker: {
+                              enabled: false,
+                              states: {
+                                  hover: {
+                                      enabled: true,
+                                      radius: 5
+                                  }
+                              }
+                          },
+                          shadow: false,
+                          states: {
+                              hover: {
+                                  lineWidth: 1
+                              }
+                          }
+                      },
+                      series: {
+                          fillOpacity: 0.5,
+                          label: {
+                              enabled: false
+                          },
+                          marker: {
+                              enabled: false
+                          },
+                          pointStart: -1200
+                      }
+                  },
+
+                  series: series,
+
+                  responsive: {
+                      rules: [{
+                          condition: {
+                              maxWidth: 500,
+//                              minWidth: 100
+                          },
+                          chartOptions: {
+                              legend: {
+                                  layout: 'horizontal',
+                                  align: 'center',
+                                  verticalAlign: 'bottom',
+                                  itemStyle:{
+                                    fontFamily: '"PT Serif", block, serif'
+                                  }
+                              }
+                          }
+                      }]
+                  },
+                  tooltip: {
+                      formatter: function() {
+                            // add "BC" to negitive years
+                            var year = this.x;
+                            if (year < 0 ) year = Math.abs(year) + " BC"                 
+                            return 'Year: <b>' + year + '</b><br/>Row height:<b> ' + this.y.toFixed(1)+'</b>'
+                            
+                        }
+                  }
+
+              });
+          }
+
+          function fillDataArea(selected) {
+              var series = [];
+              for (i = 0; i < selected.length; i++) {
+                  var data = [];
+                  for (var j = 498800; j < 501800; j = j + 1) {
+                      if (typeof powerYearsArea[selected[i]][j] === 'undefined') {
+                          data.push(0);
+                      } else {
+                          data.push(powerYearsArea[selected[i]][j])
+                      }
+                  }
+                  series.push({
+                      name: selected[i],
+                      data: data
+                  });
+              }
+
+
+              Highcharts.setOptions({
+                  colors: selectedColors
+                  
+              });
+
+              Highcharts.chart('empireGeoChart', {
+                  chart: {
+                      type: 'area',
+                      // backgroundColor: "#E8D5B6"
+                  },
+                  title: {
+                      text: "Selected Regime in Geographic Space"
+                  },
+                  yAxis: {
+                      title: {
+                          text: 'Square Kilometers'
+                      }
+                  },
+                  xAxis: {
+                      title: {
+                          text: 'Year'
+                      },
+                      labels: {
+                          formatter: function () {
+                              return Highcharts.numberFormat(this.value, 0);
+                          }
+                      }
+                  },
+                  legend: {
+                      layout: 'vertical',
+                      align: 'right',
+                      verticalAlign: 'middle'
+                  },
+
+                  plotOptions: {
+                      area: {
+                          lineWidth: 1,
+                          marker: {
+                              enabled: false,
+                              states: {
+                                  hover: {
+                                      enabled: true,
+                                      radius: 5
+                                  }
+                              }
+                          },
+                          shadow: false,
+                          states: {
+                              hover: {
+                                  lineWidth: 1
+                              }
+                          }
+                      },
+                      series: {
+                          fillOpacity: 0.5,
+                          label: {
+                              enabled: false
+                          },
+                          marker: {
+                              enabled: false
+                          },
+                          pointStart: -1200
+                      }
+                  },
+
+                  series: series,
+
+                  responsive: {
+                      rules: [{
+                          condition: {
+                              maxWidth: 500
+                          },
+                          chartOptions: {
+                              legend: {
+                                  layout: 'horizontal',
+                                  align: 'center',
+                                  verticalAlign: 'bottom'
+                              }
+                          }
+                      }]
+                  },
+                  tooltip: {
+                      useHTML: true,
+                      formatter: function() {
+                            // add "BC" to negitive years
+                            var year = this.x;
+                            if (year < 0 ) year = Math.abs(year) + " BC"                 
+                            return 'Year: <b>' + year + '</b><br/>Area (km<sup>2</sup>):<b> ' + this.y.toFixed(0)+'</b>'
+                            
+                        }
+                  }
+
+              });
+
+          }
+          // fillData(["English", "Vandals", "Roman Empire"]);
+          // fillDataArea(["English", "Vandals", "Roman Empire"]);
+
+          $("button#clearExt").on("mouseup",function(){clearstuffExt();});
+
+          function clearstuffExt(){
+              extSelectedEmpires = [];
+              selectedColors = [];
+              console.log(selectedColors);
+              $('#empireExtSelector').multiSelect('deselect_all');
+           }
+
+           // Preselections
+           let preset1 = ['Roman Empire','Vandals','English'];
+           let preset2 = ['English', 'Spanish','French'];
+           let preset3 = ['Macedonian Empire', 'Roman Empire', 'Macedonians'];
+
+           let applyPreset = (preset) => {
+              // If there is something already selected - clear it!
+              if(extSelectedEmpires.length > 0){
+                  extSelectedEmpires = [];
+                  $('#empireExtSelector').multiSelect('deselect_all');
+              }
+              //Selecting the preset
+              preset.forEach(function(empire){$('#empireExtSelector').multiSelect('select',empire)})
+           }
+        // });
+
+         applyPreset(preset1)
+
+        // *** END EXTENT  *** //
+      
+
+ 
+        // *** RISE AND FALL *** //
+       // adds regimes to html dropdown
+        $.each(regimes, function (key, value) {
+            $("#riseFallSelector").append($('<option></option>').val(value).html(value));
+        });
+        $('#riseFallSelector').multiSelect({
+            afterSelect: function (values) {
+                if (!riseSelectedEmpires.includes(values[0].trim())) {
+                    // console.log(values[0].trim()) // log selected
+                    riseSelectedEmpires.push(values[0].trim())
+                    fillTable(riseSelectedEmpires);
+                    doChunk();
+                }
+            },
+            afterDeselect: function (values) {
+                riseSelectedEmpires = riseSelectedEmpires.filter(e => e !== values[0]);
+                if (riseSelectedEmpires.length == 0) {
+                    fillTable(regimes)
+                } else {
+                    fillTable(riseSelectedEmpires);
+                }
+                doChunk();
+            }
+        });
+
+        //Synchronous scroll bars
+    	$('#ms-riseFallSelector .ms-selection .ms-list').on('scroll', function () {
+    	$('#riseChart').scrollTop($(this).scrollTop());
+		});
+
+		$('#riseChart').on('scroll', function () {
+    	$('#ms-riseFallSelector .ms-selection .ms-list').scrollTop($(this).scrollTop());
+		});
+
+        function fillTable(selected) {
+            // console.log(selected);
+            $("#table-sparkline tbody tr").remove();
+            for (i = 0; i < selected.length; i++) {
+                var data = [];
+                if (typeof powerYears[selected[i]] != 'undefined' ) {   
+                    for (var j = 498800; j < 501800; j = j + 1) {
+                        if (typeof powerYears[selected[i]][j] === 'undefined') {
+                            data.push(0) // area = 0 for that year
+                        } else {
+                            data.push(powerYears[selected[i]][j]) // area for that year
+                        }
+                    }
+                } else console.log( selected[i] + " not found") // selected place not found in data
+                var regimeColor;
+                for (var k = 0; k < powerVar.length; k++) {
+                    if (powerVar[k].properties.regime == selected[i]) {
+                        regimeColor = lookupColor(powerVar[k].properties.color);
+                    }
+                }
+                $('#table-sparkline').append('<tr><td data-sparkline= ' + data + ';' +
+                    regimeColor + '/></tr>');
+            }
+            $('#table-sparkline').append('</tbody>')
+
+            start = +new Date(),
+                $tds = $('td[data-sparkline]'),
+                fullLen = $tds.length,
+                n = 0;
+        }
+        fillTable(regimes);
+
+        Highcharts.SparkLine = function (a, b, c) {
+            var hasRenderToArg = typeof a === 'string' || a.nodeName,
+                options = arguments[hasRenderToArg ? 1 : 0],
+                defaultOptions = {
+                    chart: {
+                        renderTo: (options.chart && options.chart.renderTo) || this,
+                        backgroundColor: null,
+                        borderWidth: 0,
+                        type: 'area',
+                        margin: [2, 0, 2, 0],
+                        // width: 300,
+                        height: 20,
+                        style: {
+                            overflow: 'visible'
+                        },
+
+                        // small optimalization, saves 1-2 ms each sparkline
+                        skipClone: true
+                    },
+                    title: {
+                        text: ''
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    xAxis: {
+                        labels: {
+                            enabled: false
+                        },
+                        title: {
+                            text: null
+                        },
+                        startOnTick: false,
+                        endOnTick: false,
+                        gridLineWidth: 1,
+                        tickPositions: [],
+                        // plotLines: [{
+                        //     color: 'gray',
+                        //     width: 0.5,
+                        //     value: 0
+                        // }]
+                    },
+                    yAxis: {
+                        endOnTick: false,
+                        startOnTick: false,
+                        labels: {
+                            enabled: false
+                        },
+                        title: {
+                            text: null
+                        },
+                        tickPositions: [0]
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(245, 248, 253, 0.8)',
+                        borderWidth: 1,
+                        shadow: false,
+                        useHTML: false,
+                        outside: true,
+                        hideDelay: 0,
+                        shared: true,
+                        padding: 1,
+                        formatter: function() {
+                            // add "BC" to negitive years
+                            var year = this.x;
+                            if (year < 0 ) year = Math.abs(year) + " BC"                 
+                            return 'Year: <b>' + year + '</b><br/>Row height:<b> ' + this.y.toFixed(1)+'</b>'
+                            
+                        }
+                        
+                        // positioner: function (w, h, point) {
+                        //     return {
+                        //         x: point.plotX - w,
+                        //         y: point.plotY - h
+                        //     };
+                        // }
+                    },
+                    plotOptions: {
+                        series: {
+                            animation: false,
+                            lineWidth: 0,
+                            lineColor: 'transparent',
+                            shadow: false,
+                            turboThreshold: 0,
+                            states: {
+                                hover: {
+                                    lineWidth: 0
+                                }
+                            },
+                            marker: {
+                                radius: .5,
+                                states: {
+                                    hover: {
+                                        radius: 1
+                                    }
+                                }
+                            },
+                            fillOpacity: .5
+                        },
+                        column: {
+                            negativeColor: '#910000',
+                            borderColor: 'silver'
+                        }
+                    },
+//                    responsive: { // does not fix resize problem
+//                      rules: [{
+//                          condition: {
+////                              maxWidth: 500,
+//                              minWidth: 100
+//                          },
+//                      }]}
+                };
+
+            options = Highcharts.merge(defaultOptions, options);
+
+            return hasRenderToArg ?
+                new Highcharts.Chart(a, options, c) :
+                new Highcharts.Chart(options, b);
+        };
+
+
+        var start = +new Date(),
+            $tds = $('td[data-sparkline]'),
+            fullLen = $tds.length,
+            n = 0;
+        // Creating 153 sparkline charts is quite fast in modern browsers, but IE8 and mobile
+        // can take some seconds, so we split the input into chunks and apply them in timeouts
+        // in order avoid locking up the browser process and allow interaction.
+        function doChunk() {
+            var time = +new Date(),
+                i,
+                len = $tds.length,
+                stringdata,
+                $td,
+                arr,
+                data;
+            for (i = 0; i < len; i += 1) {
+
+                $td = $($tds[i]);
+                stringdata = JSON.stringify($td.data('sparkline'))
+                arr = stringdata.split(';');
+                data = $.map(arr[0].split(','), parseFloat);
+                var chartColor = arr[1];
+                chartColor = chartColor.replace('"', '');
+                $td.highcharts('SparkLine', {
+                    plotOptions: {
+                        series: {
+                            color: chartColor
+                        }
+                    },
+                    series: [{
+                        data: data,
+                        pointStart: -1200
+                    }],
+//                    tooltip: {
+//                        headerFormat: '<span style="font-size: 10px">Year: <b>{point.x}</b></span><br/>',
+//                        pointFormat: '<span style="font-size: 10px">Row Height: <b>{point.y:.1f}</b></span><br/>'
+//                    }
+                });
+
+                n += 1;
+
+                // If the process takes too much time, run a timeout to allow interaction with the browser
+                if (new Date() - time > 500) {
+                    $tds.splice(0, i + 1);
+                    setTimeout(doChunk, 0);
+                    break;
+                }
+
+                // Print a feedback on the performance
+                if (n === fullLen) {
+                    $('#result').html('Generated ' + fullLen + ' sparklines in ' + (new Date() - start) + ' ms');
+                }
+            }
+        }
+        doChunk();
+
+        $("button#clearRise").on("mousedown",function(){cursorWait();});
+
+        $("button#clearRise").on("mouseup",function(){clearstuffRise();cursorNormal();});
+
+        function cursorWait(){$('html').attr('style','cursor:wait !important');}
+
+        function cursorNormal(){$('html').css('cursor','default');}
+
+        function clearstuffRise(){
+            //console.log("cursor is " + document.body.style.cursor)
+            riseSelectedEmpires = [];
+            //console.log("Clearing Step 1");
+            fillTable(regimes);
+            //console.log("Clearing Step 2")
+            $('#riseFallSelector').multiSelect('deselect_all');
+            //console.log("Clearing Step 3")
+            doChunk();
+            cursorNormal();
+            console.log("Cleared")
+         }
+
+         // Preselections
+         let preset4 = ['Roman Empire','Vandals','English'];
+         let preset5 = ['French', 'English', 'Spanish'];
+         let preset6 = ['Macedonian Empire', 'Eastern Empire', 'Turks'];
+         let preset7 = ['Roman Empire','Vandals','English','French', 'Spanish','Macedonian Empire', 'Eastern Empire', 'Turks','Poles','Sabines','Tartars'];
+
+         let applyPresetRise = (preset) => {
+            // If there is something already selected - clear it!
+            if(riseSelectedEmpires.length > 0){
+                riseSelectedEmpires = [];
+                $('#riseFallSelector').multiSelect('deselect_all');
+            }
+            //Selecting the preset
+            preset.forEach(function(empire){$('#riseFallSelector').multiSelect('select',empire)})
+         }
+
+
+ // END RISE AND FALL //
+
+    </script>
+<!-- <footer> -->
+<div id="customFooter" class="footerText footer-bg" align="center">
+        University of Oregon <a href="https://infographics.uoregon.edu/" target="_blank">InfoGraphics Lab.</a> &copy; Daniel Rosenberg 2022
+      </div>
+
+  <!-- </footer> -->
+</body>
+
+</html>

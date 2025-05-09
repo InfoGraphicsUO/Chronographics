@@ -1,0 +1,187 @@
+var eventPoints_json2 = {
+  "type" : "FeatureCollection",
+  "crs" : {
+    "type" : "name",
+    "properties" : {
+      "name" : "EPSG:26901"
+    }
+  },
+  "features" : [
+    {
+      "type" : "Feature",
+      "id" : 0,
+      "geometry" : {
+        "type" : "Point",
+        "coordinates" : [
+          498880.5,
+          1765
+        ]
+      },
+      "properties" : {
+        "FID" : 0,
+        "Id" : 157,
+        "gridcode" : -76,
+        "startX" : 0,
+        "startY" : 0,
+        "endX" : 0,
+        "endY" : 0,
+        "regime" : "Thebes built",
+        "ORIG_FID" : 156
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 1,
+      "geometry" : {
+        "type" : "Point",
+        "coordinates" : [
+          498880.5,
+          1747
+        ]
+      },
+      "properties" : {
+        "FID" : 1,
+        "Id" : 177,
+        "gridcode" : -85,
+        "startX" : 0,
+        "startY" : 0,
+        "endX" : 0,
+        "endY" : 0,
+        "regime" : "Athens founded",
+        "ORIG_FID" : 176
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 2,
+      "geometry" : {
+        "type" : "Point",
+        "coordinates" : [
+          498955.5,
+          1729
+        ]
+      },
+      "properties" : {
+        "FID" : 2,
+        "Id" : 191,
+        "gridcode" : -95,
+        "startX" : 0,
+        "startY" : 0,
+        "endX" : 0,
+        "endY" : 0,
+        "regime" : "Sicyon in Achaia built",
+        "ORIG_FID" : 190
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 3,
+      "geometry" : {
+        "type" : "Point",
+        "coordinates" : [
+          498920.5,
+          1711
+        ]
+      },
+      "properties" : {
+        "FID" : 3,
+        "Id" : 198,
+        "gridcode" : -103,
+        "startX" : 0,
+        "startY" : 0,
+        "endX" : 0,
+        "endY" : 0,
+        "regime" : "Sparta built",
+        "ORIG_FID" : 197
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 4,
+      "geometry" : {
+        "type" : "Point",
+        "coordinates" : [
+          499270.5,
+          748
+        ]
+      },
+      "properties" : {
+        "FID" : 4,
+        "Id" : 858,
+        "gridcode" : -450,
+        "startX" : 0,
+        "startY" : 0,
+        "endX" : 0,
+        "endY" : 0,
+        "regime" : "Syracuse built",
+        "ORIG_FID" : 857
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 5,
+      "geometry" : {
+        "type" : "Point",
+        "coordinates" : [
+          499345.5,
+          712
+        ]
+      },
+      "properties" : {
+        "FID" : 5,
+        "Id" : 887,
+        "gridcode" : -468,
+        "startX" : 0,
+        "startY" : 0,
+        "endX" : 0,
+        "endY" : 0,
+        "regime" : "Tarentum founded",
+        "ORIG_FID" : 886
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 6,
+      "geometry" : {
+        "type" : "Point",
+        "coordinates" : [
+          499370.5,
+          640
+        ]
+      },
+      "properties" : {
+        "FID" : 6,
+        "Id" : 911,
+        "gridcode" : -487,
+        "startX" : 0,
+        "startY" : 0,
+        "endX" : 0,
+        "endY" : 0,
+        "regime" : "Rome built",
+        "ORIG_FID" : 910
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 7,
+      "geometry" : {
+        "type" : "Point",
+        "coordinates" : [
+          499585.5,
+          545.5
+        ]
+      },
+      "properties" : {
+        "FID" : 7,
+        "Id" : 956,
+        "gridcode" : -518,
+        "startX" : 0,
+        "startY" : 0,
+        "endX" : 0,
+        "endY" : 0,
+        "regime" : "Milan built",
+        "ORIG_FID" : 955
+      }
+    }
+  ]
+}

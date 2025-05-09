@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="robots" content="noindex"> <!-- hide from search engines -->
+    <meta charset="utf-8">
+    <!-- Tour CSS -->
+ 	<link rel="stylesheet" type="text/css" href="css/style.css" />
+ 	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+ 	  <!-- Google Fonts -->
+	 <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,500,600,700,700i|Montserrat:300,400,500,600,700" rel="stylesheet">
+	 <link href="https://fonts.googleapis.com/css2?family=PT+Serif&display=swap" rel="stylesheet">
+
+ 	 <!-- Bootstrap CSS File -->
+  	<link href="css/bootstrap.min.css" rel="stylesheet">
+
+
+	  <!-- css override -->
+	  <link href="../css/css-overrides.css" rel="stylesheet">
+	  <!-- Biography -->
+	  <link rel="stylesheet" href="../biography/bioChart.css" />
+	  <link rel="stylesheet" href="../biography/fullBioExtra.css" />
+	  <style type="text/css">
+	 	 body {overflow-x:hidden; /*remove x-scroll bar*/
+                  /* custom css here*/
+       
+            height: 100vh;
+        }
+		</style> 
+
+ </head>
+ <body>
+ 	    <div class="row m-0" style="padding: 0px 0px;">
+           <div width = '100%' id='vis-row'>
+              <div id = 'vis-parent' class="sticky0">
+                <div id='intro-vis'>
+                </div>
+              </div>
+
+<!--           <div class="col-lg-4"> -->
+              <div id='graphic' class="col-8">
+              </div>
+                                  
+              <div id='sections' class="col-4">
+                    <section class="step" style="padding:0px;" >                  
+                        <div class="title"><strong>Introduction</strong></div>
+                        <p>Scroll down to learn the how to read the chart. <br>  
+                    Image courtesy of the <a class="activeLink" href="https://librarycompany.org/" target='_blank' title="View website in new tab">Library Company of Philadelphia.</a></p>
+                    </section> <!-- 0 -->
+                    <section class="step">
+
+                        <div class="title"><strong>Chronology</strong></div>
+                        <p>In Priestley's charts, time unfolds horizontally from 1200 BC on the left to 1800 AD on the right. Centuries are indicated by thin vertical lines and decades by dots.
+                        </p>
+                        <div class="tourSubtitle">Year 700 BC</div>
+                        <img src="img/Bio_timeSmall.PNG" width=100%>
+                    </section><!-- 1 -->
+                    <br>
+                    <section class="step">
+                        <div class="title"><strong>Lifespans</strong></div>
+                        <p>The lives of historical figures are represented by horizontal lines. A solid line depicts certainty in dates, while dots represent varying levels of uncertainty. 
+                        </p>
+                        <div class="tourSubtitle">Lifespan of Elijah and Elisha</div>
+                        <img src="img/Bio_lifespanSmall.PNG" width=100%>
+                    </section> <!-- 2 -->
+                    <br>
+                    <section class="step">
+                        <div class="title"><strong>Professions</strong></div>
+                        <p>Historical figures are grouped into six categories: Historians, Antiquaries, and Lawyers; Orators and Critics; Artists and Poets; Mathematicians and Physicians; Divines and Metaphysicians; Statesmen and Warriors.
+                        </p>
+                        <div class="tourSubtitle">Mathematicians and Physicians row</div>
+                        <img src="img/Bio_professionSmall.PNG" width=100%>
+                    </section> <!-- 3 -->
+                    <br>
+              </div>
+
+          </div> 
+      </div>
+
+      <!-- Tour JavaScripts... -->
+<!--	  <script src="js/d3.js"></script> d3 v3 works. use D3 V4 above -->
+     <!-- <script src="../../dist/js/d3.v3.min.js"></script>  V3 shared, works -->
+     <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+	 <script src="js/scroller.js"></script>
+	 <script src="js/sections-bio.js"></script> <!--remove tour with d3 v4 -->
+
+
+ </body>
+ </html>

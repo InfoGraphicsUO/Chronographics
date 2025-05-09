@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="robots" content="noindex"> <!-- hide from search engines -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Chronographics: The Time Charts of Joseph Priestley</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+    
+  <!-- Favicons -->
+  <link href="img/favicon.png" rel="icon">
+
+    
+      <!-- Bootstrap CSS File -->
+  <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+      <!-- Libraries CSS Files -->
+  <link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+  <link href="lib/animate/animate.min.css" rel="stylesheet">
+  <link href="lib/ionicons/css/ionicons.min.css" rel="stylesheet">
+  <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+  <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+
+  <!-- Main Stylesheet File -->
+  <link href="css/style.css" rel="stylesheet">
+  <!-- Tour CSS -->
+  <link rel="stylesheet" type="text/css" href="tour/css/style.css" >
+    
+  <!-- css override -->
+  <link href="css/css-overrides.css" rel="stylesheet">
+        <!-- Biography -->
+    <link rel="stylesheet" href="biography/priestley.css" />
+    <link rel="stylesheet" href="biography/fullBioExtra.css" />
+  <!-- =======================================================
+    Theme Name: Rapid
+    Theme URL: https://bootstrapmade.com/rapid-multipurpose-bootstrap-business-template/
+    Author: BootstrapMade.com
+    License: https://bootstrapmade.com/license/
+  ======================================================= -->
+
+
+    <style>
+    /* custom css could go here*/
+    </style>
+</head>
+
+<body>
+
+ <!--==========================
+  Header
+  ============================-->
+  <header id="header">
+    <div class="container">
+      <nav class="main-nav float-left d-none d-lg-block">
+        <ul>
+          <li><a href="about.html"><i class="fa fa-home" aria-hidden="true"></i></a>
+          </li>
+          <li class="drop-down"><a href="sandbox.html">Sandbox</a>
+            <ul>
+<!--
+                <li><a href="../HistoryInteractive/twoCharts.html">Mapping the chart of biography</a>
+                </li>
+-->
+                <li><a href="sandbox.html#digitizingProcess">Digitizing Process</a></li>
+                <li><a href="CartDist_History.html#Cartogram">Cartograms and chartograms</a></li>
+                <li class="drop-down"><a href="#">Quantifying history</a>
+                    <ul>
+                      <li><a href="Quantifying_History_extent.html">Extent of empires</a></li>
+                      <li><a href="Quantifying_History_control.html">Control of places</a></li>
+                      <li><a href="Quantifying_History_rise.html">Rise and fall of empires</a></li>
+                    </ul>
+                </li>
+            </ul>
+          </li>
+          
+        </ul>
+      </nav><!-- .main-nav -->
+      
+    </div>
+  </header><!-- #header -->
+
+  <!--==========================
+    Intro Section
+  ============================-->
+  <section id="intro" class="clearfix"></section> <!-- #intro -->
+    
+ <!--==========================
+      Digital Exploration Tour Section
+============================-->
+  <section id="digitizingProcess">
+    <br>
+    <div class="row m-0" style="padding: 20px 0px 0px 0px;">
+
+        <div width = 100%>
+              <div id = 'vis-parent' class="sticky">
+                <div id='intro-vis'>
+                </div>
+              </div>
+            <div id='graphic'>
+                                  
+              <div id='sections'>
+
+                    <section class="step">
+                        <h1>The Digitizing Process</h1>
+                        <div class="title"><strong>Priestley's Charts</strong></div>
+                        <p>This section outlines the iterative process of development used to produce Priestley’s <i>Chart of Biography</i> and <i>New Chart of History</i> in a data driven, procedural, way. of Biography and New Chart of History in a data driven, procedural, way. Priestley’s original charts were engraved using a common process and displayed along an identical chronological scale, but the organization of subject matter and the underlying data dynamics in the two charts are quite distinct.
+                        </p>
+                        <!-- <img src="img/digitizing_Process/digitize-process.png" width="400" height="200"> -->
+                    </section><!-- 0 -->
+                    <br>
+                    <section class="step">
+                        <div class="title"><strong>Spreadsheet for the <i>New Chart of History</i></strong></div>
+                        <p>Our spreadsheets contain the main data behind our interactive charts. The spreadsheet for the <i>New Chart of History</i> in some ways resembles the chart itself: each cell of the spreadsheet represents a geographic territory (vertical axis) in a specific year (horizontal axis). Names in the cells indicate which regimes were in power in those times and places. Special codes represent transitions in power. There are 178 rows (territories) and 3000 columns (years).
+                        </p>
+                        <!-- <img src="img/digitizing_Process/excel-screenshot.png" width="400" height="200"> -->
+                    </section> <!-- 1 -->
+                    <br>
+                    <section class="step">
+                        <div class="title"><strong>Identifying Regimes</strong></div>
+                        <p>The cells within the dark green lines represent the <span class="old-looking-font-bold">Munguls</span>, who ruled in Turky in Asia from 1219 - 1394 C.E. The cells highlighted in light green identify the <span class="old-looking-font-bold">Ilkanians</span>, who ruled the same region from 1336 - 1385 C.E.
+                        </p>
+                        <!-- <img src="img/digitizing_Process/excel.png" width="400" height="200"> -->
+                    </section> <!-- 2 -->
+                    <br>
+                    <section class="step">
+                        <div class="title"><strong></strong></div>
+                        <p>This image shows the same highlighted area from the spreadsheet in GIS (left) and in the map (right). The contiguous cells with the same values are merged into polygons that represent the geographical (vertical) and chronological (horizontal) dimensions of a given regime in the chart space.
+                        </p>
+                    </section> <!-- 3 -->
+                    <br>
+                    <section class="step">
+                        <div class="title"><strong>Becoming Graphical</strong></div>
+                        <p>From the spreadsheet (CSV), values are translated into ASCII (names to numbers). The ASCII file is read by Esri ArcMap and transformed a graphical representation.
+                        </p>
+                        <!-- <img src="img/digitizing_Process/ascii-to-poly.png" width="200" height="200"> -->
+                    </section> <!-- 5 -->
+                    <br>
+                    <section class="step">
+                        <div class="title"><strong>Clean Up</strong></div>
+                        <p>Using Python and ArcPy, different transitions are created with codes that determine whether the split is diagonal or vertical. The split polygons are then dissolved into the corresponding regions. This is then saved and exported to JSON, which is the graphic format of the chart data used in our visualization.
+                        </p>
+                        <!-- <img src="img/digitizing_Process/clean-up.png" width="200" height="200"> -->
+                    </section> <!-- 6 -->
+                    <br>
+                    <section class="step">
+                        <div class="title"><strong>ArcMap Representation</strong></div>
+                        <p>The chart data is stored as distinct layers containing the regions, places, regimes, and event lines. Distinct symbology such as color and line weight emphasizes the different layers.
+                        </p>
+                        <!-- <img src="img/digitizing_Process/PriestleyInteractive.png" width="300" height="200"> -->
+                    </section> <!-- 7 -->
+                    <br>
+                    <section class="step">
+                        <div class="title"><strong>Comparison</strong></div>
+                        <p>Here, you can see the finished product. The digital, procedurally created one looks a lot like the original.
+                        </p>
+                        <!-- <img/digitizing_Process/final-comparison.png" width="300" height="200"> -->
+                    </section> <!-- 8 -->
+                    <br>
+                    <section class="step">
+                        <div class="title"><strong>Spreadsheet for the Chart of Biography</strong></div>
+                        <p>The Chart of Biography was also created using a procedurally driven technique drawn on-the-fly using the D3 JavaScript Library.
+                        </p>
+                        <p>Here you can see that <span class="old-looking-font-bold">Cantemer</span> is listed in Priestley's Index as <span class="old-looking-font-bold">d. 1763</span>. This indicates that he died in 1763.</p>
+                        <!-- <img/digitizing_Process/bioLineRules2.JPG" width="300" height="200"> -->
+                    </section> <!-- 9 -->
+                  <br>
+                    <section class="step">
+                        <div class="title"><strong>Life certainty</strong></div>
+                        <p>We identified several unique cases, that drive the line symbology, based on the information that Priestley knew about each person. Then, using the information in the Index, we draw each person's life line on the chart accordingly.
+                        </p>
+                        <!-- <img/digitizing_Process/bioLineRules.JPG" width="300" height="200"> -->
+                    </section> <!-- 9 -->
+              </div>
+          </div>
+          </div> 
+      </div>
+  </section>
+    
+<!-- <footer> -->
+      <div id="customFooter" class="footerText footer-bg" align="center">
+        University of Oregon <a href="https://infographics.uoregon.edu/" target="_blank">InfoGraphics Lab.</a> &copy; Daniel Rosenberg 2022
+      </div>
+
+<!-- </footer> -->
+    
+<!--==========================
+      "Mapping the Chart of Biography" Section
+============================-->
+<!--  EMPTY FOR NOW 
+  <section id="TwoCharts" class="section-bg">
+    <br>
+      <br>
+      <br>
+
+       <div class="row" style="padding: 0px 50px;">
+          <div  class="col-12">
+               <div>
+                   <h2>The two charts</h2><br>
+              </div>
+           </div>
+                
+        </div>
+    </section> 
+-->
+<!--==========================
+Distortions Section
+============================-->
+<!-- EMPTY FOR NOW
+     <section id="Distortions">
+         <div class="row" style="padding: 0px 50px;">
+             <div  class="col-12">
+                    <h2><br>Cartograms and chartograms</h2>
+             </div>
+         </div>
+    </section>
+-->
+
+<!--========================== -->
+    <!-- JS SOURCES -->
+    <!-- jQuery -->
+    <script src="../dist/js/jquery.min.js"></script>
+
+    <!-- RAPID JavaScript Libraries -->
+    <script src="lib/jquery/jquery-migrate.min.js"></script>
+    <script src="lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/mobile-nav/mobile-nav.js"></script>
+    <script src="lib/wow/wow.min.js"></script>
+
+    <!-- RAPID Template Main Javascript File -->
+    <script src="js/main.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../dist/js/sb-admin-2.js"></script>
+
+    <!-- Navbar JavaScript -->
+    <script src="js/navbar.js"></script>
+
+    <!-- Tour JavaScripts... -->
+    <!-- D3 -->
+    <script src="../dist/js/d3.v3.min.js"></script>
+    <!-- <script src="tour/js/d3.js"></script>-->
+    <script src="tour/js/queue.js"></script>
+    <script src="tour/js/scroller.js"></script>
+    <script src="tour/js/sections-digitalExploration.js"></script>
+    
+    <!-- END JS SOURCES -->    
+
+</body>
+
+</html>

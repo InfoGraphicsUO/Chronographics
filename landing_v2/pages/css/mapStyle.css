@@ -1,0 +1,126 @@
+/*
+body {
+    cursor: pointer;
+}
+*/
+/* set height/width propoertions for timeline*/
+.ratio-container {
+    background-color: red;
+    position: relative;
+    width: 100%;
+    padding-top: 70%;
+    /*Aspect Ratio */
+
+}
+
+.ratio-container-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+/*
+.row {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+}*/
+
+/*.row>[class*='col-'] {
+    display: flex;
+    flex-direction: column;
+}*/
+
+#OriginalBioText {
+    height: 100%;
+}
+
+/*
+div.tooltip {
+    position: absolute;
+    display: inline-block;
+    padding: 2px;
+    padding-left: 5px;
+    padding-right: 3px;
+    font: 14px;
+    font-family: "Bodoni MT", Didot, "Didot LT STD", "Hoefler Text", Goudy Old Style, Garamond, Big Caslon, Times New Roman, serif;
+    margin-left: 10px;
+    margin-top: 25px;
+    background: oldlace;
+    color: #3F3418;
+    text color
+    box-shadow: 0px 8px 5px -5px RGBA(0, 0, 0, .6), inset 3px 3px 5px 0px RGBA(0, 0, 0, .1), inset -3px -3px 5px 0px RGBA(255, 255, 255, .4);
+
+}
+*/
+
+
+
+        .container-map {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    padding-bottom: 50%;
+    vertical-align: middle;
+    overflow: hidden;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+  .legend-name {
+    margin: 0 !important;
+    font-size: smaller;
+}
+
+.key-dot {
+    display: inline-block;
+    height: 10px;
+    margin-right: .5em;
+    width: 10px;
+}
+
+.legend {
+    margin-top: 6px;
+    margin-right: 20px;
+}
+
+.time {
+    background: #3F3418;
+    outline-style: double;
+    outline-color: #888;
+}
+
+.notime {
+    background: oldlace;
+    outline-style: double;
+    outline-color: #888;
+}
+
+.place {
+    background: #570D9E;
+    outline-style: double;
+    outline-color: #888;
+}
+
+.regime {
+    background: #067806;
+    outline-style: double;
+}
+
+.flex-container {
+     display: flex;
+     justify-content: space-between;
+     flex-direction: row; 
+}
+
+.professionHeading {
+    padding-left: 5px;
+    font-weight: bold;
+}
+

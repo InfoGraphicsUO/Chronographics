@@ -1,0 +1,77 @@
+var frame_json = { "type":"FeatureCollection",
+  "features" : [
+    {
+      "properties" : {
+        "name" : "Bounds",
+        "color": "none",
+        "stroke": "#3f3418"
+      },
+      "type":"Feature","geometry":{
+        "type":"Polygon","coordinates" : [
+          [
+            
+            [
+              501910,
+              1782
+            ],
+            [
+              498760,
+              1782
+            ],
+            [
+              498760,
+              30
+            ],
+            [
+              501910,
+              30
+            ],
+            [
+              501960,
+              30
+            ],
+
+
+          ]
+        ]
+      },
+    },
+    {
+      "properties" : {
+        "name" : "topLine",
+        "color": "none",
+        "stroke": "#3f3418"
+      },
+      "type":"Feature","geometry":{
+        "type":"LineString","coordinates" : [
+            [
+              498800,
+              1693
+            ],
+            [
+              501800,
+              1693
+            ],
+          ]
+      }
+    },    {
+      "properties" : {
+        "name" : "belowLine",
+        "color": "none",
+        "stroke": "#3f3418"
+      },
+      "type":"Feature","geometry":{
+        "type":"LineString","coordinates" : [
+            [
+              498800,
+              100
+            ],
+            [
+              501800,
+              100
+            ],
+        ]
+      }
+    }
+  ]
+}

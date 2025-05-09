@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+<!--     <link rel="icon" type="image/x-icon" href="img/favicon.ico" /> -->
+    <title>Map of People</title>
+
+        <!-- Bootstrap CSS File -->
+  <link href="../pages/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+      <!-- Libraries CSS Files -->
+  <link href="../pages/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+  <link href="../pages/lib/animate/animate.min.css" rel="stylesheet">
+  <link href="../pages/lib/ionicons/css/ionicons.min.css" rel="stylesheet">
+  <link href="../pages/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+  <link href="../pages/lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+
+  <!-- Main Stylesheet File -->
+  <link href="../pages/css/style.css" rel="stylesheet">
+
+    <!-- slider src -->
+    <link href="../dist/noUiSlider-14.6.3/distribute/nouislider.min.css" rel="stylesheet"> 
+
+
+  <!-- css override -->
+  <link href="../pages/css/css-overrides.css" rel="stylesheet">
+    
+  <!--  chart of history -->
+  <link href="css/historyStyle.css" rel="stylesheet">
+  <!-- Biography -->
+  <link rel="stylesheet" href="../pages/biography/bioChart.css" />
+  <link rel="stylesheet" href="../pages/biography/fullBioExtra.css" />
+    
+
+
+     <!-- JSON DATA -->
+    <!-- adapted from https://gist.github.com/djvanderlaan/5336035 and http://duspviz.mit.edu/d3-workshop/mapping-data-with-d3/ -->
+    <!-- Misc. -->
+    <script src="../pages/json/world-110m.json"></script> <!-- for map -->
+    <script src="../pages/json/world_countries.json"></script> <!-- for map -->
+    <script src="../pages/json/Regions_Unwound_Oct21.json"></script> <!-- regions for map -->
+    <!-- <script src="../pages/json/conversion/samplePlaces_Aug27.json"></script> places for map  -->
+     <script src="../pages/json/conversion/sample_places_8_1_2022.json"></script> <!-- places for map  -->
+    
+        <script src="../pages/json/conversion/place_poly_bounds.json"></script> <!-- hard coded bounds Yes -->
+    <!-- JSON exported to geoJSON in python data processing scripts data from 1200BC-1800 -->
+    <script src="../pages/json/conversion/polyPowerJSON.json"></script> <!-- Yes -->
+    <script src="../pages/json/conversion/placePolyJSON.json"></script> <!-- Yes -->
+    <script src="../pages/json/conversion/eventLinesJSON.json"></script> <!-- Yes -->
+    <script src="../pages/json/conversion/powerLinesJSON.json"></script> <!-- Yes -->
+    <script src="../pages/json/conversion/regionPolyJSON.json"></script> <!-- Yes -->
+    <script src="../pages/json/conversion/eventPointsJSON.json"></script> <!-- Yes -->
+    <script src="../pages/json/conversion/powerYearJSON.json"></script> <!-- Yes -->
+    <script src="../pages/json/conversion/placePersonJSON.json"></script> <!-- Yes -->
+
+    <style>
+        body {
+            cursor: pointer;
+        }
+
+        /* set height/width propoertions for timeline*/
+        .ratio-container {
+            /*background-color: red;*/
+            position: relative;
+            width: 100%;
+            padding-top: 70%;
+            /*Aspect Ratio */
+
+        }
+
+        .ratio-container-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+
+
+        .row {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: -ms-flexbox;
+            display: flex;
+        }
+
+        .row>[class*='col-'] {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #OriginalBioText {
+            height: 100%;
+        }
+
+/*  LIGHTER TOOLTIP
+        div.tooltip {
+            position: absolute;
+            display: inline-block;
+            padding: 2px;
+            padding-left: 5px;
+            padding-right: 3px;
+            font: 14px;
+            font-family: "Bodoni MT", Didot, "Didot LT STD", "Hoefler Text", Goudy Old Style, Garamond, Big Caslon, Times New Roman, serif;
+            margin-left: 10px;
+            margin-top: 25px;
+            background: oldlace;
+            color: #3F3418;
+            text color
+            box-shadow: 0px 8px 5px -5px RGBA(0, 0, 0, .6), inset 3px 3px 5px 0px RGBA(0, 0, 0, .1), inset -3px -3px 5px 0px RGBA(255, 255, 255, .4);
+
+        }
+*/
+        
+        
+        
+                .container-map {
+            display: inline-block;
+            position: relative;
+            width: 100%;
+            padding-bottom: 50%;
+            vertical-align: middle;
+            overflow: hidden;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+          .legend-name {
+            margin: 0 !important;
+            font-size: smaller;
+        }
+
+        .key-dot {
+            display: inline-block;
+            height: 10px;
+            margin-right: .5em;
+            width: 10px;
+        }
+        
+
+        .legend {
+            margin-top: 6px;
+            margin-right: 20px;
+        }
+
+        .time {
+            background: #3F3418;
+            outline-style: double;
+        }
+
+        .notime {
+            background: oldlace;
+            outline-style: double;
+            margin-left: .5em;
+        }
+
+        .place {
+            background: #570D9E;
+            outline-style: double;
+        }
+
+        .regime {
+            background: #067806;
+            outline-style: double;
+        }
+        
+        .flex-container {
+             display: flex;
+             justify-content: space-between;
+             flex-direction: row; 
+        }
+
+        .professionHeading {
+            padding-left: 5px;
+            font-weight: bold;
+        }
+
+
+    </style>
+</head>
+
+<body>
+    <!--==========================
+  Header
+  ============================-->
+  <header id="header">
+    <div class="container">
+      <nav class="main-nav float-left d-none d-lg-block">
+        <ul>
+          <li><a href="../pages/../pages/index.html"><i class="fa fa-home" aria-hidden="true"></i></a>
+          </li>
+          <li class="drop-down"><a href="../pages/index.html">About</a>
+            <ul>
+              <li><a href="../pages/index.html#project">About the project</a></li>
+              <li><a href="../pages/index.html#about">About Priestley</a></li>
+              <li><a href="../pages/index.html#siteTour">Site tour</a></li>
+              <li><a href="../pages/index.html#team">About us</a></li>
+              <li><a href="../pages/index.html#sources">Sources</a></li>
+            </ul>
+          </li>
+          <li class="drop-down"><a href="chartofBiography.html">Chart of biography</a>
+            <ul>
+              <li><a href="../pages/chartofBiography.html#BiographyTour">Introduction</a></li>
+              <li><a href="../pages/chartofBiography.html#Compare">Original vs. digital</a></li>
+              <li><a href="../pages/chartofBiography.html#InteractiveChart">Interactive chart</a></li>
+              <li><a href="../pages/chartofBiography.html#bioExploration">Detailed chart exploration</a></li>
+            </ul>
+          </li>
+          <li class="drop-down"><a href="../pages/chartofHistory.html">Chart of history</a>
+            <ul>
+              <li><a href="../pages/chartofHistory.html#HistoryTour">Introduction</a></li>
+              <li><a href="../pages/chartofHistory.html#Compare">Original vs. digital</a></li>
+              <li><a href="../pages/chartofHistory.html#InteractiveChart">Interactive chart</a></li>
+              <li><a href="../pages/chartofHistory.html#HistoryExploration">Detailed chart exploration</a></li>
+            </ul>
+          </li>
+          <li class="drop-down"><a href="../pages/digitalExploration.html" class="currentTab">Digital explorations</a>
+            <ul>
+                <li><a href="#">The two charts</a>
+                </li>
+                <li><a href="../pages/CartDist_History.html#Cartogram" >Cartographic distortions</a></li>
+                <li class="drop-down"><a href="../pages/Quantifying_History.html">Quantifying the new chart of history</a>
+                    <ul>
+                      <li><a href="../pages/Quantifying_History.html#Empires">Extent of empires</a></li>
+                      <li><a href="../pages/Quantifying_History.html#Control">Control of places</a></li>
+                    </ul>
+                </li>
+            </ul>
+          </li>
+          <li class="drop-down"><a href="../pages/essays.html">Essays and artifacts</a>
+            <ul>
+              <li><a href="../pages/essays.html#essay">The graphic invention of modern time</a></li>
+              <li><a href="../pages/digitalExploration.html#digitalExploration" >The digitizing process</a></li>
+                </ul>
+          </li>
+        </ul>
+      </nav><!-- .main-nav -->
+      
+    </div>
+  </header><!-- #header -->
+      <!--==========================
+    Intro Section
+  ============================-->
+  <section id="intro" class="clearfix">
+    <div id="intro-bg-bio"></div> <!-- #intro-bg-bio -->
+        <div class="container d-flex h-100 ">
+          <div  id="homeText"  class=" d-flex row justify-content-end align-self-center flex-column">
+                <h1 class="old-looking-font">The two charts</h1>
+                <h5>Scroll down to explore!</h5>
+                 <a  class="down-button" href="#" ><i class="fa fa-chevron-down"></i></a> 
+
+          </div>
+        </div>
+
+  </section> <!-- #intro -->
+
+        
+<!--==========================
+      Intro Section
+============================-->
+       <section id="intro">
+
+         <div class="row m-0" style="padding: 25px 25px;">
+             <div class="col-12 mb-3">
+            
+
+            <div class="container-fluid" style="max-width: 1350px">
+                <div class="col-lg-12">
+                    <!-- title row  -->
+                    <h1 class="page-header">The two charts<!-- <img src="img/line.png" class="header-line"> --></h1>
+
+                    <p>
+                        Where in the world do we find the people that Priestley included in the Chart of Biography? Using information from other sources, we have georeferenced each person to a region on the map. <br>
+                        <i class="fa fa-mouse-pointer fa-xs"></i> Click on the map to view people from that region on the chart. <br>
+                        <i class="fa fa-mouse-pointer fa-xs"></i> Use the actions menu to filter the names on the chart and the respective people on the map. 
+                    </p>
+
+                </div> <!-- / title row  -->
+
+
+                    <div class="row">
+                                         <!-- Map Viewer -->
+                    <div  class="col-lg-4 pl-0" >
+                        <div class="panel panel-default frame">
+                            <div class="panel-heading">
+                                <b>Map of Chart Places</b>
+                                <p style="max-width: 1550px; padding-left: 7px;" >
+
+                                </p>
+<!--
+                                <div class="pull-right">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-default btn-xs dropdown-toggle"
+                                            data-toggle="dropdown">
+                                            Actions
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu pull-right" role="menu">
+                                            <li><a onclick="fullExtent()">Full Extent</a>
+                                            </li>
+                                            <li><a onclick="clearSelection()">Clear Selection</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+-->
+                            </div>
+                            <!-- /.panel-heading -->
+                            <div class="panel-body" style="padding-bottom: 8px;">
+                                <!--HACK TO MAKE SVG SCALABLE. CSS ABOVE-->
+                                <!-- https://tympanus.net/codrops/2014/08/19/making-svgs-responsive-with-css/ -->
+                                <div id="map"></div>
+                                
+<!--
+                                <div class="container-map grabbable" style=" width = 500px;">
+                                    <svg version="1.1" viewBox="0 0 400 200" preserveAspectRatio="xMinYMin meet"
+                                        id="map" class="content bd">
+                                    </svg>
+                                </div>
+-->
+                                <div class="div-left legend">
+                                    <p class="legend-name"><span class="key-dot time"></span>Land on Timeline<span class="key-dot notime"></span>Land not on Timeline</p>
+                                </div>
+<!--
+                                <div class="div-left legend">
+                                    <p class="legend-name"><span class="key-dot place"></span><span
+                                            id="place_map">Place: <i>click map or chart to select</i></span></p>
+                                    <p class="legend-name"><span class="key-dot regime"></span><span
+                                            id="power_map">Empire: <i>click map or chart to select</i></span></p>
+                                    
+                                </div>
+-->
+                            </div>
+                            <!-- /.panel-body -->
+                    </div> <!-- end map viewer -->
+                        
+                        <div class="row"> <!-- tools-->
+                        <div class="col-md-6 text-align-left p-0">
+                <div class="panel panel-default frame">             
+                         <div>
+                             <!-- title row  div-->
+                             <div><b>Current display</b><br> <span id="numPeople" class="old-looking-font"><input type="text" id="numPeoplePlaceholder" class="col-12 m-0 small" disabled><br>
+                             </span>
+                             </div>
+                            <small><input type="checkbox" id="drawName_CB" onclick="drawNameFunc()" checked disabled> Display names<br>
+                             <br><input placeholder="Search for people..." type="text" id="userInput" oninput="userNameFunction()" class="mt-2 col-12" disabled><br> </small>
+
+                             <span  class='d-block mt-2'><br><b>Filter chart</b></span>
+                             
+                           <!-- Gender-->
+                                <label>Gender</label>
+                                 <div class="dropdown d-inline">
+                                     <button id="gender_label" class="btn btn-default btn-drop dropdown-toggle" type="button" data-toggle="dropdown" disabled>Any
+                                         <span class="caret"></span>
+                                     </button>
+                                     <ul class="dropdown-menu small">
+                                        <li><a tabindex="-1" onclick="drawGender('Any')"> Any</a></li>
+                                         <li><a tabindex="-1" onclick="drawGender('Male')"> Male</a></li>
+                                         <li><a tabindex="-1" onclick="drawGender('Female')"> Female</a></li>
+<!--                                         <li><a tabindex="-1" onclick="drawGender('Other')"> Other</a></li>-->
+                                         <li><a tabindex="-1" onclick="drawGender('Unknown')"> Unknown</a></li>
+                                     </ul>
+                                 </div>
+
+
+
+                                <!-- profession -->
+                                <br>
+                                <label>Profession</label>
+                                  <div class="dropdown d-inline">
+                                     <button class="btn btn-default btn-drop dropdown-toggle" id="profession_label" type="button" data-toggle="dropdown" disabled>Any
+                                         <span class="caret"></span>
+                                     </button>
+                                     <ul id="professionsMenu" class="dropdown-menu professions small">
+                                      <li><a tabindex="-1" onclick="drawProfession('Any')"> Any</a></li>
+                                         <div class="green-bg"><span class="professionHeading">Historians and Antiquaries Lawyers</span>
+                                         <li><a tabindex="-1" onclick="drawProfession('Ant')"> Antiquary</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('Ch')"> Chronologer</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('Geo')"> Geographer</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('H')"> Historian</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('L')"> Lawyer</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('Trav')"> Traveller</a></li></div>
+                                         <div class=" pink-bg"><span class="professionHeading">Orators and Critics</span>
+                                         <li><a tabindex="-1" onclick="drawProfession('Bel')"> Belles lettres</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('Cr')"> Critic</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('Or')"> Orator</a></li></div>
+                                         <div class=" yellow-bg"><span class="professionHeading">Artists Poets</span>
+                                         <li><a tabindex="-1" onclick="drawProfession('Act')"> Actor</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('Ar')"> Architect</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('Eng')"> Engraver</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('Mu')"> Musician</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('Pa')"> Painter</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('P')"> Poet</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('St')"> Statuary</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('Pr')"> Printer</a></li></div>
+                                         <div class=" blue-bg"><span class="professionHeading">Mathematicians and Physicians</span>
+                                         <li><a tabindex="-1" onclick="drawProfession('Chy')"> Chemist</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('M')"> Mathematician</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('Ph')"> Physician</a></li></div>
+                                         <div class=" pink-bg"><span class="professionHeading">Divines and Metaphysicians</span>
+                                         <li><a tabindex="-1" onclick="drawProfession('D')"> Christian divine</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('F')"> Christian father</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('HPAll')"> Heathen philosophers</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('J')"> Jew</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('Moh')"> Mohammedan doctor</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('Mor')"> Moralist</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('Pol')"> Political writer</a></li>
+                                         <li><a tabindex="-1" onclick="drawProfession('Po')"> Pope</a></li></div>
+                                         <div class=" yellow-bg"><span class="professionHeading">Statesmen and Warriors</span>
+                                         <li><a tabindex="-1" onclick="drawProfession('X')"> Statesmen & warriors</a></li>
+                                         </div>                 
+                                     </ul>
+                                  </div>
+                                
+                             <!-- Continent-->
+                                <br><label>Continent</label>
+                                 <div class="dropdown d-inline">
+                                     <button id="continent_label" class="btn btn-default btn-drop dropdown-toggle" type="button" data-toggle="dropdown" disabled > Any
+                                         <span class="caret"></span>
+                                     </button>
+                                     <ul class="dropdown-menu small">
+                                        <li><a tabindex="-1" onclick="drawContinent('Any')"> Any</a></li>
+                                         <li><a tabindex="-1" onclick="drawContinent('Africa')"> Africa</a></li>
+                                         <li><a tabindex="-1" onclick="drawContinent('Asia')"> Asia</a></li>
+                                         <li><a tabindex="-1" onclick="drawContinent('America')"> America</a></li>
+                                         <li><a tabindex="-1" onclick="drawContinent('Europe')"> Europe</a></li>
+                                         <li><a tabindex="-1" onclick="drawContinent('Unknown')"> Unknown</a></li>
+                                     </ul>
+                                 </div>
+                             
+                                                          <!-- Continent-->
+                                <br><label>Region</label>
+                                 <div class="dropdown d-inline">
+                                     <button id="region_label" class="btn btn-default btn-drop dropdown-toggle" type="button" data-toggle="dropdown" disabled > Any
+                                         <span class="caret"></span>
+                                     </button>
+                                     <ul class="dropdown-menu small">
+                                        <li><a tabindex="-1" onclick="drawRegion('Any')"> Any</a></li>
+                                          <li><a tabindex="-1" onclick="drawRegion('America')"> America</a></li>
+                                         <li><a tabindex="-1" onclick="drawRegion('Africa')"> Africa</a></li>
+                                         <li><a tabindex="-1" onclick="drawRegion('Arabia')"> Arabia</a></li>
+                                         <li><a tabindex="-1" onclick="drawRegion('China')"> China</a></li>
+                                         <li><a tabindex="-1" onclick="drawRegion('France')"> France</a></li>
+                                         <li><a tabindex="-1" onclick="drawRegion('Germany')"> Germany</a></li>
+                                         <li><a tabindex="-1" onclick="drawRegion('Great Britain')"> Great Britain</a></li>
+                                         <li><a tabindex="-1" onclick="drawRegion('India')"> India</a></li>
+                                         <li><a tabindex="-1" onclick="drawRegion('Italy')"> Italy</a></li>
+                                         <li><a tabindex="-1" onclick="drawRegion('Northern Crowns')"> Northern Crowns</a></li>
+                                         <li><a tabindex="-1" onclick="drawRegion('Persia')"> Persia</a></li>
+                                         <li><a tabindex="-1" onclick="drawRegion('Poland')"> Poland</a></li>
+                                         <li><a tabindex="-1" onclick="drawRegion('Portugal')"> Portugal</a></li>
+                                         <li><a tabindex="-1" onclick="drawRegion('Prussia')"> Prussia</a></li>
+                                         <li><a tabindex="-1" onclick="drawRegion('Russia')"> Russia</a></li>
+                                         <li><a tabindex="-1" onclick="drawRegion('Spain')"> Spain</a></li>
+                                         <li><a tabindex="-1" onclick="drawRegion('Turky in Asia')"> Turky in Asia</a></li>
+                                         <li><a tabindex="-1" onclick="drawRegion('Turky in Europe')"> Turky in Europe</a></li>
+                                         <li><a tabindex="-1" onclick="drawRegion('Western Tartary')"> Western Tartary</a></li>
+                                         <li><a tabindex="-1" onclick="drawRegion('Unknown')"> Unknown</a></li>
+                                     </ul>
+                                 </div>
+                                 
+                                <!-- line style -->
+                                <br><label>Line style<!-- <input type="checkbox" id="line_CB" value="line"> --></label>
+                                 <div class="dropdown d-inline">
+                                     <button id="line_label" class="btn btn-default btn-drop dropdown-toggle" type="button" data-toggle="dropdown" disabled>Any
+                                         <span class="caret"></span>
+                                     </button>
+                                     <ul class="dropdown-menu small">
+                                        <li><a tabindex="-1" onclick="drawCase(0)"> Any</a></li>
+                                         <li><a tabindex="-1" onclick="drawCase(1)"><img src="../pages/biography/img/case1.png" width="30%"> Solid line</a></li>
+                                         <li><a tabindex="-1" onclick="drawCase(2)"><img src="../pages/biography/img/case2.png" width="30%"> 3 starting dots</a></li>
+                                         <li><a tabindex="-1" onclick="drawCase(3)"><img src="../pages/biography/img/case3.png" width="30%"> 3 starting dots and 2 ending</a></li>
+                                         <li><a tabindex="-1" onclick="drawCase(4)"><img src="../pages/biography/img/case4.png" width="30%"> 1 dot beneath beginning</a></li>
+                                         <li><a tabindex="-1" onclick="drawCase(5)"><img src="../pages/biography/img/case5.png" width="30%"> 1 dot beneath ending</a></li>
+                                         <!-- <li><a tabindex="-1" onclick="drawCase(6)">6. Solid 2</a></li> is also case 1-->
+                                         <li><a tabindex="-1" onclick="drawCase(7)"><img src="../pages/biography/img/case7.png" width="30%"> 1 dot end</a></li>
+                                         <li><a tabindex="-1" onclick="drawCase(8)"><img src="../pages/biography/img/case8.png" width="30%"> 3 starting dots and 1 ending</a></li>
+                                         <!-- <li><a tabindex="-1" onclick="drawCase(11)"><img src="../pages/biography/img/case5.png" width="30%"> 1 dot beneath ending 2</a></li> is also case 5 -->
+                                         <li><a tabindex="-1" onclick="drawCase(13)"><img src="../pages/biography/img/case13.png" width="30%"> Seven dots</a></li>
+<!--                                          <li><a tabindex="-1" onclick="drawCase(14)"><img src="../pages/biography/img/case7.png" width="30%"> 1 dot end 2</a></li> -->
+                                     </ul>
+                                 </div>
+                            </div><!-- end col 1 -->
+                             <div class="col-md-12 text-align-left p-0">
+                                 <!-- age -->
+                                 <br><!-- <label><input type="checkbox" id="age_CB">&nbsp; -->
+                                 Age&nbsp;&nbsp;&nbsp;<label><small><input type="checkbox" id="ageAprox_CB" disabled>&nbsp;allow estimated age</small></label>
+                                 
+                                  <!-- age slider -->
+                                  <div id="ageSlider" disabled><!--Slider goes here --></div>
+
+                                  <!-- alive during -->
+                                 <br><label>Alive in years</label>
+                                 
+                                  <!-- alive during -->
+                                  <div id="aliveSlider" disabled><!--Slider goes here --></div>
+
+                              <!-- p's examples -->
+<!--                                                <div class="dropdown d-inline">
+                                     <button class="btn btn-default btn-drop dropdown-toggle" type="button" data-toggle="dropdown">Priestley's examples
+                                         <span class="caret"></span>
+                                     </button>
+                                     <ul class="dropdown-menu small">
+                                         <li><a onclick="examplePeople()">Infographics (P15)</a></li>
+                                         <li><a onclick="examplePeople2()">Uncertainty (P17)</a></li>
+                                     </ul>
+                                 </div> -->
+
+                              <br><button class="btn small disabled" id="clearFiltersButton"><a onclick="drawAllPeople()">&nbsp;Clear Filters&nbsp;</a></button><br>
+                         </div> 
+                        
+                </div><!-- / title row  div-->
+             </div>
+                            
+                                                <!-- filter result -->
+                    <div class="col-md-6 col-sm-4 pr-0" style="direction: rtl max-height:200px;">
+                    <b>Filter result</b>
+                    <span id="filterResultsBox" class="old-looking-font test" style="font-size:0.875rem;"><input type="text" id="filterResultPlaceholder" class="col-12 m-0 h-100" disabled></span>
+                    <br>
+                    <button class="btn small selectedGuyText d-none" id="clearSelectionButton" onclick="clearSelectedPerson()">&nbsp;clear selection&nbsp;</button>
+              <!-- <div id="wikiLink" class="wiki mt-1">
+                      <p> Click on a chart name to view their Wikipedia page, if available.</p>
+                  </div> -->
+             </div><!-- /filter result -->
+                        </div><!-- /tools-->
+                </div> <!-- / container -->  
+                        
+                        <!-- digital chart div -->
+             <div class="col-lg-8 pl-0" >
+              <div class="row m-0 pb-3">
+                  
+                <label class="px-3"><b>Zoom chart</b> </label><button id="fullExtentButton" class="btn" disabled><a onclick="fullExtentBio();">&nbsp;Full extent&nbsp;</a></button>
+                  
+                <!-- zoom slider -->
+                1x&nbsp;&nbsp;<div id="zoomSlider" disabled><!--Slider goes here --></div>&nbsp;&nbsp;4x       
+              </div>
+                
+                <div class="ratio-container"  style="max-height:80vh;">
+                
+                    <div id="timeline" class="frame ratio-container-content"
+                        style="width:100%; margin:0; float:left;  font-size: 0.5em; ">
+                          <div id="loader" class="loader"></div> 
+                          <div id="loaderButton"><button class="btn"><a onclick="loadBioData();">&nbsp;Click to load data&nbsp;</a></button></div>
+
+                    </div>
+                 </div>
+           
+                    <!-- chart -->
+                    <div class="col-sm-8 m-0" style="padding-left: 0px; padding-right: 0px;">
+                        <div class=" panel-default frame">
+                            <!-- <div class="panel-heading"> -->
+                                <!-- CHART ACTIONS -->
+                                
+                            <!-- </div> -->
+                            <!-- /.panel-heading -->
+
+                           <!--  <div class="panel-body"> -->
+                                <!--HACK TO MAKE SVG SCALABLE. CSS ABOVE-->
+                                <!-- https://tympanus.net/codrops/2014/08/19/making-svgs-responsive-with-css/ -->
+                                <div class="container-chart" id="container-chart">
+                                    <svg version="1.1" viewBox="-20 0 960 670" preserveAspectRatio="xMinYMin meet"
+                                        id="vis" class="content" vector-effect="non-scaling-stroke">
+                                    </svg>
+                                </div>
+
+                            <!-- </div> -->
+                            <!-- /.panel-body -->
+<!--                             <div>
+                                <var id="place_label"></var>
+                                <var id="power_label">&nbsp;</var>
+                                <var id="year_label" class="nudgeleft"></var>&nbsp; <br>
+                            </div> -->
+                        </div>
+                        <!-- <div> -->
+                               <button class="btn" onclick="zoomed('in')">+</button>
+                               <button class="btn" onclick="zoomed('out')">-</button>
+                               
+                                <!-- </div> -->
+                                <small>
+                                <button class="btn" onclick="toggleEra()">Toggle chart region names</button>
+                                <button class="btn" onclick="toggleRuler()">Toggle chart ruler names</button>
+                                <div class="btn-group small">
+                                        <button class="btn" type="button" class="dropdown-toggle"
+                                            data-toggle="dropdown">
+                                            Extra Actions
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu pull-right" role="menu">
+                                            <!-- JQUERY IN dropdown.js -->
+                                            <li class="dropdown-submenu">
+                                                <a class="sub" href="#">Focus on era<span class="caret"></span></a>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <select class="form-control" id="eraSelector">
+                                                        </select>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            <!-- JQUERY IN dropdown.js -->
+                                            <li class="dropdown-submenu">
+                                            </li>
+                                            <li><a onclick="clearFilter()">Clear focus</a>
+                                            </li>
+                                            <hr>
+                                            <!-- JQUERY IN dropdown.js -->
+                                            <li class="dropdown-submenu">
+                                                <a class="sub" href="#">Change chart sort<span class="caret"></span></a>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <select class="form-control" id="sortSelector">
+                                                        </select>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div></small>
+                                            
+
+                    </div> <!-- end chart -->
+                    
+                    
+                    
+
+                        </div>
+             </div> <!-- right column -->
+                    </div> <!-- / digital chart div-->
+                <!-- chart row -->
+                <div class="row">
+                
+
+                </div> <!-- / chart row -->
+
+                 </div><!-- /.container-fluid -->
+             </div>
+
+
+<!--           <button  class="btn" ><a href="../pages/CartDist_History.html">Continue to explore cartographic distortions</a></button>-->
+           </section>
+           
+
+
+        <!-- JS SOURCES -->
+    
+        <!-- RAPID JavaScript Libraries -->
+    <!-- jQuery -->
+    <script src="../dist/js/jquery.min.js"></script>
+    <script src="../pages/lib/jquery/jquery-migrate.min.js"></script>
+    <script src="../pages/lib/bootstrap/js/bootstrap.bundle.min.js"></script> <!-- for dropdowns -->
+    <script src="../pages/lib/mobile-nav/mobile-nav.js"></script>
+    <script src="../pages/lib/wow/wow.min.js"></script>
+
+    <!-- RAPID Template Main Javascript File -->
+    <script src="../pages/js/main.js"></script>
+        <!-- D3 -->
+<!--         <script src="../dist/js/d3.v3.min.js"></script> -->
+        <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+        
+        
+        <!-- Map -->
+<!--        <script src="dist/js//d3.geo.projection.v0.min.js"></script>-->
+    <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+<!--        <script src="dist/js//topojson.v2.min.js"></script>  for unusal projections -->
+     <script src="https://d3js.org/topojson.v2.min.js"></script> <!-- for unusual projections -->
+    
+        <script src="dist/js/d3-geo.v1.min.js"></script>
+
+        <!-- Bootstrap Core JavaScript -->
+        <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+
+                <!-- slider src -->
+        <script src="../dist/noUiSlider-14.6.3/distribute/nouislider.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="../dist/js/sb-admin-2.js"></script>
+
+        <!-- Biography Custom JS -->
+<!--        <script src="../pages/biography/src/miso.ds.deps.min.0.4.1.js"></script> old data loading?-->
+        <script src="../pages/biography/defines.js"></script>
+        <script src="../pages/biography/priestleyFullBio.js"></script>
+        <!-- Navbar JavaScript -->
+        <script src="../pages/js/navbar.js"></script>
+        
+
+        
+       <!-- Other JavaScripts --> 
+        <script src="js/variables.js"></script>
+       <script src="js/map.js"></script>
+        <!--    The rest of the chart JS-->
+
+        <script src="js/dropdown.js"></script>
+       <!-- <script src="js/functions.js"></script>
+        <script src="js/zoom.js"></script>
+        <script src="js/functionsAxis.js"></script>
+        <script src="js/functionsMouse.js"></script>
+        <script src="js/functionsText.js"></script>-->
+        <script src="js/chart.js"></script>
+
+<!--        <script src="js/map.js"></script>-->
+    
+    
+    
+        <!-- END JS SOURCES -->
+
+
+</body>
+
+</html>

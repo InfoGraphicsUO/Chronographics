@@ -1,0 +1,18 @@
+diff a/DataDisplay/landing_v2/pages/about.html b/DataDisplay/landing_v2/pages/about.html	(rejected hunks)
+@@ -110,13 +110,9 @@
+   <section id="intro" class="clearfix">
+     <div id="intro-bg"></div> <!-- #intro-bg -->
+         <div class="container d-flex h-100">
+-          <div class="align-self-center" id="homeText">
+-              <h1 class="mb-0">Chronographics</h1>
+-              <h2 class="inscriptionFont-subtitle">The Time Charts of Joseph Priestley</h2>
+-              <p>In the middle of the eighteenth century, the English scientist and theologian Joseph Priestley published two of the most important data visualizations in modern history, the Chart of Biography (1765), which showed graphically when famous people in history lived and died, and the New Chart of History (1769), which showed the rise and fall of empires.
+-                  <br><br>
+-            Priestley’s charts were enormously influential in their time, and they continue to serve as models for how to draw timelines today. This project explores the history and the visual and the analytic logics of Priestley’s charts by making them interactive.</p>
+-
++          <div class="align-self-center p-4" id="homeText">
++              <h1 class="mb-0 old-looking-font">Chronographics</h1>
++              <h2 class="mt-0">The Time Charts of Joseph Priestley</h2>
+           </div>
+         </div>
+ 

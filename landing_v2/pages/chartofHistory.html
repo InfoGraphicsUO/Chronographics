@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7838X9R061"></script>
+    <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-7838X9R061');
+    </script>
+    <meta name="robots" content="noindex"> <!-- hide from search engines -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Chronographics: The Time Charts of Joseph Priestley</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+    
+
+  <!-- Favicons -->
+  <link href="img/favicon.png" rel="icon">
+  <link href="img/apple-touch-icon.png" rel="apple-touch-icon">
+    
+    
+    
+    <!-- Google Fonts -->
+    <!--   Monsterrat -->
+	 <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,500,600,700,700i|Montserrat:300,400,500,600,700" rel="stylesheet">
+    <!--    PT Serif-->
+	 <link href="https://fonts.googleapis.com/css2?family=PT+Serif&display=swap" rel="stylesheet">
+        <!--    Tangerine-->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&display=swap" rel="stylesheet">
+        <!--    STIX-->
+    <link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet"> 
+    
+
+       <!-- Font for body text -->
+<!--    <style> @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Tangerine&display=swap'); </style>-->
+    <!--    Font for "old" serif text-->
+<!--    <style> @import url('https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap'); </style>-->
+    
+      <!-- Bootstrap CSS File -->
+  <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+      <!-- Libraries CSS Files -->
+  <link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+  <link href="lib/animate/animate.min.css" rel="stylesheet">
+  <link href="lib/ionicons/css/ionicons.min.css" rel="stylesheet">
+  <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+  <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+
+  <!-- Main Stylesheet File -->
+  <link href="css/style.css" rel="stylesheet">
+  <!-- Tour CSS -->
+  <link rel="stylesheet" type="text/css" href="tour/css/style.css" />
+  <!-- css override -->
+  <link href="css/css-overrides.css" rel="stylesheet">
+  <!-- =======================================================
+    Theme Name: Rapid
+    Theme URL: https://bootstrapmade.com/rapid-multipurpose-bootstrap-business-template/
+    Author: BootstrapMade.com
+    License: https://bootstrapmade.com/license/
+  ======================================================= -->
+    
+    
+    <!-- JSON DATA -->
+    <!-- adapted from https://gist.github.com/djvanderlaan/5336035 and http://duspviz.mit.edu/d3-workshop/mapping-data-with-d3/ -->
+    <!-- Misc. -->
+    <script src="json/world-110m.json"></script> <!-- for map -->
+    <script src="json/world_countries.json"></script> <!-- for map -->
+<!--     <script src="json/conversion/sample_places_9_25_2019.json"></script>  --><!-- places for map -->
+    <script src="json/conversion/samplePlaces_Aug27.json"></script> <!-- places for map -->
+    <script src="json/conversion/place_poly_bounds.json"></script> <!-- hard coded bounds -->
+    <!-- JSON exported to geoJSON in python data processing scripts data from 1200BC-1800 -->
+    <script src="json/conversion/polyPowerJSON.json"></script>
+    <script src="json/conversion/placePolyJSON.json"></script>
+    <script src="json/conversion/eventLinesJSON.json"></script>
+    <script src="json/conversion/powerLinesJSON.json"></script>
+    <script src="json/conversion/regionPolyJSON.json"></script>
+    <script src="json/conversion/eventPointsJSON.json"></script>
+    <script src="json/conversion/powerYearJSON.json"></script>
+    <script src="json/conversion/placePersonJSON.json"></script>
+    <!-- to do: load after page loads -->
+    <script defer src="json/conversion/saracens/polyPowerJSON.json"></script>
+    <script defer src="json/conversion/saracens/placePolyJSON.json"></script>
+    <script defer src="json/conversion/saracens/eventLinesJSON.json"></script>
+    <script defer src="json/conversion/saracens/powerLinesJSON.json"></script>
+    <script defer src="json/conversion/saracens/regionPolyJSON.json"></script>
+    <script defer src="json/conversion/saracens/eventPointsJSON.json"></script>
+    <!-- END JSON DATA -->
+
+
+    <style>
+
+      /* map */
+      /*         pencil glow */
+        .country path {
+          stroke-width: 2px;
+          fill: none;
+        }
+
+        .mesh path {
+          stroke: #555;
+          opacity: 0.8;
+          stroke-width: 1.5px;
+          stroke-linejoin: round;
+        }
+
+
+      /* end map */
+
+        .content {
+            width: 100%;
+            height: 100%;
+        }
+
+        .content-graph {
+            display: inline-block;
+            position: absolute;
+            right: 0px;
+            width: 100%;
+            height: 100%;
+
+        }
+
+        .container-chart {
+            display: inline-block;
+            position: relative;
+            width: 100%;
+            /*max-height: 88vh;  cutting off bottom of chart */
+            padding-bottom: 70%;
+            vertical-align: middle;
+            overflow: hidden;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+
+        .col-lg-6 {
+            padding-right: 0px;
+        }
+
+        .div-left {
+            float: left;
+            padding-left: 10px;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .div-right {
+            border: 1px double #3F3418;
+            border-radius: 5px;
+            float: right;
+            padding-right: 10px;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+
+        .bar-axis {
+            font: 10px sans-serif;
+        }
+
+        .bar-axis path,
+        .bar-axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+
+        .grid line {
+            stroke: #3F3418;
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+
+        .grid path {
+            stroke-width: 0;
+        }
+
+        div.tooltip {
+            pointer-events: none;
+            position: absolute;
+            display: inline-block;
+            padding: 2px;
+            padding-left: 5px;
+            padding-right: 3px;
+            font: 14px;
+/*            font-family: "Bodoni MT", Didot, "Didot LT STD", "Hoefler Text", Goudy Old Style, Garamond, Big Caslon, Times New Roman, serif;*/
+            margin-left: 10px;
+            margin-top: 25px;
+            background-color: rgba(63,52,24,0.8);
+            color: red;
+/*            text color*/
+            box-shadow: 0px 8px 5px -5px RGBA(0, 0, 0, .6), inset 3px 3px 5px 0px RGBA(0, 0, 0, .1), inset -3px -3px 5px 0px RGBA(255, 255, 255, .4);
+        }
+
+        .nudgeleft {
+            margin-left: -.1em;
+        }
+
+        .legend-name {
+            margin: 0 !important;
+            font-size: smaller;
+        }
+
+
+        .legend {
+            margin-top: 6px;
+            margin-right: 20px;
+        }
+
+        .time {
+            background: rgb(204,85,0);
+/*            outline-style: double;*/
+        }
+        .yearText{
+            color: rgb(204,85,0);
+            font-weight: bold;
+        }
+        
+        .notime {
+            background: #E8D5B6;
+/*            outline-style: double;*/
+        }
+
+        .place {
+            background: #570D9E;
+/*            outline-style: double;*/
+        }
+
+        .regime {
+            background: #067806;
+/*            outline-style: double;*/
+        }
+
+        .grabbable {
+            cursor: move;
+            /* fallback if grab cursor is unsupported */
+            cursor: grab;
+            cursor: -moz-grab;
+            cursor: -webkit-grab;
+        }
+
+        .grabbable:active {
+            cursor: grabbing;
+            cursor: -moz-grabbing;
+            cursor: -webkit-grabbing;
+        }
+
+        .dropdown-submenu {
+            position: relative;
+        }
+
+        .dropdown-submenu .dropdown-menu {
+            top: 0;
+            right: 100%;
+            left: -80%;
+            margin-top: -1px;
+        }
+
+        .chart-parent{
+          position: relative;
+          padding-bottom: 70%;
+        }
+
+        .chart-body{
+          position: absolute;
+          top: 0; bottom: 0; left: 0; right: 0;
+          border-color: #3F3418;
+          border-width:2px;  
+          border-style:groove;
+        }
+
+/* was class on map border, no longer used
+       .bd {
+            border-style: solid;
+            border-width: 1px;
+        }*/ 
+
+        .empireText {
+            font-weight: bold;
+            color: #067806;
+            /* text-shadow: 1px 1px 1.5px #333;
+            color: white;
+            background-color:#067806;*/
+        }
+
+        .placeText {
+            font-weight: bold;
+            color: #570D9E;
+            /*text-shadow: 1px 1px 1.5px #333;
+            color: #FFFFFF;
+            background-color:#570D9E;*/
+        }
+
+        .otherLandText {
+            font-weight: bold;
+            color: oldlace;
+            text-shadow: -1px -1px 0 #666, 1px -1px 0 #666, 1px 1px 0 #666, -1px -1px 0 #222;
+        }
+
+      .place2 {
+            background:#570D9E;
+            color: white;
+            border-radius: 5px;
+            padding: 2px;
+        }
+
+        .empire2 {
+             background:#067806;
+             color: white;
+             border-radius: 5px;
+             padding: 2px;
+        }
+
+        .interactive-map-row{
+            height: calc(100vh - 200px);
+        }
+
+
+        .btn{
+          border-color: rgba(63, 52, 24,0.5); /* #3F3418; */
+          border-width:1px;
+          font-size: smaller;
+        }
+
+    </style>
+</head>
+
+<body>
+
+ <!--==========================
+  Header
+  ============================-->
+  <header id="header">
+    <div class="container">
+      <nav class="main-nav float-left d-none d-lg-block">
+        <ul>
+          <li><a href="about.html"><i class="fa fa-home" aria-hidden="true"></i></a>
+          </li>
+          <li class="drop-down"><a href="about.html">About</a>
+            <ul>
+              <li><a href="about.html#project">About the project</a></li>
+              <li><a href="about.html#about">About Priestley</a></li>
+<!--              <li><a href="about.html#siteTour">Site tour</a></li>-->
+              <li><a href="about.html#team">About us</a></li>
+              <li><a href="about.html#sources">Sources</a></li>
+            </ul>
+          </li>
+          <li class="drop-down"><a href="chartofBiography.html#BiographyTour">Chart of biography</a>
+            <ul>
+              <li><a href="chartofBiography.html#BiographyTour">Introduction</a></li>
+              <li><a href="chartofBiography.html#Original">Original</a></li>
+              <li><a href="chartofBiography.html#InteractiveChart">Interactive chart</a></li>
+              <li><a href="chartofBiography.html#bioExploration">The story of the chart</a></li>
+            </ul>
+          </li>
+          <li class="drop-down"><a href="chartofHistory.html#HistoryTour"class="currentTab">Chart of history</a>
+            <ul>
+              <li><a href="#HistoryTour">Introduction</a></li>
+              <li><a href="#Original">Original</a></li>
+              <li><a href="#InteractiveChart">Interactive chart</a></li>
+              <li><a href="#HistoryExploration">The story of the chart</a></li>
+            </ul>
+          </li>
+          <li class="drop-down"><a href="essays.html">Essays and artifacts</a>
+            <ul>
+              <li><a href="essays.html#essay">The Graphic Invention of Modern Time</a></li>
+              <li><a href="essays.html#Charts">Priestley’s Charts </a></li>
+              <li><a href="essays.html#Forerunners">Forerunners</a></li>
+              <li><a href="essays.html#WhatATimeline">What a Timeline Does</a></li>
+              <li><a href="essays.html#EndOf">The End of the Line </a></li>
+              <li><a href="essays.html#Notes">Notes</a></li>
+            </ul>
+            </li>
+          </ul>
+      </nav><!-- .main-nav -->
+      
+    </div>
+  </header><!-- #header -->
+
+    
+  <!--==========================
+    Intro Section
+  ============================-->
+    <div id="intro-bg-bio"></div> 
+    <section class="clearfix"></section>  
+    
+ <!--==========================
+      History Tour Section
+============================-->
+  <section>
+    <br>
+    <div class="row m-0" style="padding: 20px 0px 0px 0px;">
+
+           <div width = 100%>
+             <div id = 'vis-parent' class="sticky">
+                <div id='intro-vis'></div>
+               </div>
+              <div id='graphic'>
+                                  
+              <div id='sections'>
+                   <section class="step" id="HistoryTour"> <!-- target this section ID to start tours -->
+                     <h1 class="old-looking-font text-uppercase mt-3">Chart of History</h1>
+                   <div class="title"><strong><h2>Introduction</h2></strong></div>
+                    <p>Joseph Priestley’s <i>New Chart of History</i> shares a frame with the <i>Chart of Biography</i> published four years earlier. From left to right, the chart covers nearly 3000 years, but, instead of the lives of individuals, Priestley's second chart delineates the rise and fall of empires, and instead of rows indicating areas of achievement, the rows on this chart correspond with geographic parts of the world. The chart shows which regimes ruled which regions, what kinds of relationships obtained among them, and how and when they began and ended. From left to right, the chart reads serially as a story of empires. From top to bottom, it snaps like a camera, revealing rival powers at each moment in history. The chart is remarkably effective, rendering complex historical propositions simple. At a glance, for example, the user can see that the Assyrian Empire preceded the Babylonian, both of which contended with the Median Empire until overwhelmed by the Persians. Locating these regimes in time and determining their duration is equally straightforward: one simply follows the vertical grid lines to see that the great age of the Persian Empire began in the late 6<sup>th</sup> Century BC and lasted roughly three centuries and that the Median Empire, equally extensive at its height, was by comparison a mere flash in the historical pan. 
+                        </p>
+
+                    <p><br><i class="fa fa-chevron-down"></i>  Scroll down to explore how to read the chart.</p>
+                    
+                    </section> <!-- 0 -->
+                    <section class="step">
+
+                      <div class="title"><bold>Chronology<span style="font-weight: normal"><i> - years</i></span></bold></div>
+                        <p>In Priestley's charts, time unfolds horizontally from 1200 BC on the left to 1800 AD on the right. Centuries are indicated by thin vertical lines and decades by dots.
+                      </p>
+                        <div class="tourSubtitle">Year 700 BC</div>
+                        <img src="tour/img/timeAR.png" width=100%>
+                    </section>
+                    <br>
+                    <section class="step">
+                      <div class="title"><bold>Geography<span style="font-weight: normal"><i> - places and areas</i></span></bold></div>
+                        <p>Physical territories, or <i>places</i>, are represented on the chart by horizontal rows and generally represent nations or other important political units. Some, such as Canada and Japan remain familiar today, while others such as Bithynia may be less familiar. In some cases, <i>places</i> are subdivided into smaller <i>areas</i>.
+                      </p>
+                        <div class="tourSubtitle" style="color:#570d9e">Place: Portugal</div>
+                      <img src="tour/img/placeAR-portugal.png" width=100%>
+
+                    </section> <!-- 2 -->
+                  <br>
+                  <section class="step">
+                    <div class="title"><bold>Geography<span style="font-weight: normal"><i> - regions</i></span></bold></div>
+                      <p><i>Places</i> and <i>areas</i> are grouped into larger <i>regions</i>. For example, the <i>places</i> Navarre, Arragon, Valencia,  Grenada, Seville, Cordova, Toledo, Castille, and Leon and Asturias are grouped into a <i>region</i> called Spain.
+                    </p>
+                      <div class="tourSubtitle" style="color:#570d9e">Region: Spain</div>
+                    <img src="tour/img/regionAR.png" width=100%>
+                  </section> <!-- 3 -->
+                  <br>
+                  <section class="step" style="margin-bottom:7vh">
+                    <div class="title"><bold>Hegemony<span style="font-weight: normal"><i> - regimes</i></span></bold></div>
+                      <p>Hegemony, or political dominance of one nation over others, is represented on the chart by polygons, which may join several or many <i>place</i> and <i>area</i> rows. The most important of these are  colored and inscribed in a larger script. Powerful <i>regimes</i> such as those of the English and the Romans control many <i>place</i> and <i>area</i> rows for many years.</p>
+                      <div class="tourSubtitle" style="color:#067806;">Regime: The Roman Empire</div>
+                    <img src="tour/img/empireAR.png" width=100%><br><br>
+                  </section> <!-- 4 -->
+                  <br>
+                  <section class="step">
+                        <div class="title"><strong>Programmatic Version</strong></div>
+                        <p>Following Priestley's procedural process, we created a data driven digital version of the chart, which you can interact with in the sections below.
+                        </p>
+                        <div class="tourSubtitle">Digitally produced</div>
+                        <img src="tour/img/history-digital.JPG" width=100%>
+                    </section> <!-- 5 -->
+              </div>
+          </div>
+              </div> 
+    </div>
+  </section>
+<!--==========================
+History Original Section
+============================-->
+  <section id="Original" class="section-bg">
+       <div class="row" style="padding: 25px 0px;">
+          <div  class="col-12" style="padding: 0px 50px;">
+                <div>
+                    <h2 class="mb-0">Original Chart</h2><h4>High resolution viewer</h4>
+                </div>
+                <p>Explore Priestley's paper chart in detail.
+                </p>
+                        
+                <div class="col-12" style="text-align:center; padding: 0px">
+                    <iframe src="https://pages.uoregon.edu/infographics/dev/zoomifyChart-of-History/ChartOfHistory.html" frameborder="0" width="870px" height="744" style="margin:auto;" overflow='hidden'></iframe>
+                </div>   
+           </div>
+       </div>
+  </section> 
+  
+<!--==========================
+Interactive chart section
+============================-->
+     <section id="InteractiveChart">
+         <div class="row" class="interactive-map-row" >
+             <div class="col-12 pl-5 pt-3">
+                 <h2 class="mb-0">Interactive chart </h2><h4>Discover Who, Where, and When</h4>
+             <div>
+                 <p>
+                    This section allows you explore, search, and filter the information in Priestley's chart.<br>
+                     <i class="fa fa-mouse-pointer fa-xs"></i> Hover over the chart to reveal which <i class="empireText">regime</i> was in power in a given <i class="placeText">area</i> in a given region in a given <i class="yearText">year</i>.<br> 
+                     <i class="fa fa-mouse-pointer fa-xs"></i> Click on the chart to select an <i class="placeText">area</i> and <i class="yearText">year</i>. The chart will highlight the <i class="empireText">regime</i> polygon containing that location, as well as all other <i class="placeText">areas</i> controlled by the same <i class="empireText">regime</i>. Corresponding geographic territories and Priestley’s descriptive text will be displayed in the adjacent map and text boxes.<br>
+                    <i class="fa fa-mouse-pointer fa-xs"></i> <i class="empireText">Regime</i> and <i class="placeText">area</i> may also be selected with the drop drop-down menus.<br>
+                  </p>
+               </div>
+             </div>
+            <div id="chartRow" class="row col-12" style="padding: 0px;" >
+            <iframe src="../HistoryInteractive/chart.html" frameborder="0" width="100%" scrolling="no"></iframe>
+            </div>
+
+
+         </div>
+         <br>
+    </section>
+<!--==========================
+Detailed History Exploration
+============================-->
+  <section id="HistoryExploration">
+    <div class="row" style="padding: 0px 50px;">
+        <div  class="col-12">
+            <div>
+                <h2 class="mb-0">The Story of the Chart</h2>
+            </div>
+        </div>
+    </div>
+      <div class="row col-10" style="text-align:center ">
+        <!-- version: Chart of History 6-29-22-2 -- Live as of 4-28-23          -->
+        <iframe src="https://uploads.knightlab.com/storymapjs/95d34a97028b417724d7c55ed073d9d5/chart-of-history/draft.html" frameborder="0" width="100%" height="800" style="margin-left: 20vh;"></iframe>
+      </div>
+  </section>   
+
+<!--========================== -->
+
+  <!-- </footer> -->
+        <!-- JS SOURCES -->
+        <!-- jQuery -->
+        <script src="../dist/js/jquery.min.js"></script>
+    
+          <!-- RAPID JavaScript Libraries -->
+<!--      <script src="lib/jquery/jquery.min.js"></script>-->
+      <script src="lib/jquery/jquery-migrate.min.js"></script>
+      <script src="lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+      <script src="lib/easing/easing.min.js"></script>
+      <script src="lib/mobile-nav/mobile-nav.js"></script>
+      <script src="lib/wow/wow.min.js"></script>
+
+<!--      <script src="lib/waypoints/waypoints.min.js"></script>-->
+<!--      <script src="lib/counterup/counterup.min.js"></script>-->
+<!--      <script src="lib/owlcarousel/owl.carousel.min.js"></script>-->
+<!--      <script src="lib/isotope/isotope.pkgd.min.js"></script>-->
+<!--      <script src="lib/lightbox/js/lightbox.min.js"></script>-->
+<!--       Contact Form JavaScript File -->
+<!--      <script src="contactform/contactform.js"></script>-->
+     <!-- RAPID Template Main Javascript File -->
+      <script src="js/main.js"></script>
+    
+    
+        <!-- D3 -->
+        <script src="../dist/js/d3.v3.min.js"></script>
+        <script src="../dist/js//d3.geo.projection.v0.min.js"></script>
+        <script src="../dist/js//topojson.v2.min.js"></script> <!-- for unusal projections -->
+        <script src="../dist/js/d3-geo.v1.min.js"></script>
+        <!-- Bootstrap Core JavaScript -->
+<!--        <script src="../vendor/bootstrap/js/bootstrap.min.js"></script>-->
+<!--         Metis Menu Plugin JavaScript -->
+<!--        <script src="../vendor/metisMenu/metisMenu.min.js"></script>-->
+        <!-- Custom Theme JavaScript -->
+        <script src="../dist/js/sb-admin-2.js"></script>
+        <!-- Other JavaScripts -->
+        <script src="js/variables.js"></script>
+        <script src="js/dropdown.js"></script>
+        <script src="js/functions.js"></script>
+        <script src="js/compare.js"></script> <!-- instead of zoom -->
+        <script src="js/functionsAxis.js"></script>
+        <script src="js/functionsMouse.js"></script>
+<!--         <script src="js/functionsText.js"></script> used in interactive chart (chart 2), not the compare chart--> 
+        <script src="js/chart.js"></script>
+<!--         <script src="js/chart2.js"></script> -->
+<!--         <script src="js/map.js"></script> -->
+        <script src="js/bar.js"></script>
+        <script src="js/bioOverlay.js"></script>
+        <!-- Navbar JavaScript -->
+        <script src="js/navbar.js"></script>
+
+        <!-- END JS SOURCES -->
+       <!-- Other JavaScripts... -->
+<!--      <script src="tour/js/d3.js"></script>-->
+      <script src="tour/js/queue.js"></script>
+      <script src="tour/js/scroller.js"></script>
+      <script src="tour/js/sections-history.js"></script>
+        
+<!-- <footer> -->
+     <div id="customFooter" class="footerText footer-bg" align="center">
+        University of Oregon <a href="https://infographics.uoregon.edu/" target="_blank">InfoGraphics Lab.</a> &copy; Daniel Rosenberg 2022
+      </div>
+</body>
+
+</html>

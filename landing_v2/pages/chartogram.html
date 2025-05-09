@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="robots" content="noindex"> <!-- hide from search engines -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Chronographics: The Time Charts of Joseph Priestley</title>
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico" />
+
+    <!-- CSS IMPORTS -->
+    <!-- Bootstrap Core CSS -->
+    <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Theme (Menu Alignment) -->
+    <link href="../dist/css/sb-admin-2.css" rel="stylesheet">
+    <!-- MetisMenu CSS -->
+    <link href="../vendor/metisMenu/metisMenu.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="../dist/css/css-overrides.css" rel="stylesheet">
+    <!-- Sidebar CSS -->
+    <link href="../dist/css/sidebar.css" rel="stylesheet">
+    <!-- Custom Fonts -->
+    <link href="../vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <!-- END CSS IMPORTS -->
+
+    <!-- JSON DATA -->
+    <script src="cartogram/json/worldbasemap_regions_2_28.json"></script>
+    <script src="cartogram/json/DegreeClipped.json"></script>
+    <!-- END JSON DATA -->
+
+    <style>
+        #tooltip {
+            min-height: 2.5em;
+            font-family: "Bodoni MT", Didot, "Didot LT STD", "Hoefler Text", Goudy Old Style, Garamond, Big Caslon, Times New Roman, serif;
+            width: 100%;
+            text-align: center;
+            padding-top: 1em;
+            font-size: 1.2em;
+        }
+
+        .chartImage{
+            background-image: url("cartogram/img/chart_background.jpg");
+            background-position: center;
+            height: 50vh;
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+
+        .chartImageStretch {
+            /*margin-top: 1px;*/
+            background-image: url("cartogram/img/RealSize_chart.jpg");
+            background-position: center;
+            height: 50vh;
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+
+        .PriestleyRepresentation {
+            /*margin-top: 1px;*/
+            background-image: url("cartogram/img/PriestleyChartRepresentation.PNG");
+            background-position: center;
+            height: 50vh;
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+
+        .RegionRepresentation {
+            /*margin-top: 1px;*/
+            background-image: url("cartogram/img/RepresentationByRegion.PNG");
+            background-position: center;
+            height: 50vh;
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+
+        .ResizedGeographic {
+            /*margin-top: 1px;*/
+            background-image: url("cartogram/img/resizedGeographicRegion.PNG");
+            background-position: center;
+            height: 50vh;
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+
+        .GeographicRegion {
+            /*margin-top: 1px;*/
+            background-image: url("cartogram/img/GeographicRegion.PNG");
+            background-position: center;
+            height: 50vh;
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="wrapper" class="toggled">
+        <!-- SIDEBAR -->
+        <div class="sidebar side" role="navigation" id="sidebar-wrapper">
+            <ul class="nav" id="side-menu">
+                <li> 
+                   <a class="side menu-group" href="index.html">
+                    <i class="fa fa-home" aria-hidden="true"></i> Home
+                  </a>
+                </li>
+            <li> 
+                <a class="side menu-group" href="#"><i class="fa fa-hand-o-right fa-fw"></i> About the Project</a>
+                 <ul class="nav nav-second-level">
+                    <li>
+                        <a class="side" href="tour.html"><img src="img/menu-bullet-01.png" class="img-bullet">Site Tour</a>
+                    </li>
+                    <li>
+                         <a class="side" href="DigitizingTour.html"><img src="img/menu-bullet-01.png" class="img-bullet">The Digitizing Process</a>
+                    </li>
+                    <li>
+                         <a class="side" href="AboutPriestley.html"><img src="img/menu-bullet-01.png" class="img-bullet">About Priestley</a>
+                    </li>
+                    <li>
+                        <a class="side" href="about.html"><img src="img/menu-bullet-01.png" class="img-bullet">About Us</a>
+                    </li>
+                    <li>
+                        <a class="side" href="ProjectEssay.html"><img src="img/menu-bullet-01.png" class="img-bullet">Project Essay</a>
+                    </li>
+                 </ul>
+            </li>
+                <li class='active'>
+                    <a class="side menu-group" href="#"><i class="fa fa-hand-o-right fa-fw"></i> New Chart of History</a>
+                     <ul class="nav nav-second-level">
+                        <li><a class="side" href="compare.html"><img src="img/menu-bullet-01.png" class="img-bullet">Digital vs. Original</a>
+                        </li>
+                    </ul>
+                    <ul class="nav nav-second-level">
+                        <li>
+                            <a class="side" href="#"><i class="fa fa-hand-o-right fa-fw"></i> Explore Empires</a>
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a class="side" class="active" href="chart.html"><img src="img/menu-bullet-01.png" class="img-bullet">Interactive Chart</a>
+                                </li>
+                                <li>
+                                    <a class="side" href="spark.html"><img src="img/menu-bullet-01.png" class="img-bullet">Rise and Fall</a>
+                                </li>
+                                <li>
+                                    <a class="side" href="line.html"><img src="img/menu-bullet-01.png" class="img-bullet">Extent of Empires</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class='active'>
+                            <a class="side" href="#"><i class="fa fa-hand-o-down fa-fw"></i> Explore Places</a>
+
+                            <ul class="nav nav-third-level">
+                                <li>
+                                    <a class="side" href="places.html"><img src="img/menu-bullet-01.png" class="img-bullet">Place History</a>
+                                </li>
+                                <li>
+                                    <a class="side active" href="cartogram.html"><img src="img/menu-bullet-01.png" class="img-bullet">Cartogram</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <!-- /.nav-second-level -->
+                </li> <!-- /history -->
+                <li>
+                    <a class="side menu-group" href="#"><i class="fa fa-hand-o-right fa-fw"></i> Chart of Biography</a>
+                    <ul class="nav nav-second-level">
+                        <li>
+                            <a class="side" href="biography.html"><img src="img/menu-bullet-01.png" class="img-bullet">Specimen</a>
+                        </li>
+                        <li>
+                            <a class="side" href="FullBiography.html"><img src="img/menu-bullet-01.png" class="img-bullet">Full Chart</a>
+                        </li>
+                        <li>
+                            <a class="side" href="biographyMap.html"><img src="img/menu-bullet-01.png" class="img-bullet">Map of People</a>
+                        </li>
+                    </ul>
+                </li> <!-- /biography -->
+            </ul>
+        </div>
+        <!-- /.sidebar-collapse -->
+        <!-- Page Content -->
+
+        <div id="page-wrapper">
+            <div id="tophead"></div>
+            <!--  menu CLOSED by default-->
+            <button class="btn mt" id="menu-toggle">Menu <i
+                    class="fa fa-arrow-right fa-sm"></i></button>
+            <button class="btn ct" id="menu-toggle" style="display: none;"><i
+                    class="fa fa-arrow-left fa-sm"></i></button>
+            
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">Cartogram<img src="img/line.png" class="header-line"></h1>
+                        <p><b>How does Priestley's <i>New Chart of History</i> represent geographic space?</b>
+                        </p>
+                        <p>Priestley's chart divides the world into 16 geographic regions, shown below in both chart space and map space. The contrast between the two views highlights which geographic regions matter most in Priestley’s account of history. In the history chart, some regions are allotted much more or much less space than they actually take up on earth.</p>
+                        <p>Using a standard Mercator projection, the geographic map below shows the 16 major regions on Priestley’s history chart as
+                           colored areas. Clicking on this map reveals a <b>cartogram</b> in which those same regions are <b>resized</b> to reflect their relative weight in
+                           Priestley’s chart. In the cartrogram, notice, for example, how small America, China, and Africa are compared to France and
+                           Germany.
+                        </p>
+                         <p><i class="fa fa-mouse-pointer fa-xs"></i> <b>Click the map</b> to reveal the distortion of geographic space as represented in Priestley's chart.<br> <i>In development:</i> Hover over the chart or map to highlight the corresponding regions. e.g. America, Russia, or India</p><br>
+
+
+                        <div class="panel panel-default">
+                            <!-- /.panel-heading -->
+                            <div class="panel-body frame"  >
+
+                                <!--HACK TO MAKE SVG SCALABLE. CSS ABOVE-->
+                                <!-- https://tympanus.net/codrops/2014/08/19/making-svgs-responsive-with-css/ -->
+                                <div class="row" >
+                                    <div class="col-lg-6">
+                                     <!--    hello
+                                        hello??? -->
+                                        <!-- left/top column -->
+<!--                                        <img src="cartogram/img/chart.jpg" width=95% alt="Image of chart colored by region." hspace="20">-->             <h3>Priestley's Chart</h3>
+                                        <div id = "chartImage" class="chartImage" width=95% hspace="20" >
+                                        </div>
+                                    </div> 
+
+
+                                    <div class="col-lg-6">
+                                        <h3>Priestley Chart Stretched by Region Size</h3>
+                                        <div id="chartImageStretch" class="chartImageStretch" width=95% hspace="20">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <h3>Priestley Chart Representaion Areas as and sizes as drawn by Priestley</h3>
+                                        <div id="PriestleyRepresentation" class="PriestleyRepresentation" width=95% hspace="20">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <h3>Priestley Chart Representaion Areas as and sizes as drawn by Region Sizes</h3>
+                                        <div id="RegionRepresentation" class="RegionRepresentation" width=95% hspace="20">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <h3>Cartogram representation Areas re-sized by area of region on chart (Mollwide Projection)</h3>
+                                        <div id="ResizedGeographic" class="ResizedGeographic" width=95% hspace="20">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <h3>Geographic Representation by region <br>(Mollwide Projection)</h3>
+                                        <div id="GeographicRegion" class="GeographicRegion" width=95% hspace="20">
+                                        </div>
+                                    </div>
+
+                                    <!-- /.left/top column -->
+                                    <!-- <div id="tooltip">Hover over regions for corresponding chart name.</div> -->
+                                    <!-- <div class="col-lg-7"> -->
+                                        <!-- right/bottom column -->
+                                    
+                                        <!-- <div class="container"> -->
+
+                                            <!-- <svg version="1.1" width=100% height=100% viewBox="0 0 1240 600" -->
+                                                <!-- vector-effect="non-scaling-stroke"> -->
+
+                                                <!-- <svg version="1.1" height =400 viewBox="0 0 1240 600" preserveAspectRatio="xMinYMin meet" class="content" overflow="visible"> -->
+                                                <!-- <svg version="1.1" width="100%" height =300 style="outline: 5px solid #630" viewBox="0 0 200 400" preserveAspectRatio="xMinYMin meet" class="content"> -->
+                                            <!-- </svg> -->
+                                        <!-- </div> --> <!-- /.container -->
+                                    <!-- </div> --><!-- /.right/bottom column -->
+                                </div><!-- /panel-body -->
+                            </div><!-- /.panel -->
+                        </div>
+                    </div> <!-- /.col-lg-12 -->
+                </div><!-- /.row -->
+            </div><!-- /.container-fluid -->
+        </div>
+        <!-- /#page-wrapper -->
+        <!--
+        <div class="navbar-fixed-bottom text-center py-3">Daniel Rosenberg, Clark Honors College, University of Oregon<br>
+                InfoGraphics Lab, Department of Geography, CAS, University of Oregon
+        </div>
+        -->
+
+    <!-- /#wrapper -->
+
+    <!-- JS SOURCES -->
+    <!-- D3 -->
+    <script src="../dist/js/d3.v3.min.js"></script>
+    <script src="../dist/js/d3.geo.projection.v0.min.js"></script>
+    <script src="cartogram/lib/d3.legend.js"></script>
+    <script src="cartogram/lib/pym.js"></script>
+    <!-- jQuery -->
+    <script src="../dist/js/jquery.min.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="../vendor/metisMenu/metisMenu.min.js"></script>
+    <!-- Custom Theme JavaScript -->
+    <script src="../dist/js/sb-admin-2.js"></script>
+<!--  -->
+    <!-- Navbar JavaScript -->
+    <script src="js/navbar.js"></script>
+    <!-- END JS SOURCES -->
+    
+    </div>
+</body>
+
+</html>

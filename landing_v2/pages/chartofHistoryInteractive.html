@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="robots" content="noindex"> <!-- hide from search engines -->
+	<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Chronographics: The Time Charts of Joseph Priestley</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+      <!-- Favicons -->
+  <link href="img/favicon.png" rel="icon">
+  <link href="img/apple-touch-icon.png" rel="apple-touch-icon">
+    <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,500,600,700,700i|Montserrat:300,400,500,600,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Lora&display=block" rel="stylesheet"> 
+  <link href="https://fonts.googleapis.com/css2?family=PT+Serif&display=block" rel="stylesheet">
+
+      <!-- Bootstrap CSS File -->
+  <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- css override -->
+  <link href="css/css-overrides.css" rel="stylesheet">
+    
+  <!-- slider src -->
+  <link href="../dist/noUiSlider-14.6.3/distribute/nouislider.min.css" rel="stylesheet"> 
+    
+  <!-- JSON DATA -->
+    <!-- adapted from https://gist.github.com/djvanderlaan/5336035 and http://duspviz.mit.edu/d3-workshop/mapping-data-with-d3/ -->
+    <!-- Misc. -->
+    <script src="../pages/json/world-110m.json"></script> <!-- for map -->
+    <script src="../pages/json/world_countries.json"></script> <!-- for map -->
+<!--     <script src="json/conversion/sample_places_9_25_2019.json"></script>  --><!-- places for map -->
+    <!-- <script src="../pages/json/conversion/samplePlaces_Aug27.json"></script> places for map  -->
+     <script src="../pages/json/conversion/sample_places_8_1_2022.json"></script> <!-- places for map  -->
+    <script src="json/conversion/place_poly_bounds.json"></script> <!-- hard coded bounds -->
+    <!-- JSON exported to geoJSON in python data processing scripts data from 1200BC-1800 -->
+    <script src="../pages/json/conversion/polyPowerJSON.json"></script>
+    <script src="../pages/json/conversion/placePolyJSON.json"></script>
+    <script src="../pages/json/conversion/eventLinesJSON.json"></script>
+    <script src="../pages/json/conversion/powerLinesJSON.json"></script>
+    <script src="../pages/json/conversion/regionPolyJSON.json"></script>
+    <script src="../pages/json/conversion/eventPointsJSON.json"></script>
+    <script src="../pages/json/conversion/powerYearJSON.json"></script>
+    <script src="../pages/json/conversion/placePersonJSON.json"></script>
+    <!-- to do: load after page loads -->
+    <script defer src="../pages/json/conversion/saracens/polyPowerJSON.json"></script>
+    <script defer src="../pages/json/conversion/saracens/placePolyJSON.json"></script>
+    <script defer src="../pages/json/conversion/saracens/eventLinesJSON.json"></script>
+    <script defer src="../pages/json/conversion/saracens/powerLinesJSON.json"></script>
+    <script defer src="../pages/json/conversion/saracens/regionPolyJSON.json"></script>
+    <script defer src="../pages/json/conversion/saracens/eventPointsJSON.json"></script>
+    <!-- END JSON DATA -->
+
+
+
+	<style>
+
+
+    body {
+      background: #fff;
+      color: #444;
+      font-family: "Montserrat", sans-serif;
+    }
+
+        .row{
+            margin: 0px;
+        }
+		      /* map */
+      /*         pencil glow */
+        .country path {
+          stroke-width: 2px;
+          fill: none;
+        }
+
+        .mesh path {
+          stroke: #555;
+          opacity: 0.8;
+          stroke-width: 1.5px;
+          stroke-linejoin: round;
+        }
+
+         .container-chart {
+            display: inline-block;
+            position: relative;
+            width: 100%;
+            max-height: calc(100% - 200px);
+/*            padding-bottom: 70%;*/
+            vertical-align: middle;
+            overflow: hidden;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+
+        .col-3, .col-9 {
+            padding: 0px;
+            display: block;
+            flex: 0 0 30%;
+        }
+
+
+        .div-left {
+            float: left;
+            padding-left: 10px;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .div-right {
+            border: 1px double #3F3418;
+            border-radius: 5px;
+            float: right;
+            padding-right: 10px;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+/*
+        .bar-axis {
+            font: 10px sans-serif;
+            color: red;
+        }
+*/
+
+/*
+        .bar-axis path,
+        .bar-axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+*/
+
+/*
+        .grid line {
+            stroke: #3F3418;
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+*/
+
+/*
+        .grid path {
+            stroke-width: 0;
+        }
+*/
+
+/*
+		div.tooltip {
+            pointer-events: none;
+            position: absolute;
+            display: inline-block;
+            padding: 2px;
+            padding-left: 5px;
+            padding-right: 3px;
+            font: 14px;
+            font-family: "Bodoni MT", Didot, "Didot LT STD", "Hoefler Text", Goudy Old Style, Garamond, Big Caslon, Times New Roman, serif;
+            margin-left: 10px;
+            margin-top: 25px;
+            background-color: rgba(255,250,240,0.9);
+            color: rgba(63,52,24,1);
+            text color
+            box-shadow: 0px 8px 5px -5px RGBA(0, 0, 0, .6), inset 3px 3px 5px 0px RGBA(0, 0, 0, .1), inset -3px -3px 5px 0px RGBA(255, 255, 255, .4);
+        }
+*/
+        .nudgeleft {
+            margin-left: -.1em;
+        }
+
+        .legend-name {
+            margin: 0 !important;
+            font-size: smaller;
+        }
+
+        .bolder{
+            font-weight: 500
+        }
+
+        .key-dot {
+            display: inline-block;
+            height: 8px;
+            margin-right: .5em;
+            width: 8px;
+        }
+
+        .key-dot-lg {
+            display: inline-block;
+            height: 12px;
+            margin-right: .5em;
+            width: 12px;
+        }
+
+
+	 .legend {
+            margin: 6px 0px;
+            margin-right: 20px;
+            text-align: left;
+        }
+
+        .time {
+            background: #3F3418;
+/*            outline-style: double;*/
+        }
+
+        .notime {
+            background: #E8D5B6;
+/*            outline-style: double;*/
+        }
+
+        .place {
+            background: #570D9E;
+        }
+
+        .regime {
+            background: #067806;
+        }
+        .year {
+            color: red;
+            font-size: 0.9em;
+        }
+
+        #regimeSelector, #power_map,  #place_map{
+            font-style: italic;
+        }
+
+        .chart-parent{
+            max-height: 100%;
+          position: relative;
+          padding-bottom: 70%;
+        }
+
+        .chart-body{
+          position: absolute;
+          top: 0; bottom: 0; left: 0; right: 0;
+          overflow-y: hidden;
+          overflow-x: hidden;
+          border-color: #3F3418;
+          border-width:2px;  
+          border-style:groove;
+        }
+
+        .grabbable {
+            cursor: move;
+            /* fallback if grab cursor is unsupported */
+            cursor: grab;
+            cursor: -moz-grab;
+            cursor: -webkit-grab;
+        }
+
+        .grabbable:active {
+            cursor: grabbing;
+            cursor: -moz-grabbing;
+            cursor: -webkit-grabbing;
+        }
+
+        #interactive-map-row{
+            height: calc(100vh - 50px);
+        }
+
+        #descriptive_text{
+            font-size: smaller;
+            max-height: 100%; 
+            overflow-y: auto;
+        }
+
+        .btn{
+            color: #3F3418;
+            padding: 0px 5px;
+            border-color: rgba(63, 52, 24, 0.3);
+        }
+
+        .dropdown-btn{
+            color: #3F3418;
+            padding: 0px 5px;
+            border-width: 0 0 1px 0; /* top right bottom left */
+            border-color: rgba(63, 52, 24, 0.3);
+        }
+
+
+
+        .btn.focus, .btn:focus, select.focus, select:focus {
+            outline: 0;
+            box-shadow: none; /* removes bootstrap blue halo from btn and thick black from select dropdown*/
+        }
+
+        .btn.hover, .btn:hover {
+            outline: 0;
+            box-shadow: 0 0 0 0.4px rgba(63, 52, 24,.4);
+        }
+
+        .dropdown-.hover, .dropdown-:hover {
+            outline: 0;
+            box-shadow: 0;
+        }
+
+        .btn-group, .btn-group-vertical {
+            position: relative;
+            display: -ms-inline-flexbox;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .dropdown-menu{
+            display:block !important;
+            padding: 0px;
+        }
+
+        .dropdown-submenu {
+            position: relative;
+        }
+
+        .dropdown-submenu .dropdown-menu {
+            top: 10;
+            /*right: 100%;*/
+            /*left: -80%;*/
+            margin-top: -1px;
+
+        }
+
+        #this{
+            display: block;
+            position: absolute;
+        }
+
+        .panel-heading{
+            display: block;
+        }
+
+        li {
+            list-style-type:none;
+        }
+        select{
+            border-width: 0;
+        }
+
+
+
+        /* for right column */
+        .box {
+          display: flex;
+          flex-flow: column;
+          height: 100%;
+        }
+        .box .row.header {
+          flex: 0 1 auto;
+          /* The above is shorthand for:
+          flex-grow: 0,
+          flex-shrink: 1,
+          flex-basis: auto
+          */
+        }
+        .box .row.content {
+          flex: 1 1 auto;
+          overflow-y: auto;
+          bottom: 0;
+        }
+        /* right column */
+        
+        /*** Slider ***/
+        #zoomSlider {
+        width: 250px;
+        /*margin: 100px auto;*/
+            display:inline-block;
+        }
+        .noUi-connect {
+        background: #3F3418; /*change to notBlack*/
+        }
+        .noUi-target .noUi-ltr .noUi-horizontal{
+        height: 20px;
+        }
+
+        .noUi-tooltip{
+        font-size: 12px;
+        font-weight: bold;
+        padding-bottom: 0;
+        background: transparent;
+        border: none;
+        }
+        .noUi-base .noUi-handle {
+        border: 1px #ddd solid;
+        border-radius: 12px;
+        box-shadow: none;
+        font-size: 12px;
+        /*circle height*/
+        height: 15px;
+        padding: 0;
+        /*  position: absolute;*/
+        text-align: left;
+        width: 18.5px;
+        z-index: 2;
+        }
+        /*.noUi-horizontal .noUi-base .noUi-handle {
+        cursor: ew-resize;
+        }*/
+
+        /* height of the gutter */
+        .noUi-horizontal {
+        height: 7.5px;
+        padding-right: 15px;
+        }
+
+        .noUi-base .noUi-handle:hover {
+        background-color: lightgrey;
+        }
+
+        .noUi-base .noUi-handle:focus {
+        outline: none;
+        }
+
+        .noUi-base .noUi-handle.noUi-active {
+        background-color: darkgrey;
+        z-index: 3;
+        }
+        .noUi-base .noUi-handle::before {
+        display: none;
+        }
+        .noUi-base .noUi-handle::after {
+        display: none;
+        }
+
+/***   End slider ***/
+	</style>
+
+</head>
+<body>
+    <!-- slider src -->
+    <script src="../dist/noUiSlider-14.6.3/distribute/nouislider.js"></script>
+	<div class="row" id="interactive-map-row" style="padding: 0px 0px 0px 50px;">
+        <!-- LEFT --> 
+         <div class="col-md-8 col-12 m-0">
+             
+             <div class="chart-parent old-looking-font">
+                 <div class="chart-body" id="chart-body">
+                         <!-- viewBox: min-x, min-y, width, height -->
+                          <svg version="1.1" viewBox="-20 0 960 670" preserveAspectRatio="xMinYMin meet"
+                              id="vis2" class="content" vector-effect="non-scaling-stroke">
+                          </svg>
+                   </div>
+              </div><!-- /.panel-body -->
+             <!-- zoom slider -->
+             <br>
+             Zoom chart <small>100%</small> <div id="zoomSlider" ><!--Slider goes here --></div><small>400%</small>
+          </div>
+        <!-- RIGHT --> 
+        <div class="col-3 box" style="max-width: 670px;">
+            <div class="row header"> <!-- sized to content -->
+                <!-- Map Viewer -->
+                        <div class="row panel panel-default frame w-100">
+                            <div class="panel-heading text-center w-100">
+                                Map of chart places
+                            <div class="legend text-center">
+                                    <p class="legend-name"><span class="key-dot time"></span>Land on Timeline <span class="key-dot notime"></span>Land not on Timeline</p>
+                                    
+                                </div><!-- /.panel-heading -->
+                            <div class="panel-body">
+                                <!--HACK TO MAKE SVG SCALABLE. CSS ABOVE-->
+                                <!-- https://tympanus.net/codrops/2014/08/19/making-svgs-responsive-with-css/ -->
+                                <div class="container-map grabbable mb-3">
+                                    <svg version="1.1" viewBox="0 0 400 200" preserveAspectRatio="xMinYMin meet"
+                                        id="map" class="content">
+                                    </svg>
+                                </div>
+                                
+
+                                 <btn-group class="mt-2"><button class="btn btn-default btn-xs" onclick="fullExtent()">View full map/chart</button>                    <button class="btn btn-default btn-xs" onclick="clearSelection()">Clear selection</button></btn-group>
+
+                            </div> <!-- /.panel-body -->
+                            </div> <!-- /.panel --><div class="break"></div>
+                        </div><!-- end map viewer -->  
+
+                
+<table style="width:100%" class="mt-2">
+  <tr>
+    <td><span class="key-dot-lg year text-center smaller"><b>|</b></span><span class="bolder">Year:</span></td>
+    <td><span class="old-looking-font " id="year_label">click chart to select</span></td>
+  </tr>
+  <tr>
+    <td><span class="m-0 d-block"><span class="key-dot-lg regime"></span><span class="bolder">Empire:</span></td>
+    <td>                     <btn-group>
+                     <button role="menu" class="btn dropdown-btn m-0 p-0">
+                        <!-- <div id="this" > -->
+                            <ul class="m-0 p-0"><!-- JQUERY IN dropdown.js -->
+                              
+                              <li>
+                                <select id="regimeSelector" class="old-looking-font">
+                                    <option value="0" selected>click on map/chart or select here</option>
+                                </select>
+                              </li>
+                            </ul>
+                        <!-- </div> -->
+                    </button>
+                    </btn-group>
+                </td>
+  </tr>
+  <tr>
+    <td><span class="key-dot-lg place"></span><span class="bolder">Place:</span></td>
+    <td><span class="old-looking-font" id="place_map"><i>click on map/chart</i></span></td>
+  </tr>
+</table> 
+
+            </div> <!-- end sized to content -->
+            <div class="row content mt-1">
+                     <!-- <div id="descriptive_text" class="old-looking-font">Click map or chart to view Priestley's place description.</div> -->
+                     <div id="descriptive_text" class="old-looking-font"></div>
+            </div>
+        </div>
+    </div>
+<script>
+    // *** ZOOM SLDIER ***
+var zoomSlider = document.getElementById('zoomSlider');
+    noUiSlider.create(zoomSlider, {
+      start: [1.0],
+      tooltips: [true],
+      connect: true,
+//      format: {
+//        // 'to' the formatted value. Receives a number.
+//        to: function (value) {
+//            return value*100+('%');
+//        },
+//        // 'from' the formatted value.
+//        // Receives a string, should return a number.
+//        from: function (value) {
+//            val = (value.replace('%', ''))/100.0
+//            return Number(val);
+//        }
+//    },
+      step: 0.1,
+      range: {
+        'min': 1,
+        'max': 4
+      },
+    // format: { //integer values only
+    //     from: function(value) {
+    //       return parseInt(value);
+    //   },
+    //     to: function(value) {
+    //       return parseInt(value);
+    //     }
+
+    // }
+});
+
+//mergeTooltips(slider, 15, ' - '); // not working
+
+zoomSlider.noUiSlider.on('slide',function(values, handle){
+  currentZoom = values[0]
+   zoomed2(parseFloat(currentZoom));//drawYoungPeople(values[0], values[1])
+  console.log("slide zoom factor: " + values[0]);
+});
+
+zoomSlider.noUiSlider.on('set',function(values, handle){
+  //currentZoom = values[0]
+  zoomed2(parseFloat(currentZoom));//drawYoungPeople(values[0], values[1])
+  console.log("set zoom factor: " + values[0]);
+});
+// *** END ZOOM SLIDER ***
+</script>
+
+<!--========================== -->
+		<!-- JS SOURCES -->
+    
+        <!-- jQuery -->
+        <script src="../dist/js/jquery.min.js"></script>
+         <!-- Bootstrap Core JavaScript -->
+        <script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
+
+          <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
+  <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> -->
+
+              <!-- D3 -->
+        <script src="../dist/js/d3.v3.min.js"></script>
+        <script src="../dist/js//d3.geo.projection.v0.min.js"></script>
+        <script src="../dist/js//topojson.v2.min.js"></script> <!-- for unusal projections -->
+        <script src="../dist/js/d3-geo.v1.min.js"></script>
+
+<!--         Metis Menu Plugin JavaScript -->
+<!--         <script src="../vendor/metisMenu/metisMenu.min.js"></script> -->
+        <!-- Custom Theme JavaScript -->
+<!--         <script src="../dist/js/sb-admin-2.js"></script> -->
+        <!-- Other JavaScripts -->
+        <script src="js/variables.js"></script>
+
+        <script src="js/functions2.js"></script> <!-- use functions2.js for the interactive chart -->
+<!--         <script src="js/compare.js"></script> instead of zoom --> 
+        <script src="js/functionsAxis.js"></script>
+        <script src="js/functionsMouse.js"></script>
+
+<!--         <script src="js/chart.js"></script> -->
+
+        <script src="js/map.js"></script>
+        <script src="js/chart2.js"></script> <!-- use chart2.js for the interactive chart -->
+        <script src="js/dropdown.js"></script>
+        <script src="js/functionsText.js"></script>
+        <script src="js/bar.js"></script>
+<!--         <script src="js/bioOverlay.js"></script> -->
+    
+
+
+</body>
+</html>

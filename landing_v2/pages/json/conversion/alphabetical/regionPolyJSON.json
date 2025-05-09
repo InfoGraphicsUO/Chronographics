@@ -1,0 +1,708 @@
+var regions_json3 = {
+  "type" : "FeatureCollection",
+  "crs" : {
+    "type" : "name",
+    "properties" : {
+      "name" : "EPSG:26901"
+    }
+  },
+  "features" : [
+    {
+      "type" : "Feature",
+      "id" : 0,
+      "geometry" : {
+        "type" : "Polygon",
+        "coordinates" : [
+          [
+            [
+              501800,
+              2170
+            ],
+            [
+              501800,
+              2278
+            ],
+            [
+              498800,
+              2278
+            ],
+            [
+              498800,
+              2170
+            ],
+            [
+              501800,
+              2170
+            ]
+          ]
+        ]
+      },
+      "properties" : {
+        "FID" : 0,
+        "Id" : 1,
+        "regionGRIDCODE" : 2,
+        "CENTROID_X" : 500300,
+        "CENTROID_Y" : 2224,
+        "INSIDE_X" : 500300,
+        "INSIDE_Y" : 2224,
+        "name" : "Africa"
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 1,
+      "geometry" : {
+        "type" : "Polygon",
+        "coordinates" : [
+          [
+            [
+              501800,
+              1954
+            ],
+            [
+              501800,
+              2170
+            ],
+            [
+              498800,
+              2170
+            ],
+            [
+              498800,
+              1954
+            ],
+            [
+              501800,
+              1954
+            ]
+          ]
+        ]
+      },
+      "properties" : {
+        "FID" : 1,
+        "Id" : 2,
+        "regionGRIDCODE" : 1,
+        "CENTROID_X" : 500300,
+        "CENTROID_Y" : 2062,
+        "INSIDE_X" : 500300,
+        "INSIDE_Y" : 2062,
+        "name" : "America"
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 2,
+      "geometry" : {
+        "type" : "Polygon",
+        "coordinates" : [
+          [
+            [
+              501800,
+              1837
+            ],
+            [
+              501800,
+              1954
+            ],
+            [
+              498800,
+              1954
+            ],
+            [
+              498800,
+              1837
+            ],
+            [
+              501800,
+              1837
+            ]
+          ]
+        ]
+      },
+      "properties" : {
+        "FID" : 2,
+        "Id" : 3,
+        "regionGRIDCODE" : 3,
+        "CENTROID_X" : 500300,
+        "CENTROID_Y" : 1895.5,
+        "INSIDE_X" : 500300,
+        "INSIDE_Y" : 1895.5,
+        "name" : "China"
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 3,
+      "geometry" : {
+        "type" : "Polygon",
+        "coordinates" : [
+          [
+            [
+              501800,
+              1675
+            ],
+            [
+              501800,
+              1837
+            ],
+            [
+              498800,
+              1837
+            ],
+            [
+              498800,
+              1675
+            ],
+            [
+              501800,
+              1675
+            ]
+          ]
+        ]
+      },
+      "properties" : {
+        "FID" : 3,
+        "Id" : 4,
+        "regionGRIDCODE" : 11,
+        "CENTROID_X" : 500300,
+        "CENTROID_Y" : 1756,
+        "INSIDE_X" : 500300,
+        "INSIDE_Y" : 1756,
+        "name" : "France"
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 4,
+      "geometry" : {
+        "type" : "Polygon",
+        "coordinates" : [
+          [
+            [
+              501800,
+              1567
+            ],
+            [
+              501800,
+              1675
+            ],
+            [
+              498800,
+              1675
+            ],
+            [
+              498800,
+              1567
+            ],
+            [
+              501800,
+              1567
+            ]
+          ]
+        ]
+      },
+      "properties" : {
+        "FID" : 4,
+        "Id" : 5,
+        "regionGRIDCODE" : 8,
+        "CENTROID_X" : 500300,
+        "CENTROID_Y" : 1621,
+        "INSIDE_X" : 500300,
+        "INSIDE_Y" : 1621,
+        "name" : "Germany"
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 5,
+      "geometry" : {
+        "type" : "Polygon",
+        "coordinates" : [
+          [
+            [
+              501800,
+              1351
+            ],
+            [
+              501800,
+              1567
+            ],
+            [
+              498800,
+              1567
+            ],
+            [
+              498800,
+              1351
+            ],
+            [
+              501800,
+              1351
+            ]
+          ]
+        ]
+      },
+      "properties" : {
+        "FID" : 5,
+        "Id" : 6,
+        "regionGRIDCODE" : 13,
+        "CENTROID_X" : 500300,
+        "CENTROID_Y" : 1459,
+        "INSIDE_X" : 500300,
+        "INSIDE_Y" : 1459,
+        "name" : "Great Britain"
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 6,
+      "geometry" : {
+        "type" : "Polygon",
+        "coordinates" : [
+          [
+            [
+              501800,
+              1261
+            ],
+            [
+              501800,
+              1351
+            ],
+            [
+              498800,
+              1351
+            ],
+            [
+              498800,
+              1261
+            ],
+            [
+              501800,
+              1261
+            ]
+          ]
+        ]
+      },
+      "properties" : {
+        "FID" : 6,
+        "Id" : 7,
+        "regionGRIDCODE" : 4,
+        "CENTROID_X" : 500300,
+        "CENTROID_Y" : 1306,
+        "INSIDE_X" : 500300,
+        "INSIDE_Y" : 1306,
+        "name" : "India"
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 7,
+      "geometry" : {
+        "type" : "Polygon",
+        "coordinates" : [
+          [
+            [
+              501800,
+              1027
+            ],
+            [
+              501800,
+              1261
+            ],
+            [
+              498800,
+              1261
+            ],
+            [
+              498800,
+              1027
+            ],
+            [
+              501800,
+              1027
+            ]
+          ]
+        ]
+      },
+      "properties" : {
+        "FID" : 7,
+        "Id" : 8,
+        "regionGRIDCODE" : 10,
+        "CENTROID_X" : 500300,
+        "CENTROID_Y" : 1144,
+        "INSIDE_X" : 500300,
+        "INSIDE_Y" : 1144,
+        "name" : "Italy"
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 8,
+      "geometry" : {
+        "type" : "Polygon",
+        "coordinates" : [
+          [
+            [
+              501800,
+              973
+            ],
+            [
+              501800,
+              1027
+            ],
+            [
+              498800,
+              1027
+            ],
+            [
+              498800,
+              973
+            ],
+            [
+              501800,
+              973
+            ]
+          ]
+        ]
+      },
+      "properties" : {
+        "FID" : 8,
+        "Id" : 9,
+        "regionGRIDCODE" : 16,
+        "CENTROID_X" : 500300,
+        "CENTROID_Y" : 1000,
+        "INSIDE_X" : 500300,
+        "INSIDE_Y" : 1000,
+        "name" : "Northern Crowns"
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 9,
+      "geometry" : {
+        "type" : "Polygon",
+        "coordinates" : [
+          [
+            [
+              501800,
+              865
+            ],
+            [
+              501800,
+              973
+            ],
+            [
+              498800,
+              973
+            ],
+            [
+              498800,
+              865
+            ],
+            [
+              501800,
+              865
+            ]
+          ]
+        ]
+      },
+      "properties" : {
+        "FID" : 9,
+        "Id" : 10,
+        "regionGRIDCODE" : 5,
+        "CENTROID_X" : 500300,
+        "CENTROID_Y" : 919,
+        "INSIDE_X" : 500300,
+        "INSIDE_Y" : 919,
+        "name" : "Persia"
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 10,
+      "geometry" : {
+        "type" : "Polygon",
+        "coordinates" : [
+          [
+            [
+              501800,
+              820
+            ],
+            [
+              501800,
+              865
+            ],
+            [
+              498800,
+              865
+            ],
+            [
+              498800,
+              820
+            ],
+            [
+              501800,
+              820
+            ]
+          ]
+        ]
+      },
+      "properties" : {
+        "FID" : 10,
+        "Id" : 11,
+        "regionGRIDCODE" : 15,
+        "CENTROID_X" : 500300,
+        "CENTROID_Y" : 842.5,
+        "INSIDE_X" : 500300,
+        "INSIDE_Y" : 842.5,
+        "name" : "Poland"
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 11,
+      "geometry" : {
+        "type" : "Polygon",
+        "coordinates" : [
+          [
+            [
+              501800,
+              757
+            ],
+            [
+              501800,
+              820
+            ],
+            [
+              498800,
+              820
+            ],
+            [
+              498800,
+              757
+            ],
+            [
+              501800,
+              757
+            ]
+          ]
+        ]
+      },
+      "properties" : {
+        "FID" : 11,
+        "Id" : 12,
+        "regionGRIDCODE" : 14,
+        "CENTROID_X" : 500300,
+        "CENTROID_Y" : 788.5,
+        "INSIDE_X" : 500300,
+        "INSIDE_Y" : 788.5,
+        "name" : "Russia"
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 12,
+      "geometry" : {
+        "type" : "Polygon",
+        "coordinates" : [
+          [
+            [
+              501800,
+              559
+            ],
+            [
+              501800,
+              757
+            ],
+            [
+              498800,
+              757
+            ],
+            [
+              498800,
+              559
+            ],
+            [
+              501800,
+              559
+            ]
+          ]
+        ]
+      },
+      "properties" : {
+        "FID" : 12,
+        "Id" : 13,
+        "regionGRIDCODE" : 12,
+        "CENTROID_X" : 500300,
+        "CENTROID_Y" : 658,
+        "INSIDE_X" : 500300,
+        "INSIDE_Y" : 658,
+        "name" : "Spain"
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 13,
+      "geometry" : {
+        "type" : "Polygon",
+        "coordinates" : [
+          [
+            [
+              501800,
+              541
+            ],
+            [
+              501800,
+              559
+            ],
+            [
+              498800,
+              559
+            ],
+            [
+              498800,
+              541
+            ],
+            [
+              501800,
+              541
+            ]
+          ]
+        ]
+      },
+      "properties" : {
+        "FID" : 13,
+        "Id" : 14,
+        "regionGRIDCODE" : 17,
+        "CENTROID_X" : 500300,
+        "CENTROID_Y" : 550,
+        "INSIDE_X" : 500300,
+        "INSIDE_Y" : 550,
+        "name" : "Tunis & Tripoli"
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 14,
+      "geometry" : {
+        "type" : "Polygon",
+        "coordinates" : [
+          [
+            [
+              501800,
+              451
+            ],
+            [
+              501800,
+              541
+            ],
+            [
+              498800,
+              541
+            ],
+            [
+              498800,
+              451
+            ],
+            [
+              501800,
+              451
+            ]
+          ]
+        ]
+      },
+      "properties" : {
+        "FID" : 14,
+        "Id" : 15,
+        "regionGRIDCODE" : 7,
+        "CENTROID_X" : 500300,
+        "CENTROID_Y" : 496,
+        "INSIDE_X" : 500300,
+        "INSIDE_Y" : 496,
+        "name" : "Turky"
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 15,
+      "geometry" : {
+        "type" : "Polygon",
+        "coordinates" : [
+          [
+            [
+              501800,
+              397
+            ],
+            [
+              501800,
+              451
+            ],
+            [
+              498800,
+              451
+            ],
+            [
+              498800,
+              397
+            ],
+            [
+              501800,
+              397
+            ]
+          ]
+        ]
+      },
+      "properties" : {
+        "FID" : 15,
+        "Id" : 16,
+        "regionGRIDCODE" : 6,
+        "CENTROID_X" : 500300,
+        "CENTROID_Y" : 424,
+        "INSIDE_X" : 500300,
+        "INSIDE_Y" : 424,
+        "name" : "Turky in Asia"
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 16,
+      "geometry" : {
+        "type" : "Polygon",
+        "coordinates" : [
+          [
+            [
+              498800,
+              397
+            ],
+            [
+              498800,
+              217
+            ],
+            [
+              501800,
+              217
+            ],
+            [
+              501800,
+              397
+            ],
+            [
+              498800,
+              397
+            ]
+          ]
+        ]
+      },
+      "properties" : {
+        "FID" : 16,
+        "Id" : 17,
+        "regionGRIDCODE" : 9,
+        "CENTROID_X" : 500300,
+        "CENTROID_Y" : 307,
+        "INSIDE_X" : 500300,
+        "INSIDE_Y" : 307,
+        "name" : "Turky in Europe"
+      }
+    }
+  ]
+}

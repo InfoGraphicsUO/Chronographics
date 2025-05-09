@@ -1,0 +1,41 @@
+var places_json_bounds = { "type":"FeatureCollection",
+  "features" : [
+    {
+      "properties" : {
+        "name" : "Bounds",
+      },
+      "type":"Feature","geometry":{
+        "type":"Polygon","coordinates" : [
+          [
+            
+            [
+              501950,
+              1800
+            ],
+            [
+              498750,
+              1800
+            ],
+            [
+              498750,
+              -50
+            ],
+            [
+              501950,
+              -50
+            ],
+            [
+              501950,
+              250
+            ],
+            [
+              501950,
+              -50
+            ],
+
+          ]
+        ]
+      }
+    }
+  ]
+}

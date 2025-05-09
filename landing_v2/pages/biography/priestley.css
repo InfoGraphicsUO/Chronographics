@@ -1,0 +1,213 @@
+/* The svg */
+#svg-chart {
+    border: none;
+    position: absolute;
+    max-width: 100%;
+}
+
+.topGroup{
+    background-color: black;
+    border: solid;
+    border-width: 3px;
+}
+
+/* Timeline styles */
+.timelineMarker{
+    stroke-width: 2px;
+    shape-rendering:geometricPrecision;
+    fill: red;
+    opacity: 0.75;
+    stroke: red;
+}
+
+.timeline-text, .timeline-text-background {  /*text in the specimen and main chart*/
+    /*font-family: "Brush Script MT", cursive;  */
+    font-family: "Bodoni MT", Didot, "Didot LT STD", "Hoefler Text", Goudy Old Style,Garamond,Big Caslon,Times New Roman,serif;
+    font-style: italic; 
+    font-size: 0.8em;
+}
+
+/*.timeline-text-background, .circles-background, .people-lines-background {
+    opacity: 0.4;
+}*/
+
+.dots{
+    fill: LightGray;
+}
+
+/* Axes styles */
+.xaxis path,
+.xaxis line {
+    fill: none;
+    stroke: #000;
+    stroke-width: 2px;
+    shape-rendering: crispEdges;
+}
+.xaxis text{
+    font-family: "Bodoni MT", Didot, "Didot LT STD", "Hoefler Text", Goudy Old Style,Garamond,Big Caslon,Times New Roman,serif;
+    font: 0.85em sans-serif;
+    fill:"red"; /*colors set in priestly.js'*/
+}
+
+.text-top{
+    font-family: Verdana;
+    font: 0.6em sans-serif;
+}
+
+.label-text{
+    position: absolute;
+    font-family: TimesNewRoman;
+    font-variant: small-caps;
+    font-size: 0.85em;
+    /*transform: rotate(-90deg);*/
+    /*text-align: center;*/
+    line-height: 80%;
+    text-anchor:middle;
+
+}
+
+.selectedGuy{
+    stroke: rgb(255,140,26,0.8) !important;
+    background-color: rgb(255,140,26,0.8) !important;
+    stroke-linecap:"round";
+      /*color: cyan !important;*/
+      /*fill: rgba(0,255,255,0.8) !important;*/
+}
+
+.selectedGuyText{
+    color: rgb(255,140,26,0.8)!important; 
+}
+
+.label-text-state {
+    position: absolute;
+    font-family: TimesNewRoman;
+    font-variant: small-caps;
+    font-size: 1em;
+    fill: "red";
+    transform: rotate(-90deg);
+}
+
+.label-text-learning {
+    font-family: TimesNewRoman;
+    font-variant: small-caps;
+    font-size: 1em;
+    fill: "red";
+}
+
+
+.people-lines, .timeline-text, .circles{
+/* everyone transparent so we can't fade them in = 0 as the math messes up in the fade*/
+/*    opacity:1e-6;*/
+/*    fill: blue;*/
+}
+
+.professions{
+    width:600%;
+    max-height: 50vh;
+    overflow: auto;
+    max-width:90vw;
+}
+
+.btn-drop {
+    border-style: none none solid;
+}
+
+#filterResultsBox{
+    max-height: calc(45vh);
+    overflow: auto;
+}
+
+/*ul > li:hover{   is hovering missing?? put this back. Also on bioChart.css 120
+  background-color: #e8f0e4 !important;
+
+}*/
+
+li  a {
+     display: block;
+    width: 100%;
+}
+
+button:hover{
+  color: #3F3418;
+    font-weight: 500;
+    background-color: #e8f0e4;
+    display: inline-block;
+/*      border: solid 1px #6F9E5A;
+      z-index: 999999;
+      position: absolute;
+      overflow: visible;
+      margin: auto;
+      top: 40%;
+      left: 40%;
+      background: #e8f0e4;*/
+}
+
+
+/*** Slider ***/
+#slider {
+/*width: 250px;*/
+/*margin: 100px auto;*/
+}
+.noUi-connect {
+background: #3F3418; /*change to notBlack*/
+}
+.noUi-target .noUi-ltr .noUi-horizontal{
+height: 20px;
+}
+
+.noUi-tooltip{
+font-size: 12px;
+font-weight: bold;
+padding-bottom: 0;
+background: transparent;
+border: none;
+}
+.noUi-base .noUi-handle {
+border: 1px #ddd solid;
+border-radius: 12px;
+box-shadow: none;
+font-size: 12px;
+/*circle height*/
+height: 15px;
+padding: 0;
+/*  position: absolute;*/
+text-align: left;
+width: 18.5px;
+z-index: 2;
+}
+/*.noUi-horizontal .noUi-base .noUi-handle {
+cursor: ew-resize;
+}*/
+
+/* height of the gutter */
+.noUi-horizontal {
+height: 7.5px;
+padding-right: 15px;
+}
+
+.noUi-base .noUi-handle:hover {
+background-color: lightgrey;
+}
+
+.noUi-base .noUi-handle:focus {
+outline: none;
+}
+
+.noUi-base .noUi-handle.noUi-active {
+background-color: darkgrey;
+z-index: 3;
+}
+.noUi-base .noUi-handle::before {
+display: none;
+}
+.noUi-base .noUi-handle::after {
+display: none;
+}
+
+/***   End slider ***/
+
+.invertColors{
+    filter: invert();
+    -webkit-filter:invert(100%);
+     filter:progid:DXImageTransform.Microsoft.BasicImage(invert='1');
+}

@@ -1,0 +1,398 @@
+/* The svg */
+#svg-chart {
+    border: none;
+    position: absolute;
+    max-width: 100%;
+    
+    /*prevent highlighting*/
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    }
+
+.topGroup{
+    background-color: black;
+    border: solid;
+    border-width: 3px;
+}
+
+.middleGroup{
+    pointer-events: none;
+}
+
+/* Timeline styles */
+.timelineMarker{
+    stroke-width: 2px;
+    shape-rendering:geometricPrecision;
+    fill: red;
+    opacity: 0.75;
+    stroke: red;
+}
+
+.timeline-text, .timeline-text-background {  /*text in the specimen and main chart*/
+    
+    /*font-family: "Brush Script MT", cursive;  */
+    font-family: 'STIX Two Text', 'PT Serif', serif;
+    font-style: italic; 
+    font-size: 0.45em;
+    font-weight: 700;
+}
+
+
+/*
+.timeline-text-background, .circles-background, .people-lines-background {
+    opacity: 0.4;
+    mix-blend-mode: difference; test on different devices
+     
+}
+*/
+
+.dots{
+    fill: LightGray;
+}
+
+/* Axes styles */
+.xaxis path,
+.xaxis line {
+    fill: none;
+    stroke: #000;
+    stroke-width: 2px;
+    shape-rendering: crispEdges;
+}
+/* timeline main numbers */
+.xaxis text{
+    font-family: 'Libre Baskerville', 'PT Serif',serif;
+    /* font-weight: bold; */
+/*    font-family: "Bodoni MT", Didot, "Didot LT STD", "Hoefler Text", Goudy Old Style,Garamond,Big Caslon,Times New Roman,serif;*/
+    font-size: 0.9em;
+/*    fill:"red"; colors set in priestly.js'*/
+}
+/* timeline 50s */
+.text-top{
+/*    font-family: 'Libre Baskerville', 'PT Serif',serif;*/
+    font-family: "Bodoni MT";
+    font-size: 0.9em;
+    /* font-weight: bold; */
+    letter-spacing: 1px;
+}
+
+.label-text{
+    position: absolute;
+    font-variant: small-caps;
+    font-size: 0.9em;
+    /*transform: rotate(-90deg);*/
+    /*text-align: center;*/
+    line-height: 75%;
+    text-anchor:middle;
+
+}
+
+.selectedGuy{
+    filter: drop-shadow(0px 0px 1.5px rgba(255, 140, 0, 1)) drop-shadow(0px 0px 2px rgba(255, 140, 0, 1)) drop-shadow(0px 0px 1px rgba(255, 140, 0, 1)) drop-shadow(0px 0px 1px rgba(255, 140, 0, 1));
+}
+
+.selectedGuyText{
+    fill: rgb(111, 55, 0) !important;
+    text-shadow: 0 0 1em rgb(255, 140, 26), 0 0 2.5em rgb(255, 140, 26), 0 0 4em rgb(255, 140, 26);
+}
+
+.selectedGuyBox{
+    background-color: rgb(255,140,26,0.8) !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.selectedGuyBox > i{
+    color: #585858; 
+}
+
+.hiddenGuy{
+      fill: #dad9d7 !important;
+      pointer-events: none;
+}
+
+.people-lines.hiddenGuy {
+      stroke: #c2c0bc !important;
+}
+
+.mouse-lines{
+    pointer-events: none;
+}
+
+
+
+.linkArrow{
+    font-weight: bolder;
+}
+
+.label-text-state {
+    position: absolute;
+    font-family: TimesNewRoman;
+    font-variant: small-caps;
+    font-size: 1em;
+/*    fill: "red";*/
+    transform: rotate(-90deg);
+}
+
+.label-text-learning {
+    font-family: TimesNewRoman;
+    font-variant: small-caps;
+    font-size: 1em;
+/*    fill: "red";*/
+}
+
+
+/*
+.people-lines, .timeline-text, .circles{
+ everyone transparent so we can't fade them in = 0 as the math messes up in the fade
+    opacity:1e-6;
+    fill: blue;
+}
+*/
+
+.professions{
+    width:600%;
+    max-height: 50vh;
+    overflow: auto;
+    max-width:90vw;
+}
+
+/*Scroll Bar styling*/
+::-webkit-scrollbar {
+    width: 14px;
+    height: 25px;
+}
+/*We use background-clip: padding-box; to get padding around scrollbar*/
+::-webkit-scrollbar-thumb {
+    height: 40px;
+    border: 4px solid rgba(1, 1, 1, 0);
+    background-clip: padding-box;
+    -webkit-border-radius: 7px;
+    background-color: rgba(0, 0, 0, 0.15);
+    -webkit-box-shadow: inset -1px -1px 0px rgba(0, 0, 0, 0.05), inset 1px 1px 0px rgba(0, 0, 0, 0.05);
+}
+::-webkit-scrollbar-button {
+    width: 0;
+    height: 0;
+    /*display: none;*/
+}
+::-webkit-scrollbar-corner {
+    background-color: transparent;
+}  
+.btn-drop {
+    border-style: none none solid;
+}
+/*End scroll bar styling*/
+
+#numPeoplePlaceholder:disabled, #filterResultPlaceholder:disabled,#selectionResultsBox{
+    border:none;
+/*    height:50%;*/
+    
+}
+
+.disabled {
+    cursor:default!important;
+    pointer-events: none;
+    
+}
+
+#numPeople, #filterResultsBox,#selectionResultsBox,#descriptive_text{
+    background-color: rgba(118, 118, 118, 0.1);
+    border-radius: 3px;
+
+}
+
+#numPeople{
+    padding: 0.5em;
+    display: flex;
+    width: 100%;
+}
+
+#filterResultsBox{
+    height:calc(25vh);
+    overflow: auto;
+}
+
+#filterResultsBox>div, #selectionResultsBox>div{
+    padding: 2px 5px 0px 1.5em;
+    text-indent: -1em;
+    line-height: 1.15;
+}
+
+
+#filterResultsBox>div:hover, #selectionResultsBox>div:hover{
+/*    background-color: #e8f0e4; green*/
+    background-color: white !important;
+/*    font-weight: 600;*/
+    text-shadow:0px 0px 1px black;
+}
+
+#selectionResultsBox{
+    height:calc(15vh);
+    overflow: auto;
+}
+
+#clearFiltersButton, #clearSelectionButton{
+    float: right;
+}
+.
+ul li:hover{
+  background-color: #e8f0e4 !important;
+  cursor: pointer!important;
+}
+
+.s-list:hover{
+    cursor: pointer!important;
+}
+
+.dropdown {
+    cursor: pointer!important;
+    max-width: 100%;
+}
+.dropdown-menu {
+    cursor: pointer!important;
+    width: max-content;
+}
+
+
+.dropdown-row{
+    display:flex; 
+    justify-content:space-between; 
+    flex-wrap: wrap; /* new row if item is too long */
+    align-items: flex-start; /* top of the row*/
+}
+
+
+#professionsMenu > div > li:hover,
+#professionsMenu > div > span:hover,
+#heathen_submenu > ul> li:hover {
+  background-color: white !important; 
+  cursor: pointer!important;
+}
+
+
+#lineMenu > li:hover,
+#continentMenu > li:hover,
+#regionMenu > li:hover,
+#genderMenu > li:hover{
+   background-color: #e8f0e4; /* pale green */
+}
+
+
+
+li a {
+    display: block;
+    width: 100%;
+}
+
+button:hover:enabled{
+/*  color: #3F3418;*/
+/*    font-weight: 500;*/
+    background-color: #e8f0e4; /* pale green */
+    display: inline-block;
+/*
+      border: solid 1px #6F9E5A;
+      z-index: 999999;
+      position: absolute;
+      overflow: visible;
+      margin: auto;
+      top: 40%;
+      left: 40%;
+*/
+      background-color:#e8f0e4!important;
+}
+
+.dropdown > .btn{
+    cursor: pointer;
+}
+
+
+/*** Slider ***/
+#ageSlider, #aliveSlider {
+/*width: 250px;*/
+    margin-top: 0.8em;
+}
+
+/*** Slider ***/
+#zoomSlider {
+    width: 250px;
+    margin: 8px 0px;
+}
+@media (max-width:1000px) {
+    #zoomSlider {
+    width: 150px;
+    }
+}
+
+.noUi-connect {
+background: #3F3418; /*change to notBlack*/
+}
+.noUi-target .noUi-ltr .noUi-horizontal{
+height: 20px;
+}
+
+.noUi-tooltip{
+    font-size: 12px;
+    padding-bottom: 0;
+    background: transparent;
+    border: none;
+
+    position: absolute;
+    right: -100%;
+}
+.noUi-base .noUi-handle {
+border: 1px #ddd solid;
+border-radius: 12px;
+box-shadow: none;
+font-size: 12px;
+/*circle height*/
+height: 15px;
+padding: 0;
+width: 18.5px;
+z-index: 2;
+}
+/*.noUi-horizontal .noUi-base .noUi-handle {
+cursor: ew-resize;
+}*/
+
+/* move slider tooltips slightly right*/
+#aliveSlider > div > div:nth-child(2) > div.noUi-tooltip{
+    transform: translate(100%,0) !important; /* note impacts when they are joined together... ideally want only for when there are two tooltips */
+}
+
+/* height of the gutter */
+.noUi-horizontal {
+height: 7.5px;
+padding-right: 15px;
+}
+
+.noUi-base .noUi-handle:hover {
+background-color: lightgrey;
+}
+
+.noUi-base .noUi-handle:focus {
+outline: none;
+}
+
+.noUi-base .noUi-handle.noUi-active {
+background-color: darkgrey;
+z-index: 3;
+}
+.noUi-base .noUi-handle::before {
+display: none;
+}
+.noUi-base .noUi-handle::after {
+display: none;
+}
+
+/***   End slider ***/
+
+.invertColors{
+    filter: invert();
+    -webkit-filter:invert(100%);
+     filter:progid:DXImageTransform.Microsoft.BasicImage(invert='1');
+}

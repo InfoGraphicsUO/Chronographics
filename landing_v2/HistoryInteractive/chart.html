@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="robots" content="noindex"> <!-- hide from search engines -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>History Interactive</title>
+
+    <!-- CSS IMPORTS -->
+    <!-- Bootstrap Core CSS Yes -->
+    <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Theme (Menu Alignment) Yes-->
+    <link href="dist/css/sb-admin-2.css" rel="stylesheet">
+    <!-- MetisMenu CSS Yes -->
+<!--    <link href="vendor/metisMenu/metisMenu.min.css" rel="stylesheet">-->
+    <!-- Custom CSS Yes -->
+    <link href="dist/css/css-overrides.css" rel="stylesheet">
+    <!-- Sidebar CSS Yes -->
+<!--    <link href="dist/css/sidebar.css" rel="stylesheet"> not used?-->
+    <!-- more custom CSS -->
+    <link href="css/historyStyle.css" rel="stylesheet">
+    
+<!--     <link href="../vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    
+      <!-- slider src -->
+  <link href="../dist/noUiSlider-14.6.3/distribute/nouislider.min.css" rel="stylesheet"> 
+    
+    <!-- END CSS IMPORTS -->
+    
+    
+    <!-- Font for body text -->
+    <style> @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900'); </style>
+    <!--    Font for "old" serif text-->
+    <style> @import url('https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap'); </style>
+    
+     <!-- Google Fonts -->
+<!--   Monsterrat -->
+	 <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,500,600,700,700i|Montserrat:300,400,500,600,700" rel="stylesheet">
+<!--    PT Serif-->
+	 <link href="https://fonts.googleapis.com/css2?family=PT+Serif&display=swap" rel="stylesheet">
+<!--    STIX-->
+    <link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet"> 
+<!--    Libre Baskerville-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+
+    <!-- JSON DATA -->
+    <!-- adapted from https://gist.github.com/djvanderlaan/5336035 and http://duspviz.mit.edu/d3-workshop/mapping-data-with-d3/ -->
+    <!-- Misc. -->
+    <script src="../pages/json/world-110m.json"></script> <!-- for map Yes -->
+    <script src="../pages/json/world_countries.topojson"></script> <!-- for map Yes -->
+    <!-- <script src="../pages/json/conversion/samplePlaces_Aug27.json"></script> places for map  -->
+     <script src="../pages/json/conversion/sample_places_1_5_2023.json"></script> <!-- places for map  -->
+    <script src="../pages/json/conversion/place_poly_bounds.json"></script> <!-- hard coded bounds Yes -->
+    <!-- JSON exported to geoJSON in python data processing scripts data from 1200BC-1800 -->
+    <script src="../pages/json/conversion/polyPowerJSON.json"></script> <!-- Yes -->
+    <script src="../pages/json/conversion/fullplacePolyJSON.json"></script> <!-- Yes -->
+    <script src="../pages/json/conversion/areaPolyJSON.json"></script> <!-- Yes -->
+    <script src="../pages/json/conversion/eventLinesJSON.json"></script> <!-- Yes -->
+    <script src="../pages/json/conversion/powerLinesJSON.json"></script> <!-- Yes -->
+    <script src="../pages/json/conversion/regionPolyJSON.json"></script> <!-- Yes -->
+    <script src="../pages/json/conversion/eventPointsJSON.json"></script> <!-- Yes -->
+    <script src="../pages/json/conversion/powerYearJSON.json"></script> <!-- Yes -->
+    <script src="../pages/json/conversion/placePersonJSON.json"></script> <!-- Yes -->
+    
+<!--  MANUAL FRAME AND TIMELINE  -->
+    <script src="../pages/json/conversion/manual/frame.json"></script> <!-- hard coded bounds Yes -->
+    <script src="../pages/json/conversion/manual/topTimeline.json"></script> <!-- hard coded bounds Yes -->
+    
+    
+    <!-- to do: load after page loads -->
+
+    <script defer src="../pages/json/conversion/saracens/polyPowerJSON.json"></script>  <!-- Yes -->
+    <script defer src="../pages/json/conversion/saracens/placePolyJSON.json"></script><!-- Yes -->
+    <script defer src="../pages/json/conversion/saracens/eventLinesJSON.json"></script><!-- Yes -->
+    <script defer src="../pages/json/conversion/saracens/powerLinesJSON.json"></script><!-- Yes -->
+    <script defer src="../pages/json/conversion/saracens/regionPolyJSON.json"></script><!-- Yes -->
+    <script defer src="../pages/json/conversion/saracens/eventPointsJSON.json"></script><!-- Yes -->
+    
+    <!-- Yes -->
+<!--     <script defer src="../pages/json/conversion/alphabetical/polyPowerJSON.json"></script> 
+     <script defer src="../pages/json/conversion/alphabetical/placePolyJSON.json"></script>  
+     <script defer src="../pages/json/conversion/alphabetical/eventLinesJSON.json"></script>  ->
+     <script defer src="../pages/json/conversion/alphabetical/powerLinesJSON.json"></script>  
+     <script defer src="../pages/json/conversion/alphabetical/regionPolyJSON.json"></script>  
+     <script defer src="../pages/json/conversion/alphabetical/eventPointsJSON.json"></script>   -->
+
+    <!-- END JSON DATA -->
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+        .m-0{
+            margin:0px;
+        }
+        #map_buttons{
+            margin: 8px 0px;
+        }
+        
+        #fullChartButton{
+            padding-top:5px;
+            padding-bottom: 5px;
+            margin-right:5px;
+        }
+    /* for right column */
+        .box {
+          display: flex;
+          flex-flow: column;
+          height: 100%;
+        }
+        .box .row.header {
+          flex: 0 1 auto;
+          /* The above is shorthand for:
+          flex-grow: 0,
+          flex-shrink: 1,
+          flex-basis: auto
+          */
+        }
+        .box .row.content {
+          flex: 1 1 auto;
+          overflow-y: auto;
+        }
+        
+        #descriptive_text-row{
+          position: relative !important;
+          max-height: 300px;
+        }
+    /* right column */
+        
+        
+ /*** Slider ***/
+        #zoomSlider {
+        width: 250px;
+        /*margin: 100px auto;*/
+            display:inline-block;
+        }
+        .noUi-connect {
+        background: #3F3418; /*change to notBlack*/
+        }
+        .noUi-target .noUi-ltr .noUi-horizontal{
+        height: 20px;
+        }
+
+        .noUi-tooltip{
+        font-size: 12px;
+        font-weight: bold;
+        padding-bottom: 0;
+        background: transparent;
+        border: none;
+        position: absolute !important; /*  remove to put tooltip below */
+        }
+        .noUi-base .noUi-handle {
+        border: 1px #ddd solid;
+        border-radius: 12px;
+        box-shadow: none;
+        font-size: 12px;
+        /*circle height*/
+        height: 15px;
+        padding: 0;
+        text-align: left;
+        width: 18.5px;
+        z-index: 2;
+        }
+        /*.noUi-horizontal .noUi-base .noUi-handle {
+        cursor: ew-resize;
+        }*/
+
+        /* height of the gutter */
+        .noUi-horizontal {
+        height: 7.5px;
+        padding-right: 15px;
+        }
+
+        .noUi-base .noUi-handle:hover {
+        background-color: lightgrey;
+        }
+
+        .noUi-base .noUi-handle:focus {
+        outline: none;
+        }
+
+        .noUi-base .noUi-handle.noUi-active {
+        background-color: darkgrey;
+        z-index: 3;
+        }
+        .noUi-base .noUi-handle::before {
+        display: none;
+        }
+        .noUi-base .noUi-handle::after {
+        display: none;
+        }
+
+/***   End slider ***/
+        
+/***   font picker fonts ***/        
+/*
+.old-looking-font{ 
+  defined in style.css
+}
+        
+*/
+.verticalPower{
+   writing-mode: vertical-rl;   
+}
+/***   End font picker fonts ***/
+    </style>
+</head>
+
+<body>
+        <!-- slider src -->
+    <script src="../dist/noUiSlider-14.6.3/distribute/nouislider.js"></script>
+    <div id="wrapper">
+        <!-- SIDEBAR -->
+        <!-- /.sidebar-collapse -->
+
+        <!-- <div id="page-wrapper"> -->
+           
+<!--            <div class="container-fluid" >-->
+
+                <div class="row" style="padding: 25px 50px;" id="interactive-map-row" >
+                    
+                    <div class="col-sm-4 m-0 box" style="max-width: 670px">
+                        <div class="row m-0 header"> <!-- sized to content -->
+                    <!-- Map Viewer -->
+                        <div class="panel panel-default">
+                           <!--  <div class="panel-heading"> -->
+                                
+                                <div class="legendHeading text-center" ><strong><large>Map of chart areas</large>
+                                    </strong>
+                                    <p class="legend-name legend"><span class="key-dot time">&#9632;</span>Land on Chart <span class="key-dot notime">&#9632;</span>Land not on Chart</p>
+                                    
+                                </div>
+                            <!-- </div> -->
+                            <!-- /.panel-heading -->
+                            <!-- <div class="panel-body" style="padding-bottom: 8px;"> -->
+                                <!--HACK TO MAKE SVG SCALABLE. CSS ABOVE-->
+                                <!-- https://tympanus.net/codrops/2014/08/19/making-svgs-responsive-with-css/ -->
+                                <div class="container-map grabbable">
+                                    <svg version="1.1" viewBox="0 0 400 200" preserveAspectRatio="xMinYMin meet"
+                                        id="map" class="content">
+                                    </svg>
+                                </div>
+                                <div id="map_buttons" class="small">
+
+                                            <button onclick="fullExtent()">View full map</button>
+                                            <button onclick="clearSelection()">Clear selection</button>
+                                </div>       
+                                <table  class="mt-2">
+                                  <tr>
+                                    <td><span class="yearText text-center smaller" >&nbsp;|&nbsp;&nbsp;</span><span class="bolder legend">&nbsp;Year&nbsp;&nbsp;</span></td>
+                                    <td><span  id="year_label" style="font-size 12px smaller">click chart to select</span></td>
+                                  </tr>
+                                  <tr>
+                                      <td><span class="m-0 d-block"><span class="key-dot-lg empireText regime">&#9627;&nbsp;&nbsp;</span><span class="bolder legend">Regime&nbsp;</span></span></td>
+                                     <td>                     
+                                        <btn-group>
+                                                     <button role="menu" class="btn dropdown-btn m-0 p-0">
+                                                        <!-- <div id="this" > -->
+                                                            <ul class="m-0 p-0 list-unstyled"><!-- JQUERY IN dropdown.js -->
+                                                              
+                                                              <li>
+                                                                <select id="regimeSelector" style="width:100%">
+                                                                    <option value="0" selected><i>click on map/chart or select here</i></option>
+                                                                </select>
+                                                              </li>
+                                                            </ul>
+                                                        <!-- </div> -->
+                                                    </button>
+                                                    </btn-group>
+                                                </td>
+                                  </tr>
+                                  <tr>
+                                    <td><span class="key-dot-lg placeText">&#9644;&nbsp;</span><span class="bolder legend">&nbsp;Area</span></td>
+<!--                                    <td><span class="old-looking-font" id="place_map">click on map/chart</span></td>-->
+                                      
+                                    <td >
+                                        <btn-group style="width:100%">
+                                                <button role="menu" class="btn dropdown-btn m-0 p-0" style="width:100%">
+                                                            <ul class="m-0 p-0 list-unstyled"><!-- JQUERY IN dropdown.js  -->
+                                                              
+                                                              <li>
+                                                                <select id="placeSelector" style="width:100%">
+                                                                    <option value="0" selected><i>click on map/chart or select here</i></option>
+                                                                </select>
+                                                              </li>
+                                                            </ul>
+                                               </button>
+                                           </btn-group>
+                                      </td>
+                                </table> 
+<!--                             </div> -->
+                            <!-- /.panel-body -->
+                        </div><!-- end map viewer -->
+                         </div> <!-- end sized to content -->
+                        <div class="row content m-0 mt-1 legendHeading" id="descriptive_text-row"><strong>Text from Priestley's <i>Description of A New Chart of History</i></strong>
+                            <div id="descriptive_text" class="old-looking-font">Click map or chart area to view text.</div>
+                        </div>
+                        
+
+                    </div> <!-- end left column  -->
+
+                    <div class="col-sm-8 legendHeading" style="padding: 17px 0px 0px 0px">
+                        <span style="padding:10px 0px 0px 18px; "><strong>Zoom chart</strong> <button id="fullChartButton" onclick="fullExtent()" class="btn mr-2 small">View full chart</button><small>100%</small> <div id="zoomSlider" ><!--Slider goes here --></div><small>&nbsp;&nbsp;800%&nbsp;&nbsp; </small><label><input type="checkbox" id="regionName_CB" onclick="toggleEra()">&nbsp;Region names</label>
+                            
+<!--                            <label>&nbsp;<input type="checkbox" id="RulerName_CB" onclick="toggleRuler()">&nbsp;Ruler names</label></span>-->
+                        
+<!--
+                       <select name="chart font" id="chart font" onchange="changeFont(this.value)" class="ml-3 btn-drop btn">
+                          <option value='STIX Two Text' >STIX Two Text</option>
+                          <option value="Bodoni MT" >Bodoni MT</option>
+                          <option value="PT Serif">PT Serif</option>
+                        </select>
+-->
+                        
+                        <div class="panel-default">
+                            <!-- <div class="panel-heading"> -->
+                                <!-- CHART ACTIONS -->
+                                
+                            <!-- </div> -->
+                            <!-- /.panel-heading -->
+
+                           <!--  <div class="panel-body"> -->
+                                <!--HACK TO MAKE SVG SCALABLE. CSS ABOVE-->
+                                <!-- https://tympanus.net/codrops/2014/08/19/making-svgs-responsive-with-css/ -->
+                                <div class="container-chart" id="container-chart">
+                                    <svg version="1.1" viewBox="5 0 900 600" preserveAspectRatio="xMinYMid slice"
+                                        id="vis" class="content" vector-effect="non-scaling-stroke">
+                                    </svg>
+                                </div>
+
+                            <!-- </div> -->
+                            <!-- /.panel-body -->
+<!--                             <div>
+                                <var id="place_label"></var>
+                                <var id="power_label">&nbsp;</var>
+                                <var id="year_label" class="nudgeleft"></var>&nbsp; <br>
+                            </div> -->
+                        </div>
+                        <!-- <div> -->
+<!--
+                               <button onclick="zoomed('in')">+</button>
+                               <button onclick="zoomed('out')">-</button>
+-->
+                         <!-- zoom slider -->
+             <br>
+            
+                               
+                                <!-- </div> -->
+                                
+<!--
+                                <button onclick="toggleEra()"><small>Toggle chart region names</small></button>
+                                <button onclick="toggleRuler()"><small>Toggle chart ruler names</small></button>
+-->
+                                <div class="btn-group small" style="display:none;">
+                                        <button type="button" class="dropdown-toggle"
+                                            data-toggle="dropdown">
+                                            Extra Actions
+                                            <span class="caret"></span>
+                                    </button>
+                                        <ul class="dropdown-menu pull-right" role="menu">
+                                            <!-- JQUERY IN dropdown.js -->
+                                            <li class="dropdown-submenu">
+                                                <a class="sub" href="#">Focus on era<span class="caret"></span></a>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <select class="form-control" id="eraSelector">
+                                                        </select>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            <!-- JQUERY IN dropdown.js -->
+                                            <li class="dropdown-submenu">
+                                            </li>
+                                            <li><a onclick="clearFilter()">Clear focus</a>
+                                            </li>
+                                            <hr>
+                                            <!-- JQUERY IN dropdown.js -->
+                                            <li class="dropdown-submenu">
+                                                <a class="sub" href="#">Change chart sort<span class="caret"></span></a>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <select class="form-control" id="sortSelector">
+                                                        </select>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                </div>
+                                            
+
+                    </div> <!-- end right column -->
+
+
+                    
+                </div>
+                <!-- /.container-fluid -->
+            </div>
+        <!-- </div> -->
+    </body>
+    
+    <script>
+    // *** ZOOM SLDIER ***
+var zoomSlider = document.getElementById('zoomSlider');
+    noUiSlider.create(zoomSlider, {
+      start: [1.0],
+      tooltips: [true],
+      connect: true,
+      format: {
+        // 'to' the formatted value. Receives a number.
+        to: function (value) {
+            return (value*100.0).toFixed(0)+('%');
+        },
+        // 'from' the formatted value.
+        // Receives a string, should return a number.
+        from: function (value) {
+            val = (value.replace('%', ''))/100.0
+            return Number(val);
+        }
+    },
+      step: 0.1,
+      range: {
+        'min': 1,
+        'max': 8
+      },
+    // format: { //integer values only
+    //     from: function(value) {
+    //       return parseInt(value);
+    //   },
+    //     to: function(value) {
+    //       return parseInt(value);
+    //     }
+
+    // }
+});
+
+//mergeTooltips(slider, 15, ' - '); // not working
+
+
+// *** END ZOOM SLIDER ***
+
+// *** FONT PICKER ***  
+
+    function changeFont(thisFont){
+    console.log(thisFont)
+    const collection = document.getElementsByClassName("old-looking-font");
+//    const collection2 = document.getElementsByClassName("old-looking-font-background");
+    
+    for (let i = 0; i < collection.length; i++) {
+            collection[i].style.fontFamily = thisFont;
+//            collection2[i].style.fontFamily = thisFont;
+    }
+
+//    switch(thisFont){
+//        case  "STIX Two Text":
+//           for (let i = 0; i < collection.length; i++) {
+//               collection[i].style.letterSpacing= "0.2px";
+////               collection2[i].style.letterSpacing= "0.2px";
+//            }
+//            break;
+//        case  "PT Serif":
+//           for (let i = 0; i < collection.length; i++) {
+//               collection[i].style.letterSpacing= "0.2px";
+////               collection2[i].style.letterSpacing= "0.2px";
+//            }
+//            break;
+//        default:
+//            for (let i = 0; i < collection.length; i++) {
+//                collection[i].style.letterSpacing= "0px";
+////                collection2[i].style.letterSpacing= "0px";
+//            }
+//            
+//            
+//    }
+        
+}
+    </script>
+
+    
+<!--// *** END FONT PICKER ***  -->
+    
+        <!-- JS SOURCES -->
+        <!-- jQuery --> <!-- yes -->
+        <script src="dist/js/jquery.min.js"></script>
+        
+        <!-- D3 --> <!-- yes -->
+        <script src="dist/js/d3.v3.min.js"></script>
+        <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script> <!-- newer version -->
+        <script src="dist/js//topojson.v2.min.js"></script> <!-- for unusal projections -->
+        <script src="dist/js/d3-geo.v1.min.js"></script>
+        <!-- Bootstrap Core JavaScript --> <!-- yes -->
+        <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+        <!-- Metis Menu Plugin JavaScript --> <!-- yes -->
+        <script src="vendor/metisMenu/metisMenu.min.js"></script>
+        <!-- Custom Theme JavaScript --> <!-- yes -->
+        <script src="dist/js/sb-admin-2.js"></script>
+        <!-- Other JavaScripts --> <!-- yes -->
+        <script src="js/variables.js"></script>
+        <script src="js/dropdown.js"></script>
+        <script src="js/functions.js"></script>
+        <script src="js/zoom.js"></script>
+        <script src="js/functionsAxis.js"></script>
+        <script src="js/functionsMouse.js"></script>
+        <script src="js/functionsText.js"></script>
+        <script src="js/chart.js"></script>
+        <script src="js/map.js"></script>
+        <!-- <script src="js/bar.js"></script> -->
+        <!-- <script src="js/bioOverlay.js"></script> -->
+        <!-- Navbar JavaScript --> <!-- yes -->
+        <!-- <script src="js/navbar.js"></script> -->
+
+        <!-- END JS SOURCES -->
+
+
+
+</html>

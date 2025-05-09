@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="robots" content="noindex"> <!-- hide from search engines -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Cartogram</title>
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico" />
+
+    <!-- CSS IMPORTS -->
+    <!-- Bootstrap Core CSS -->
+    <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<!--      Bootstrap Theme (Menu Alignment) 
+    <link href="../dist/css/sb-admin-2.css" rel="stylesheet"> -->
+    <!-- Custom CSS -->
+    <link href="css/css-overrides.css" rel="stylesheet">
+    <!-- Custom Fonts -->
+     <link href="../vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"> 
+    <!-- END CSS IMPORTS -->
+
+    <!-- JSON DATA -->
+    <script src="cartogram/json/worldbasemap_regions_2_28.json"></script>
+    <script src="cartogram/json/DegreeClipped.json"></script>
+    <!-- END JSON DATA -->
+
+    <!-- Font for body text -->
+    <style> @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900'); </style>
+    <!--    Font for "old" serif text-->
+    <style> @import url('https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap'); </style>
+    
+    <style>
+        .selectedRegion{
+            stroke: black;
+            fill:black;
+            stroke-width: 1px;
+            stroke-lineCap:round;
+            stroke-linejoin: round;
+        }
+        
+        #ChartImageFrame{
+/*            background-color: #f5f8fd !important;*/
+            background-image: url("cartogram/img/chart_background.jpg");
+            background-size: cover;
+            background-position: contain;
+/*
+            height:250px;
+            width:250px;
+*/
+            background-size: 100% 100%;
+        } 
+        
+       #ChartoramImageFrame{
+/*            background-color: #f5f8fd !important;*/
+            background-image: url("cartogram/img/chart_background.jpg");
+            background-size: cover;
+            background-position: contain;
+/*            height:100%;*/
+/*            width:100%;*/
+        } 
+        
+        
+        .section-bg{
+            background-color: #f5f8fd !important;
+        }
+
+        .p-0{
+            padding: 0px;
+        }
+
+        .pl-30{
+            padding-left: 30px;
+        }
+
+        .m-0{
+            margin-left: 0px;
+            margin-right: 0px;
+        }
+        
+        button {
+            background-color: transparent;
+            padding: 0px 5px;
+            border-color: rgba(63, 52, 24, 0.3);
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width:95px;
+        }
+        
+        /* #Sankey-like_lines{
+            text-transform: uppercase;
+        } */
+
+        text, .st50 {
+/*          background: #fff;*/
+          color: #444 !important;
+          font-family: "Montserrat", sans-serif !important;
+        }
+        
+    </style>
+</head>
+
+<body class="section-bg">
+    <!-- TO MAKE SVG SCALABLE. CSS ABOVE-->
+    <!-- https://tympanus.net/codrops/2014/08/19/making-svgs-responsive-with-css/ -->
+    <div class="row section-bg m-0 p-0 text-center">
+            <div id = "fourImages" class="chartImage old-looking-font section-bg pt" width=100% hspace="20">
+                <!-- empty div-->
+            </div>
+    </div> <!-- /.left/top column -->
+    
+
+    <!-- JS SOURCES -->
+    <!-- D3 -->
+    <script src="../dist/js/d3.v3.min.js"></script>
+    <script src="../dist/js/d3.geo.projection.v0.min.js"></script>
+    <script src="cartogram/lib/d3.legend.js"></script>
+    <script src="cartogram/lib/pym.js"></script>
+    <!-- jQuery -->
+    <script src="../dist/js/jquery.min.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
+    <!-- Custom Theme JavaScript -->
+    <script src="../dist/js/sb-admin-2.js"></script>
+    <!-- Cartogram js -->
+    <script src="cartogram/carto4.js"></script>    
+
+    <!-- END JS SOURCES -->
+
+
+</body>
+
+</html>

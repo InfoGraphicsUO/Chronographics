@@ -1,0 +1,147 @@
+#svg-chart, #filterResultsBox{
+    cursor: pointer;
+}
+body.waiting * { cursor: wait !important; }
+
+#userInput{
+    padding-left: 10px;
+}
+
+
+/* set height/width proportions for timeline*/
+.ratio-container {
+    position: relative;
+    width: 100%;
+    padding-top: 80vh;
+    max-width: 150vh;
+    max-height: calc(90vh - 70px); /* 90% hieight - header */
+    /* overflow: scroll; while zooming */
+    overflow-x: scroll; /* while zooming */
+    /*Aspect Ratio */
+}
+
+.ratio-container-sm {
+    position: relative;
+    width: 100%;
+    padding-top: 70vh;
+    max-width: 100%;
+    /*Aspect Ratio */
+}
+
+.ratio-container-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+
+.row {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+.row > [class*='col-'] {
+    display: flex;
+    flex-direction: column;
+    align-content: space-between;
+}
+
+#OriginalBioText {
+    height: 100%;
+}
+#bioOriginal{
+    height: calc(90vh - 80px);
+}
+
+
+.small, small {
+    font-size: 80%!important;
+    font-weight: 400!important;
+}
+
+
+a {
+    color: #3F3418!important;
+    padding: 0px 6px;
+}
+
+button > a {
+   padding: 0px 0px; 
+}
+
+#heathen_dropdown, #heathen_submenu > ul{
+    padding: 0px 6px !important;
+    width: 100%;
+    text-align: left;
+    border-radius: 0;
+    background-color: #fff6f7;
+    font-size:100%;
+}
+
+
+/*  shared tolltip CSS  set in css-overrides*/
+div.tooltip {
+}
+
+#tooltip_topline{
+    display: block;
+    text-align: left;
+    margin:0px;
+    font-weight: bold;
+    font-size: larger;
+}
+
+#tooltip_timeline_text{
+    display: block;
+    text-align: left;
+    margin:0px;
+    font-weight: bold;
+}
+
+.tooltip > hr {
+    width: 50%;
+    margin: 2px 2px;
+}
+
+.flex-container {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+}
+
+.professionHeading {
+   padding-left: 5px;
+   color: #3F3418;
+   text-transform: uppercase;
+   display: block;
+   width: 100%;
+    
+}
+
+#professionsMenu > div{
+    border-top: 0.6px solid #3F3418;
+}
+
+
+.btn {
+    margin: 0px;
+    color: #3F3418;
+    padding: 0px !important;
+    cursor: pointer;
+}
+
+
+#currentFilter{
+    min-height: 3em;
+/*    display: block;*/
+}
+
+#descriptive_text{
+    max-height: 250px;
+    min-height: 100px;
+    overflow-y: auto;
+}

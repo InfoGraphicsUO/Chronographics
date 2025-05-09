@@ -1,0 +1,16 @@
+diff a/DataDisplay/landing_v2/HistoryInteractive/js/chart.js b/DataDisplay/landing_v2/HistoryInteractive/js/chart.js	(rejected hunks)
+@@ -46,12 +46,12 @@
+ 
+     // for the year region label background
+     var yFull = d3.scale.linear()
+-        .domain([-195, 1945])  // magic numbers so that the y axis aligns correctly
++        .domain([-200, 1939])  // magic numbers so that the y axis aligns correctly
+         .range([visHeight, 0]);
+ 
+     // defines the y scale based upon place
+     var yScale = d3.scale.linear()
+-        .domain([-195, 1945])  // magic numbers so that the y axis aligns correctly
++        .domain([-200, 1939])  // magic numbers so that the y axis aligns correctly
+         .range([visHeight, 0]);
+ }
+ if(page== "twoCharts.html"){

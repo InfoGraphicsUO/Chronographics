@@ -1,0 +1,10 @@
+diff a/DataDisplay/landing_v2/pages/chartofHistory.html b/DataDisplay/landing_v2/pages/chartofHistory.html	(rejected hunks)
+@@ -442,7 +442,7 @@
+                   <br>
+                   <section class="step" style="margin-bottom:7vh">
+                     <div class="title"><bold>Hegemony<span style="font-weight: normal"><i> - regimes</i></span></bold></div>
+-                      <p>Hegemony, or political dominance of one nation over others, is represented on the chart by polygons, which may join several or many <i>place</i> and <i>area</i> rows. The most important of these are  colored and inscribed in a larger script. Powerful <i>regimes</i> such as those of the <span class="old-looking-font-bold">English</span> and the <span class="old-looking-font-bold">Romans</span> control many <i>place</i> and <i>area</i> rows for many years.</p>
++                      <p>Hegemony, or political dominance of one nation over others, is represented on the chart by polygons, which may join several or many <i>place</i> and <i>area</i> rows. The most important of these are  colored and inscribed in a larger script. Powerful <i>regimes</i> such as those of the English and the Romans control many <i>place</i> and <i>area</i> rows for many years.</p>
+                       <div class="tourSubtitle" style="color:#067806;">Regime: The Roman Empire</div>
+                     <img src="tour/img/empireAR.png" width=100%><br><br>
+                   </section> <!-- 4 -->
