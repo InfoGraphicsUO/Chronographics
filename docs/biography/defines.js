@@ -100,9 +100,9 @@ function parseDate(dateString) {
 
 // Create dictionary for searching for people's page number
 var ppDict = {};
-//d3.csv("biography/text/namePage.csv", function(error, result) { // when live
+d3.csv("biography/text/namePage.csv", function(error, result) { // when live
 // for dev to avoid CORS problems
-d3.csv("https://pages.uoregon.edu/infographics/timeline/pages/biography/text/namePage.csv", function(error, result) {
+// d3.csv("https://pages.uoregon.edu/infographics/timeline/pages/biography/text/namePage.csv", function(error, result) {
     for (var i = 0; i < result.length; i++)
     {
         var person = result[i].name.toLowerCase().replace(/\s/g, '');
@@ -166,15 +166,17 @@ function findRuler(x){
     }
 }
 
-
 // get RULER era info for chart of BIO
- d3.csv("https://pages.uoregon.edu/infographics/timeline/pages/csv/rulers.csv", function(error, result) {
+// live/github
+d3.csv("csv/rulers.csv", function(error, result){
+// local git repo
+// d3.csv("https://pages.uoregon.edu/infographics/timeline/pages/csv/rulers.csv", function(error, result) {
         for (var i = 0; i < result.length; i++)
         {
             rulerTicks.push(parseInt(result[i].startYear));
             rulerTickLabels.push(result[i].ruler);
         }
-    })
+})
     
 
 

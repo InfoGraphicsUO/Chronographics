@@ -805,8 +805,10 @@ function loadBioData(){
   // allow pointerevents (e.g. tooltips) on rectangles and data  
   $('.middleGroup').css('pointer-events', 'auto');
 
-
-    d3.request("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/biography/csv/PriestleyBioData_Feb2_2023(2_20_2024).csv")
+    // git
+    d3.request("biography/csv/PriestleyBioData_Feb2_2023(2_20_2024).csv") 
+    //local dev
+    //d3.request("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/biography/csv/PriestleyBioData_Feb2_2023(2_20_2024).csv")
       .mimeType("text/csv")
       .response(function (xhr) { return d3.csvParse(xhr.responseText); })
       .get(function(data) {
@@ -941,10 +943,10 @@ function loadBioData(){
 
 // LOAD people descriptions. 
 // Note: Download from google sheets as XLS then save as csv UTF-8 to include French/special characters e.g check em dashes in  "JANSEN..."
-//d3.csv("csv/Watkins_bios_4_5_2023.csv", function(error, result) { // when live
+d3.csv("biography/csv/WatkinsData8_17_2023.csv") // when live
 // for dev to avoid CORS problems
 //Watkins
-d3.request("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/biography/csv/WatkinsData8_17_2023.csv")
+//d3.request("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/biography/csv/WatkinsData8_17_2023.csv")
     .mimeType("text/csv")
     .response(function (xhr) { return d3.csvParse(xhr.responseText); })
     .get(function(data) {
@@ -955,7 +957,8 @@ d3.request("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/biograph
     });
 
 //Aikin
-d3.request("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/biography/csv/Alternate_Dictionary.csv")
+d3.csv("biography/csv/Alternate_Dictionary.csv") // when live
+//d3.request("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/biography/csv/Alternate_Dictionary.csv")
     .mimeType("text/csv")
     .response(function (xhr) { return d3.csvParse(xhr.responseText); })
     .get(function(data) {
