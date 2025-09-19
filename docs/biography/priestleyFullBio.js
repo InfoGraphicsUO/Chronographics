@@ -814,7 +814,7 @@ function loadBioData(){
       .get(function(data) {
           data.forEach(function(d){
                 // check if this case is in the current MANUAL case filter
-                console.log(d["case"])
+                // console.log(d["case"])
                 var testCase="";
                 if (d["case"] != "" && d["case"] != "none") {
                     testCase = parseInt(d["case"].match(/\d+/)[0]) // get the "case" as an integer
@@ -3061,11 +3061,11 @@ function drawGender(gender){
                 // both female and male cases
                 filterString = "someGuy.gender=='" + gender.toLowerCase() +"'";  
                 break;
-           case "unknown":
-                filterString = "(someGuy.gender=='0'|| someGuy.gender== 'unsure')"; 
-                break;
+        //    case "unknown":
+        //         filterString = "(someGuy.gender!='male' && someGuy.gender== 'female')"; 
+        //         break;
             default:
-                filterString = "(someGuy.gender=='missing from OpenRefine results' || someGuy.gender== null)";
+                filterString = "(someGuy.gender!='male' && someGuy.gender!= 'female')";
         }
         
         //clearTimeline();
@@ -3575,7 +3575,8 @@ function mouseOutSectionTitle(d){
     var tooltipHTML = ""
 
     var G; // gender
-    if (allPeople[key][0].gender != null && allPeople[key][0].gender != '0' && allPeople[key][0].gender !='unsure') {
+    //if (allPeople[key][0].gender != null && allPeople[key][0].gender != '0' && allPeople[key][0].gender !='unsure') {
+    if (allPeople[key][0].gender == "male" || allPeople[key][0].gender == "female"){
         G = allPeople[key][0].gender
         //capitalize
         G= G[0].toUpperCase() + G.substr(1)
