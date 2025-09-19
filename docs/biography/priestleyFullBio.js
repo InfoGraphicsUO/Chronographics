@@ -806,7 +806,7 @@ function loadBioData(){
   $('.middleGroup').css('pointer-events', 'auto');
 
     // git
-    d3.request("biography/csv/PriestleyBioData_Feb2_2023(2_20_2024).csv") 
+    d3.request("biography/csv/Chronographics Biographies(9_18_2025).csv") 
     //local dev
     //d3.request("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/biography/csv/PriestleyBioData_Feb2_2023(2_20_2024).csv")
       .mimeType("text/csv")
@@ -814,9 +814,9 @@ function loadBioData(){
       .get(function(data) {
           data.forEach(function(d){
                 // check if this case is in the current MANUAL case filter
-                //console.log(d["case"])
+                console.log(d["case"])
                 var testCase="";
-                if (d["case"] != "" ) {
+                if (d["case"] != "" && d["case"] != "none") {
                     testCase = parseInt(d["case"].match(/\d+/)[0]) // get the "case" as an integer
                 } else {
                      testCase = false;
