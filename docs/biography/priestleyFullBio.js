@@ -746,17 +746,17 @@ var case12= 0; // No line number //0
 var case10 = 0; // unsure2 //0
 
 ////Sample
-//var case1 = 0; //solidLines
-//var case2 = 0; //threeBegin
-//var case3 = 0; //threeBeginTwoEnd
-//var case4 = 0; //oneBegin
-//var case5 = 0; //oneEndUnder
-//var case6 = 0; //"solid2" solid lines
-//var case7 = 0; // oneEnd
-//var case8 = 0; // threeBeginOneEnd //0
-//var case11 = 0; // oneEndUnder2
-//var case13= 0; //seven dots
-//var case14= 1; // oneEnd2
+// var case1 = 0; //solidLines
+// var case2 = 1; //threeBegin
+// var case3 = 0; //threeBeginTwoEnd
+// var case4 = 0; //oneBegin
+// var case5 = 0; //oneEndUnder
+// var case6 = 0; //"solid2" solid lines
+// var case7 = 0; // oneEnd
+// var case8 = 0; // threeBeginOneEnd //0
+// var case11 = 0; // oneEndUnder2
+// var case13= 0; //seven dots
+// var case14= 1; // oneEnd2
 
 
 
@@ -837,7 +837,10 @@ function loadBioData(){
                     // store ID a couple ways
                     someGuy["UO_ID"] = "ID" + parseInt(d["UO_ID"]);
                     var thisID = someGuy["UO_ID"]
-                    someGuy["Watkins_ID"] = parseInt(d["Watkins_ID"]);
+                    // someGuy["Watkins_ID"] = parseInt(d["Watkins_ID"]);
+                    someGuy["BioName"] = d["Bio Name"];
+                    someGuy["BioSource"] = d["BioSource"];
+                    someGuy["Biography"] = d["Biography"];
                     someGuy["Alternate_Name"] = d["Alternate_name"];
                     someGuy["Alternate_ID"] = parseInt(d["Alternate_ID"]);
                     someGuy["DisplayName"] = d["NameOnChart"];
@@ -886,8 +889,8 @@ function loadBioData(){
                     someGuy["AproxAge"]  = someGuy["AproxDeathDate"]- someGuy["AproxBirthDate"];
 
                     
-                    someGuy["Link"] = d["WikiLink"] // previously Wiki_Link
-                    //someGuy["Wikipedia2"] = d["Wikipedia"]
+                    // someGuy["Link"] = d["WikiLink"] // previously Wiki_Link
+                    // //someGuy["Wikipedia2"] = d["Wikipedia"]
 
                     
                     if(d["WikiLink"] != ""){
@@ -896,6 +899,8 @@ function loadBioData(){
                     }else if (d["Alternate Link"]!= ""){
                         //check for google book link
                         someGuy["Link"] = d["Alternate Link"]
+                    } else {
+                        someGuy["Link"] = "unknown"
                     }
 
         //            console.log (someGuy["Name"] + d["On Chart: Line #"] ); // debug
@@ -943,18 +948,18 @@ function loadBioData(){
 
 // LOAD people descriptions. 
 // Note: Download from google sheets as XLS then save as csv UTF-8 to include French/special characters e.g check em dashes in  "JANSEN..."
-d3.csv("biography/csv/WatkinsData8_17_2023.csv") // when live
-// for dev to avoid CORS problems
-//Watkins
-//d3.request("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/biography/csv/WatkinsData8_17_2023.csv")
-    .mimeType("text/csv")
-    .response(function (xhr) { return d3.csvParse(xhr.responseText); })
-    .get(function(data) {
-          data.forEach(function(d){
-              var id = d["WATKINS_ID"];      
-              watkinsDict[id] = [d["NAME"],d["BIO"],d["SOURCE"]];
-          })
-    });
+// d3.csv("biography/csv/WatkinsData8_17_2023.csv") // when live
+// // for dev to avoid CORS problems
+// //Watkins
+// //d3.request("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/biography/csv/WatkinsData8_17_2023.csv")
+//     .mimeType("text/csv")
+//     .response(function (xhr) { return d3.csvParse(xhr.responseText); })
+//     .get(function(data) {
+//           data.forEach(function(d){
+//               var id = d["WATKINS_ID"];      
+//               watkinsDict[id] = [d["NAME"],d["BIO"],d["SOURCE"]];
+//           })
+//     });
 
 //Aikin
 d3.csv("biography/csv/Alternate_Dictionary.csv") // when live
@@ -4145,10 +4150,16 @@ function setDescriptiveText(UOID) {
         return false;
     }
     
-    watkinsID = allPeople[UOID][0].Watkins_ID
-    var alternateID= ""
-    var alternateName="";
+
+        
+    //watkinsID = allPeople[UOID][0].Watkins_ID
+    var alternateName= ""
     var link = allPeople[UOID][0].Link
+    var biography = allPeople[UOID][0].Biography
+    var source = allPeople[UOID][0].BioSource
+    var BioName = allPeople[UOID][0].BioName
+
+    //console.log(link)
     var linkText = ''
     
     // get link info
@@ -4165,47 +4176,48 @@ function setDescriptiveText(UOID) {
             linkText ='<span id="selectedLink"><a class="p-0" target="_blank" title="Open link ' + thisLinkType +' in new window" href="'+ link +'">&nbsp;'+thisImg+'<span class="linkArrow">&#8599;</span></a></span>'
     } 
     
-    
-          
+              
     var pName = "<span style='text-transform:uppercase'>" + allPeople[UOID][0].Name + "</span>";
+
     
-    // check description from Watkins
-	if (typeof watkinsID != 'undefined' && watkinsID in watkinsDict) {
-        // NOTE: when dictionary is built, watkinsDict[ID][0] is name, watkinsDict[ID][1] is description, watkinsDict[ID][2] is source
+    // // check description from Watkins
+	// if (typeof watkinsID != 'undefined' && watkinsID in watkinsDict) {
+    //     // NOTE: when dictionary is built, watkinsDict[ID][0] is name, watkinsDict[ID][1] is description, watkinsDict[ID][2] is source
         
-        // SET NAME
-        // add Watkins name if different
-        if (allPeople[UOID][0].Name.toUpperCase() !=  watkinsDict[watkinsID][0].toUpperCase()){
-            alternateName = " or <span style='text-transform:uppercase'>" + watkinsDict[watkinsID][0] + "</span>"
-        }
+    //     // SET NAME
+    //     // add Watkins name if different
+    //     if (allPeople[UOID][0].Name.toUpperCase() !=  watkinsDict[watkinsID][0].toUpperCase()){
+    //         alternateName = " or <span style='text-transform:uppercase'>" + watkinsDict[watkinsID][0] + "</span>"
+    //     }
         
        
-        //set description
-        document.getElementById("descriptive_text").innerHTML = pName + alternateName + linkText + "<br>"+ watkinsDict[watkinsID][1] + "<br>— " + watkinsDict[watkinsID][2]+" (Watkins)";
+    //     //set description
+    //     document.getElementById("descriptive_text").innerHTML = pName + alternateName + linkText + "<br>"+ watkinsDict[watkinsID][1] + "<br>— " + watkinsDict[watkinsID][2]+" (Watkins)";
              
-	} else if(allPeople[UOID][0].alterrnateID != '' && allPeople[UOID][0].alterrnateID !== undefined) { // check for an Alternate description
-        var alterrnateID = allPeople[UOID][0].Alternate_ID
-        console.log("alterrnateID " + alterrnateID)
-        // NOTE: when dictionary is built, alternateDict[ID][0] is name, alternateDict[ID][1] is description, alternateDict[ID][2] is the entry's source, alternateDict[ID][3] is text which was used
+	// } else if(allPeople[UOID][0].alterrnateID != '' && allPeople[UOID][0].alterrnateID !== undefined) { // check for an Alternate description
+    //     var alterrnateID = allPeople[UOID][0].Alternate_ID
+    //     console.log("alterrnateID " + alterrnateID)
+    //     // NOTE: when dictionary is built, alternateDict[ID][0] is name, alternateDict[ID][1] is description, alternateDict[ID][2] is the entry's source, alternateDict[ID][3] is text which was used
         
 
         
         // SET NAME
-        // add Alternate name if different
+        // add Alternate name if bio name is different
         // allPeople[UOID][0].Name is the name in the field "Name"
-        // alternateDict[alterrnateID][0] is the name, which is stored in the first index of the array
-        if (allPeople[UOID][0].Name.toUpperCase() !=  alternateDict[alterrnateID][0].toUpperCase()){
-            alternateName = " or <span style='text-transform:uppercase'>" + alternateDict[alterrnateID][0] + "</span>"
+        // allPeople[UOID][0].alternateName is the name in the field "alternateName"
+        // NOTE: lost the bio text title with this setup, the old sheets
+        console.log(BioName)
+        if (BioName && BioName != "" && allPeople[UOID][0].Name.toUpperCase() !=  BioName.toUpperCase()){
+            alternateName = ` or <span style='text-transform:uppercase'>${BioName} </span>`
+            // set description
+            document.getElementById("descriptive_text").innerHTML = pName + alternateName + linkText + "<br>"+ `${biography}<br>—(${source})`;
+        } else { // no name found at all
+                console.log("No descriptive text found")
+                // set description
+                document.getElementById("descriptive_text").innerHTML = pName + linkText + "<br>No descriptive text found. Click another name to view text.";
         }
-        
-        //set description
-        document.getElementById("descriptive_text").innerHTML = pName + alternateName + linkText + "<br>"+ alternateDict[alterrnateID][1] +"<br>— " + alternateDict[alterrnateID][2]+" ("+ alternateDict[alterrnateID][3]+")";
-        
-    } else { // no name found at all
-			console.log("Not in watkinsDict")
-		 	document.getElementById("descriptive_text").innerHTML = pName + linkText + "<br>No descriptive text found. Click another name to view text.";
-	}
 
+       
 }
 
 

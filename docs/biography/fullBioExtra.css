@@ -141,6 +141,8 @@ div.tooltip {
 }
 
 #descriptive_text{
+    font-size: smaller;
+    line-height: initial;
     max-height: 250px;
     min-height: 100px;
     overflow-y: auto;
