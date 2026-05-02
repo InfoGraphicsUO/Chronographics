@@ -230,6 +230,18 @@ zoomSlider.noUiSlider.on('set',function(values, handle){
 clearCheckBoxes();
 
 // ~ ~ ~ Function to scale the main group ~  ~ ~
+function applyChartTransform(scale) {
+    // keep every chart layer on the same transform so zoom and pan stay aligned
+    // scale is the current on screen zoom factor for the whole svg
+    // currentdragx and currentdragy are the shared pan offsets in screen pixels
+    var transformValue = "matrix(" + scale + ",0,0," + scale + "," + currentDragX + "," + currentDragY + ")";
+    d3.select(".topGroup").attr("transform", transformValue);
+    d3.select(".middleGroup").attr("transform", transformValue);
+    d3.select(".bottomGroup").attr("transform", transformValue);
+    d3.select(".peopleGroup").attr("transform", transformValue);
+    d3.select(".categoryGroup").attr("transform", transformValue);
+}
+
 function sizeChange(factor) {
     console.log("resizing")
     console.log("x: " + currentDragX)
@@ -248,16 +260,15 @@ function sizeChange(factor) {
         wide = high * aspect
     }
 
+    // factor is the user chosen zoom level and wide tracks the visible chart width
+    // aspect keeps the chart shape stable instead of stretching to the container
+    // scale converts the chart from its base size into the current viewport size
     var scale = (wide/outerWidth)*factor;
  //   var translateX = (wide*scale)/-2
 //    d3.select(".topGroup").attr("transform", "scale(" + scale + ") translate(" + translateX + " 0)");
-    d3.select(".topGroup").attr("transform", "scale(" + scale + ") translate(" + currentDragX + " " + currentDragY +")");
-    d3.select(".middleGroup").attr("transform", "scale(" + scale + ") translate(" + currentDragX + " " + currentDragY +")");
-    d3.select(".bottomGroup").attr("transform", "scale(" + scale + ") translate(" + currentDragX + " " + currentDragY +")");
-    d3.select(".peopleGroup").attr("transform", "scale(" + scale + ") translate(" + currentDragX + " " + currentDragY +")");
-    d3.select(".categoryGroup").attr("transform", "scale(" + scale + ") translate(" + currentDragX + " " + currentDragY +")");
+    applyChartTransform(scale);
 
-  $("#svg-chart").height(wide*(currentZoom/aspect));
+    $("#svg-chart").height(high);
 
 
     // //get label locations
@@ -4099,6 +4110,7 @@ function resultClicked(){
 
 
 function fullExtentBio(){
+    // reset the chart back to its full view and zero pan so the user starts centered
     currentZoom = 1.0;
     currentDragX =  0.0;
     currentDragY = 0.0;
@@ -4115,18 +4127,39 @@ function fullExtentBio(){
 
 svg.on("wheel", function(d){
     //console.log("zoom zoom")
-      d3.event.preventDefault(); // prevent default page scroll
-      var direction = d3.event.wheelDelta < 0 ? 'down' : 'up';
-      currentZoom = (d3.event.wheelDelta < 0 ) ? currentZoom -= 0.2 : currentZoom += 0.2; // decrement / increment
-      currentZoom = (currentZoom < 1.0 ) ? 1.0 : currentZoom; // test lower bound
-      currentZoom = (currentZoom > 8.0 ) ? 8.0 : currentZoom; // test upper bound
-      zoomSlider.noUiSlider.set([currentZoom]*100); 
+    d3.event.preventDefault(); // prevent default page scroll
+
+    // zoom should keep the point under the mouse fixed in place
+    var rect = this.getBoundingClientRect();
+    var mouseX = d3.event.clientX - rect.left;
+    var mouseY = d3.event.clientY - rect.top;
+
+    // old scale is the current transform before the wheel step
+    var wide = container.width();
+    var oldScale = (wide / outerWidth) * currentZoom;
+
+    // wheel delta is turned into a small zoom step and then clamped
+    currentZoom = (d3.event.wheelDelta < 0) ? currentZoom - 0.2 : currentZoom + 0.2;
+    currentZoom = Math.max(1.0, Math.min(8.0, currentZoom));
+
+    // new scale is the transform after the wheel step
+    // focus x and y are the chart coordinates under the cursor before zooming
+    var newScale = (wide / outerWidth) * currentZoom;
+    var focusX = (mouseX - currentDragX) / oldScale;
+    var focusY = (mouseY - currentDragY) / oldScale;
+
+    // move the chart so the same chart point stays under the cursor after zoom
+    currentDragX = mouseX - focusX * newScale;
+    currentDragY = mouseY - focusY * newScale;
+
+    zoomSlider.noUiSlider.set([currentZoom * 100]);
+
       // sizeChange(currentZoom);
       //console.log(currentZoom)
       //zoom(direction === 'up' ? d : d.parent);
 
-      var translateX = d3.event;
-      var translateY = d3.event;
+    //   var translateX = d3.event;
+    //   var translateY = d3.event;
 //      console.log(d3.event)
 //      console.log(translateY)
 
@@ -4236,65 +4269,29 @@ function dragstarted(d) {
   dragStartY = d3.event.y;
 }
 
-function dragged(d) {
-//  console.log("draged")
-//  console.log(d3.event.x)
-//  dragStartX = d3.event.x;
-//  dragStartY = d3.event.y;
-    
-  //    console.log(d3.event)
-  const diffX = d3.event.x - dragStartX;
-  const diffY = d3.event.y - dragStartY;
-  // only move if a big drag  
-  if (Math.abs(diffX) > delta || Math.abs(diffY) > delta) {
-        console.log("draged big")
-        console.log(d3.event.x)
-    // Drag!
-      currentDragX = currentDragX + diffX
-      currentDragY = currentDragY + diffY
-//      console.log("drag")
-//      console.log("currentDragX"+currentDragX)
-      
-      
-    // Maintain current timeline zoom
-    var wide = container.width(),
-	high = container.height();
-    var scale = (wide/outerWidth)*currentZoom;
- //   var translateX = (wide*scale)/-2
-//    d3.select(".topGroup").attr("transform", "scale(" + scale + ") translate(" + translateX + " 0)");
-      
-     
-      // cap x/y pans
-      xgap =  -1*((outerWidth)-wide)
-//      currentDragX = Math.min(currentDragX,0)
-      //currentDragX = currentDragX > 0 ?  Math.min(currentDragX, 0): Math.min(xgap, 0);
+function dragged() {
+    if (currentZoom <= 1.0) {
+        // at full zoom out there is no room to pan so dragging should do nothing
+        // reset the pan values so tiny pointer movement cannot leave drift behind
+        currentDragX = 0;
+        currentDragY = 0;
+        applyChartTransform((container.width() / outerWidth) * currentZoom);
+        return;
+    }
 
-//      
-      currentDragX = currentDragX < -0.8*(container.width()) ?  -0.8*(container.width()) : currentDragX // don't drag over 80% left
-      currentDragX = currentDragX > 0.8*(container.width()) ?  0.8*(container.width()) : currentDragX // don't drag over 80% right
-      
-      currentDragY = Math.min(currentDragY, 0) // can't drag below the top
-      
-      console.log("wide:"+wide+" high:"+high +" scale:"+scale)
-      console.log("container width:"+ outerWidth+" container hight:"+outerHeight +" scale:"+scale)
-      console.log("xgap:"+ xgap)
-      console.log("cdX:"+currentDragX)
-      console.log("cdY:"+currentDragY)
-      
-    d3.select(".topGroup").attr("transform", "scale(" + scale + ") translate(" + currentDragX + " " + currentDragY+ ")");
-    d3.select(".middleGroup").attr("transform", "scale(" + scale + ") translate(" + currentDragX + " " + currentDragY+ ")");
-    d3.select(".bottomGroup").attr("transform", "scale(" + scale + ") translate(" + currentDragX + " " + currentDragY+ ")");
-    d3.select(".peopleGroup").attr("transform", "scale(" + scale + ") translate(" + currentDragX + " " + currentDragY+ ")");
-    d3.select(".categoryGroup").attr("transform", "scale(" + scale + ") translate(" + currentDragX + " " + currentDragY+ ")");
-    
-     
-    
-  dragStartX = d3.event.x;
-  dragStartY = d3.event.y;
-    
+    // dx and dy are the mouse movement since the last drag event in screen pixels
+    const dx = d3.event.dx;
+    const dy = d3.event.dy;
+
+    const wide = container.width();
+    // scale must match the zoom math used everywhere else so drag and zoom agree
+    const scale = (wide / outerWidth) * currentZoom;
+
+    // currentdragx and currentdragy store the accumulated pan offset for the chart
+    currentDragX += dx;
+    currentDragY += dy;
+    applyChartTransform(scale);
   }
-    
-}
 
 function dragended(d) {
     d3.select(this).style("cursor", "pointer");  
