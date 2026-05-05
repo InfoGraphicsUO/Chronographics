@@ -735,6 +735,7 @@ var unsure = [];
 var solid2 = [];
 var unsure2 = [];
 var sevenDots = []
+var threeEnd = []
 
 // which lines to draw by default or change manually
 // not really needed any more since the drawing can also no be controlled in the font end, but this allows us to control it before hand.
@@ -750,6 +751,7 @@ var case8 = 1; // threeBeginOneEnd //0
 var case11 = 1; // oneEndUnder2
 var case13= 1; //seven dots
 var case14= 1; // oneEnd2
+var case15= 1; // threeEnd
 
 //Unused cases...
 var case9 = 0; // unsure - no match //0
@@ -757,22 +759,23 @@ var case12= 0; // No line number //0
 var case10 = 0; // unsure2 //0
 
 ////Sample
-// var case1 = 0; //solidLines
-// var case2 = 1; //threeBegin
-// var case3 = 0; //threeBeginTwoEnd
-// var case4 = 0; //oneBegin
-// var case5 = 0; //oneEndUnder
-// var case6 = 0; //"solid2" solid lines
-// var case7 = 0; // oneEnd
-// var case8 = 0; // threeBeginOneEnd //0
-// var case11 = 0; // oneEndUnder2
-// var case13= 0; //seven dots
-// var case14= 1; // oneEnd2
+var case1 = 0; //solidLines
+var case2 = 1; //threeBegin
+var case3 = 0; //threeBeginTwoEnd
+var case4 = 0; //oneBegin
+var case5 = 0; //oneEndUnder
+var case6 = 0; //"solid2" solid lines
+var case7 = 0; // oneEnd
+var case8 = 0; // threeBeginOneEnd //0
+var case11 = 0; // oneEndUnder2
+var case13= 0; //seven dots
+var case14= 0; // oneEnd2
+var case15= 1; // threeEnd
 
 
 
 // array for testing which cases to draw to speed up development
-boolCases=[0,case1,case2,case3,case4, case5, case6, case7, case8, case9, case10, case11, case12, case13, case14]
+boolCases=[0,case1,case2,case3,case4, case5, case6, case7, case8, case9, case10, case11, case12, case13, case14, case15]
 
 console.log("A");
 
@@ -817,7 +820,7 @@ function loadBioData(){
   $('.middleGroup').css('pointer-events', 'auto');
 
     // git
-    d3.request("biography/csv/Chronographics Biographies(9_18_2025).csv") 
+    d3.request("biography/csv/Chronographics Biographies(9_19_2025).csv") 
     //local dev
     //d3.request("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/biography/csv/PriestleyBioData_Feb2_2023(2_20_2024).csv")
       .mimeType("text/csv")
@@ -1079,7 +1082,8 @@ function sortPeople(thePeople, peopleFilter) {
    unsure = [];
    solid2 = [];
    unsure2 = [];
-   sevenDots = []
+   sevenDots = [];
+   threeEnd = [];
   // noLineNumber = [];
     
     console.log("filter "+ peopleFilter);  // logs current filter
@@ -1157,6 +1161,10 @@ function sortPeople(thePeople, peopleFilter) {
                     //console.log("1 dot end 2 (case14)");
                     oneEnd2.push(someGuy);
                     break;
+            case 15:
+                    //console.log("three end (case15)");
+                    threeEnd.push(someGuy);
+                    break;
             default:
                 unsure.push(someGuy); 
         } // switch
@@ -1188,10 +1196,11 @@ function sortPeople(thePeople, peopleFilter) {
    // console.log("11. oneEndUnder2 " + oneEndUnder2.length)
    // console.log("13. seven dots " + sevenDots.length)
    // console.log("14. oneEnd2 " + oneEnd2.length)
+   // console.log("15. threeEnd " + threeEnd.length)
    // console.log("12. noLineNumber (not updated on redraw) " + noLineNumber.length)
    // console.log("9 (don't fit a case). people " + unsure.length)
 	
-   var numPeopleDrawn = solidLines.length + threeBegin.length + threeBeginTwoEnd.length + oneBegin.length + oneEndUnder.length + oneEndUnder2.length + oneEnd.length + oneEnd2.length + threeBeginOneEnd.length + solid2.length + sevenDots.length;
+   var numPeopleDrawn = solidLines.length + threeBegin.length + threeBeginTwoEnd.length + oneBegin.length + oneEndUnder.length + oneEndUnder2.length + oneEnd.length + oneEnd2.length + threeBeginOneEnd.length + solid2.length + sevenDots.length  + threeEnd.length;
    var numPeopleDrawn = people.length;
    //document.getElementById("numPeople").innerHTML = "(" + numPeopleDrawn + ")";
    document.getElementById("numPeople").innerHTML =  numPeopleDrawn + " people";
@@ -1680,7 +1689,7 @@ function drawBackgroundLines(){
     }
 
     if (case13){
-            // % % % Case 13: sevent dots - Background% % % 
+            // % % % Case 13: seven dots - Background% % % 
             // draw the people from this case on the map  
             // no map on new page 
             //  if (page == "biographyMap.html"){   drawPeopleOnMap(sevenDots);    }     
@@ -1767,6 +1776,56 @@ function drawBackgroundLines(){
                 .attr("stroke-width", "0.4px")
                 .style("fill", backgroundLineColor);
     }
+    if (case15){
+             // % % % Case 15: Solid lines with THREE DOTs at the END - background % % % 
+             // draw the people from this case on the map  
+
+            var threeEndEnter = peopleGroup.selectAll("div")
+                .data(threeEnd)
+                .enter();
+            // Add the lines
+            threeEndEnter.append("line")
+                .attr("class", "people-lines-background")
+                .attr("x1", function(d){
+        //        console.log("threeBeginTwoEnd " + allPeople[d][0].DisplayName); // who is this?
+                    return xScale(parseDate((allPeople[d][0].BirthDate).toString()));
+                })
+                .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
+                .attr("x2", function(d){
+                    return xScale(parseDate((allPeople[d][0].BirthDate - 13).toString()));
+                })
+                .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
+                .attr("stroke", backgroundLineColor)
+                .attr("stroke-width", backgroundLineWidths)
+
+            // Add the text
+            if (drawNames) {
+                threeEndEnter.append("text")
+                    .attr("class", "timeline-text-background")
+                    .attr("text-anchor", "middle")
+                    .text(function(d){ return allPeople[d][0].DisplayName; })
+                    .attr("x", function(d){     
+                    var start = (allPeople[d][0].BirthDate);
+                        return xScale(parseDate(start.toString()));
+                    })
+                    .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
+                    .style("fill", backgroundLineColor);
+            }
+
+                // Add the 3 dots (run through the data 3 times)
+                [7,12,17].forEach(function(j){
+                threeEndEnter.append("circle")
+                    .attr("class", "circles-background")
+                    .attr("cx", function(d){
+                        return xScale(parseDate((parseInt(allPeople[d][0].BirthDate) + j).toString()))
+                    })
+                    .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber); })
+                        .attr("r", dotSize)
+                        .attr("stroke-width", "0.4px")
+                        .style("fill", backgroundLineColor);
+                })
+
+     }
 }
 
 function drawCase1(){
@@ -2802,6 +2861,86 @@ function drawCase14(){
             .on("mouseout", mouseOut);
 }
 
+function drawCase15(){
+     // % % % Case 15: Solid lines with THREE DOTs at the END  % % % 
+                    // draw the people from this case on the map  
+            // no map on new page 
+            console.log("drawCase15")
+
+            var threeEndEnter = peopleGroup.selectAll("div")
+                .data(threeEnd)
+                .enter();
+            // Add the lines
+            threeEndEnter.append("line")
+                .attr("class", "people-lines")
+                .attr("x1", function(d){
+        //        console.log("threeBeginTwoEnd " + allPeople[d][0].DisplayName); // who is this?
+                    return xScale(parseDate((allPeople[d][0].BirthDate).toString()));
+                })
+                .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
+                .attr("x2", function(d){
+                    return xScale(parseDate((allPeople[d][0].BirthDate - 13).toString()));
+                })
+                .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
+                .attr("stroke", notBlack)
+                .attr("stroke-width", backgroundLineWidths)
+
+            // Add the text
+            if (drawNames) {
+                threeEndEnter.append("text")
+                    .attr("class", "timeline-text")
+                    .attr("text-anchor", "middle")
+                    .text(function(d){ return allPeople[d][0].DisplayName; })
+                    .attr("x", function(d){     
+                    var start = (allPeople[d][0].BirthDate);
+                        return xScale(parseDate(start.toString()));
+                    })
+                    .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
+                    .style("fill", notBlack);
+            }
+
+            // Add the 3 dots (run through the data 3 times)
+            [7,12,17].forEach(function(j){
+            threeEndEnter.append("circle")
+                .attr("class", "circles")
+                .attr("cx", function(d){
+                    return xScale(parseDate((parseInt(allPeople[d][0].BirthDate) + j).toString()))
+                })
+                .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber); })
+                    .attr("r", dotSize)
+                    .attr("stroke-width", "0.4px")
+                    .style("fill", notBlack);
+            })
+
+            // add the mouse lines
+        threeEndEnter.append("line")
+            .attr("class", "mouse-lines")
+            .attr("id", function(d){return d})
+            .attr("x1", function(d){
+    //        console.log("oneEnd " + allPeople[d][0].DisplayName); // who is this?
+                return xScale(parseDate((allPeople[d][0].BirthDate).toString())) - 2;
+            })
+            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
+            .attr("x2", function(d){
+            return xScale(parseDate(allPeople[d][0].BirthDate.toString())) + 13;
+            })
+            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
+            .attr("stroke", "transparent")
+            .attr("stroke-width", "6px")
+            .on("click", function(e) {
+                //findPage(e["Name"]); // put back for PDF
+                // updateLink(e);
+                selectPerson(e);
+            })
+            .on("mouseover", function(d){
+                if (allPeople[d][0].BirthDate > 0 ){
+                mouseOverChartPeople(this,d,allPeople[d][0].BirthDate, allPeople[d][0].BirthDate + 45, "b. " + allPeople[d][0].BirthDate);
+                } else {
+                mouseOverChartPeople(this,d,allPeople[d][0].BirthDate, allPeople[d][0].BirthDate + 45, "b. " + Math.abs(allPeople[d][0].BirthDate) + " BC. ") ;    
+                }   
+            })
+            .on("mouseout", mouseOut);
+}
 
 // draw the all the names these will be redrawn many times
 function drawLines(){
@@ -2848,6 +2987,9 @@ function drawLines(){
     
     if (case14){
         d3.timeout(drawCase14(),1);
+    }
+    if (case15){
+        d3.timeout(drawCase15(),1);
     }
     var now = new Date();
     console.log(now.toUTCString()+ " end of drawLines()");
@@ -3196,9 +3338,9 @@ function drawCase(num){
         if (num == 1){
             filterString = "someGuy.lineType == 'case1' || someGuy.lineType == 'case6'"; // if drawing case 1, also draw case 6, both are solid line
         } else if (num == 5){
-            filterString = "someGuy.lineType == 'case5' || someGuy.lineType == 'case11'"; // if drawing case 1, also draw case 6, both are solid line
+            filterString = "someGuy.lineType == 'case5' || someGuy.lineType == 'case11'"; // if drawing case 5, also draw case 11
         } else if (num == 7){
-            filterString = "someGuy.lineType == 'case7' || someGuy.lineType == 'case14'"; // if drawing case 1, also draw case 6, both are solid line
+            filterString = "someGuy.lineType == 'case7' || someGuy.lineType == 'case14'"; // if drawing case 7, also draw case 14
         } else {
             filterString = "someGuy.lineType =='case" + num +"'"
         }
@@ -4010,6 +4152,8 @@ function lookupLineStyle(inputLineStyle) {
             return "Seven dots (case13)";
         case 14:
             return "1 dot end 2 (case14)";
+        case 15:
+            return "2 dot end (case15)";
         default:
             return "";
     }

@@ -2560,6 +2560,8 @@ function lookupLineStyle(inputLineStyle) {
             return "seven dots (case13)";
         case 14:
             return "1 dot end 2 (case14)";
+        case 15:
+            return "2 dot end (case15)";
         default:
             return "";
     }
