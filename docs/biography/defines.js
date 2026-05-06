@@ -40,7 +40,7 @@ function parseDate(dateString) {
         if (isNaN(dateString)) {
             // Handle BC year
             // Remove non-digits, convert to negative number
-            year = -dateString.replace(/[^0-9]/g, "");
+            year = -String(dateString).replace(/[^0-9]/g, "");
         } else {
             // Handle AD year
             // Convert to positive number

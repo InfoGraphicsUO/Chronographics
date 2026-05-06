@@ -819,18 +819,18 @@ var case12= 0; // No line number //0
 var case10 = 0; // unsure2 //0
 
 ////Sample
-var case1 = 0; //solidLines
-var case2 = 1; //threeBegin
-var case3 = 0; //threeBeginTwoEnd
-var case4 = 0; //oneBegin
-var case5 = 0; //oneEndUnder
-var case6 = 0; //"solid2" solid lines
-var case7 = 0; // oneEnd
-var case8 = 0; // threeBeginOneEnd //0
-var case11 = 0; // oneEndUnder2
-var case13= 0; //seven dots
-var case14= 0; // oneEnd2
-var case15= 1; // threeEnd
+// var case1 = 0; //solidLines
+// var case2 = 1; //threeBegin
+// var case3 = 0; //threeBeginTwoEnd
+// var case4 = 0; //oneBegin
+// var case5 = 0; //oneEndUnder
+// var case6 = 0; //"solid2" solid lines
+// var case7 = 0; // oneEnd
+// var case8 = 0; // threeBeginOneEnd //0
+// var case11 = 0; // oneEndUnder2
+// var case13= 0; //seven dots
+// var case14= 0; // oneEnd2
+// var case15= 1; // threeEnd
 
 
 
