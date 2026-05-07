@@ -25,6 +25,8 @@ var drawNames = true; //boolean for drawing text on chart of bio off by default/
 var currentCase = "drawAllPeople";
 var changeCase = false;
 var currentProfession = "";
+var currentLineSystem = "index"; // case mode for the chart line filter
+var currentLineSelection = 0; // current selected line case in the active mode
 var currentLineStyle = "";
 var currentContinent = "";
 var currentRegion = "";
@@ -231,6 +233,7 @@ zoomSlider.noUiSlider.on('set',function(values, handle){
 
 // clear all checkboxes when script is loaded, after the slider is setup
 clearCheckBoxes();
+setTimeout(buildLineMenu, 0);
 
 // ~ ~ ~ Function to scale the main group ~  ~ ~
 function applyChartTransform(scale) {
@@ -796,6 +799,7 @@ var solid2 = [];
 var unsure2 = [];
 var sevenDots = []
 var threeEnd = []
+var visualPeople = [];
 
 // which lines to draw by default or change manually
 // not really needed any more since the drawing can also no be controlled in the font end, but this allows us to control it before hand.
@@ -864,6 +868,7 @@ function loadBioData(){
   document.getElementById("gender_label").disabled = false;
   document.getElementById("profession_label").disabled = false;
   document.getElementById("continent_label").disabled = false;
+    document.getElementById("case_system_label").disabled = false;
   if($('#region_label').length > 0) {
       document.getElementById("region_label").disabled = false;
      }
@@ -880,7 +885,7 @@ function loadBioData(){
   $('.middleGroup').css('pointer-events', 'auto');
 
     // git
-    d3.request("biography/csv/Chronographics Biographies(9_19_2025).csv") 
+    d3.request("biography/csv/Chronographics Biographies(5_7_2026).csv") 
     //local dev
     //d3.request("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/biography/csv/PriestleyBioData_Feb2_2023(2_20_2024).csv")
       .mimeType("text/csv")
@@ -956,7 +961,9 @@ function loadBioData(){
                     }
                     someGuy["Region"] = d["Region_final"]//new
 
-                    someGuy["lineType"] = d["case"].trim(); //get the line type eg. 'case1', but remove newlines and other whitespace (was a problem on case 3)
+                    someGuy["case"] = d["case"].trim(); // original case code from the data
+                    someGuy["VisualCase"] = d["VisualCase"].trim(); // visual-case label used for display/menu grouping
+                    someGuy["lineType"] = someGuy["case"]; // keep existing drawing logic on the original case code
                     someGuy["indexText"] = null; // in tab2 (TO DO, create indext when reading in data instead of on the fly)
 
                     // calculate aprox age
@@ -1145,11 +1152,13 @@ function sortPeople(thePeople, peopleFilter) {
    sevenDots = [];
    threeEnd = [];
   // noLineNumber = [];
+    visualPeople = [];
     
     console.log("filter "+ peopleFilter);  // logs current filter
     
     // iterate through the dictionary
     // access the info about a person using: allPeople[key][0].FIELD_NAME
+    var useVisualCases = currentLineSystem === "visual";
     $.each(allPeople, function(key) {
         //console.log(key, value[0].Name);
         
@@ -1160,7 +1169,12 @@ function sortPeople(thePeople, peopleFilter) {
 
         var testCase = parseInt(allPeople[key][0].lineType.match(/\d+/)[0]) // this person is in the list of cases we are drawing. e.g. "case3" -> 3. Mostly used to speed drawing during development
 
-        if (boolCases[testCase] && eval(peopleFilter)){ // only do the rest if the person matches the manual boolean and the current filter
+        if (useVisualCases) {
+            if (eval(peopleFilter)) {
+                people.push(someGuy);
+                visualPeople.push(someGuy);
+            }
+        } else if (boolCases[testCase] && eval(peopleFilter)){ // only do the rest if the person matches the manual boolean and the current filter
 
         // sort the people into their lists based on the case listed in the  spreadsheet
         //console.log("test case " + testCase) 
@@ -3002,54 +3016,348 @@ function drawCase15(){
             .on("mouseout", mouseOut);
 }
 
+function getChartValue(value, fallback) {
+    var numericValue = parseFloat(value);
+    if (isNaN(numericValue)) {
+        return fallback;
+    }
+    return numericValue;
+}
+
+function getVisualCaseConfig(person) {
+    var birthDate = getChartValue(person.BirthDate, getChartValue(person.AproxBirthDate, getChartValue(person.AliveDate, 0)));
+    var deathDate = getChartValue(person.DeathDate, getChartValue(person.AproxDeathDate, getChartValue(person.AliveDate, 0)));
+    var aliveDate = getChartValue(person.AliveDate, getChartValue(person.AproxBirthDate, birthDate + 40));
+    var lifeLength = getChartValue(person.LifeLength, Math.max(0, deathDate - birthDate));
+    var visualCase = person.VisualCase || "C";
+
+    var config = {
+        drawLine: true,
+        lineStart: birthDate,
+        lineEnd: deathDate,
+        textX: null,
+        textY: null,
+        startDots: [],
+        endDots: [],
+        underStart: null,
+        underEnd: null,
+        afterDots: [],
+        mouseStart: birthDate,
+        mouseEnd: deathDate,
+        tooltipLabel: person.DisplayName
+    };
+
+    switch (visualCase) {
+        case "A":
+            config.lineStart = aliveDate - 13;
+            config.lineEnd = aliveDate + 7;
+            config.startDots = [-28, -23, -18];
+            config.endDots = [12, 17];
+            config.textX = aliveDate - 7;
+            config.mouseStart = aliveDate - 37;
+            config.mouseEnd = aliveDate + 19;
+            config.tooltipLabel = "a. " + aliveDate;
+            break;
+        case "B":
+            config.drawLine = false;
+            config.lineStart = aliveDate - 2;
+            config.lineEnd = aliveDate + 28;
+            config.afterDots = [-32, -22, -12, -2, 8, 18, 28];
+            config.textX = aliveDate - 2;
+            config.mouseStart = aliveDate - 25;
+            config.mouseEnd = aliveDate + 20;
+            config.tooltipLabel = "fl. ab. " + aliveDate;
+            break;
+        case "C":
+            config.lineStart = deathDate - lifeLength;
+            config.lineEnd = deathDate;
+            config.textX = config.lineStart + (lifeLength / 2);
+            config.mouseStart = config.lineStart;
+            config.mouseEnd = config.lineEnd;
+            config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
+            break;
+        case "D":
+            config.lineStart = deathDate - 30;
+            config.lineEnd = deathDate;
+            config.startDots = [-35, -40, -45];
+            config.textX = deathDate - 15;
+            config.mouseStart = deathDate - 45;
+            config.mouseEnd = deathDate;
+            config.tooltipLabel = "d. " + deathDate;
+            break;
+        case "E":
+            config.lineStart = deathDate - 30;
+            config.lineEnd = deathDate;
+            config.startDots = [-35, -40, -45];
+            config.underEnd = 2;
+            config.textX = deathDate - 15;
+            config.mouseStart = deathDate - 45;
+            config.mouseEnd = deathDate;
+            config.tooltipLabel = "d. " + deathDate;
+            break;
+        case "F":
+            config.lineStart = deathDate - 30;
+            config.lineEnd = deathDate;
+            config.startDots = [-35, -40, -45];
+            config.afterDots = [5];
+            config.textX = deathDate - 15;
+            config.mouseStart = deathDate - 45;
+            config.mouseEnd = deathDate + 5;
+            config.tooltipLabel = "d. " + deathDate;
+            break;
+        case "G":
+            config.lineStart = deathDate - lifeLength;
+            config.lineEnd = deathDate;
+            config.underEnd = 2;
+            config.textX = config.lineStart + (lifeLength / 2);
+            config.mouseStart = config.lineStart;
+            config.mouseEnd = config.lineEnd;
+            config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
+            break;
+        case "H":
+            config.lineStart = deathDate - lifeLength;
+            config.lineEnd = deathDate;
+            config.underStart = 2;
+            config.textX = config.lineStart + (lifeLength / 2);
+            config.mouseStart = config.lineStart - 2;
+            config.mouseEnd = config.lineEnd + 2;
+            config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
+            break;
+        case "I":
+            config.lineStart = deathDate - lifeLength;
+            config.lineEnd = deathDate;
+            config.underStart = 2;
+            config.underEnd = 2;
+            config.textX = config.lineStart + (lifeLength / 2);
+            config.mouseStart = config.lineStart - 2;
+            config.mouseEnd = config.lineEnd + 2;
+            config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
+            break;
+        case "J":
+            config.lineStart = deathDate - lifeLength;
+            config.lineEnd = deathDate;
+            config.underStart = 2;
+            config.afterDots = [5];
+            config.textX = config.lineStart + (lifeLength / 2);
+            config.mouseStart = config.lineStart - 2;
+            config.mouseEnd = config.lineEnd + 5;
+            config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
+            break;
+        case "K":
+            config.lineStart = birthDate;
+            config.lineEnd = aliveDate;
+            config.afterDots = [3];
+            config.textX = birthDate + ((aliveDate - birthDate) / 2);
+            config.mouseStart = birthDate - 2;
+            config.mouseEnd = aliveDate + 5;
+            config.tooltipLabel = "b. " + birthDate + " d. af. " + deathDate;
+            break;
+        case "L":
+            config.lineStart = birthDate;
+            config.lineEnd = birthDate - 13;
+            config.afterDots = [7, 12, 17];
+            config.textX = birthDate;
+            config.mouseStart = birthDate - 2;
+            config.mouseEnd = birthDate + 20;
+            config.tooltipLabel = "b. " + birthDate;
+            break;
+        case "M":
+            config.lineStart = birthDate;
+            config.lineEnd = aliveDate;
+            config.afterDots = [3];
+            config.textX = birthDate + ((aliveDate - birthDate) / 2);
+            config.mouseStart = birthDate - 2;
+            config.mouseEnd = aliveDate + 5;
+            config.tooltipLabel = "b. " + birthDate + " d. af. " + deathDate;
+            break;
+        case "N":
+            config.lineStart = birthDate;
+            config.lineEnd = birthDate - 13;
+            config.underStart = 2;
+            config.afterDots = [7, 12, 17];
+            config.textX = birthDate;
+            config.mouseStart = birthDate - 2;
+            config.mouseEnd = birthDate + 20;
+            config.tooltipLabel = "b. " + birthDate;
+            break;
+        default:
+            config.lineStart = deathDate - lifeLength;
+            config.lineEnd = deathDate;
+            config.textX = config.lineStart + (lifeLength / 2);
+            config.mouseStart = config.lineStart;
+            config.mouseEnd = config.lineEnd;
+            config.tooltipLabel = person.DisplayName;
+            break;
+    }
+
+    if (config.textX === null) {
+        config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
+    }
+
+    return config;
+}
+
+function drawVisualPerson(key) {
+    var person = allPeople[key][0];
+    var config = getVisualCaseConfig(person);
+    var visualFill = notBlack;
+    var visualStroke = notBlack;
+
+    if (config.drawLine) {
+        peopleGroup.append("line")
+            .attr("class", "people-lines")
+            .attr("id", key)
+            .attr("x1", xScale(parseDate(config.lineStart.toString())))
+            .attr("y1", yScale(person.LineNumber))
+            .attr("x2", xScale(parseDate(config.lineEnd.toString())))
+            .attr("y2", yScale(person.LineNumber))
+            .attr("stroke", visualStroke)
+            .attr("stroke-width", lineWidths);
+    }
+
+    if (drawNames) {
+        peopleGroup.append("text")
+            .attr("class", "timeline-text")
+            .attr("id", key)
+            .attr("text-anchor", "middle")
+            .text(function() { return person.DisplayName; })
+            .attr("x", xScale(parseDate(config.textX.toString())))
+            .attr("y", yScale(person.LineNumber) - lineOffset)
+            .on("click", function(e) {
+                selectPerson(key);
+            })
+            .on("mouseover", function() {
+                mouseOverChartPeople(this, key, config.mouseStart, config.mouseEnd, config.tooltipLabel);
+            })
+            .on("mouseout", mouseOut);
+    }
+
+    if (config.startDots.length > 0) {
+        config.startDots.forEach(function(offset) {
+            peopleGroup.append("circle")
+                .attr("class", "circles")
+                .attr("id", key)
+                .attr("cx", xScale(parseDate((config.lineStart + offset).toString())))
+                .attr("cy", yScale(person.LineNumber))
+                .attr("r", dotSize)
+                .attr("stroke-width", "0.4px")
+                .style("fill", visualFill);
+        });
+    }
+
+    if (config.afterDots.length > 0) {
+        config.afterDots.forEach(function(offset) {
+            peopleGroup.append("circle")
+                .attr("class", "circles")
+                .attr("id", key)
+                .attr("cx", xScale(parseDate((config.lineEnd + offset).toString())))
+                .attr("cy", yScale(person.LineNumber))
+                .attr("r", dotSize)
+                .attr("stroke-width", "0.4px")
+                .style("fill", visualFill);
+        });
+    }
+
+    if (config.underStart !== null) {
+        peopleGroup.append("circle")
+            .attr("class", "circles")
+            .attr("id", key)
+            .attr("cx", xScale(parseDate((config.lineStart + config.underStart).toString())))
+            .attr("cy", yScale(person.LineNumber) + (lineOffset * 1.2))
+            .attr("r", dotSize)
+            .attr("stroke-width", "0.4px")
+            .style("fill", visualFill);
+    }
+
+    if (config.underEnd !== null) {
+        peopleGroup.append("circle")
+            .attr("class", "circles")
+            .attr("id", key)
+            .attr("cx", xScale(parseDate((config.lineEnd - config.underEnd).toString())))
+            .attr("cy", yScale(person.LineNumber) + (lineOffset * 1.2))
+            .attr("r", dotSize)
+            .attr("stroke-width", "0.4px")
+            .style("fill", visualFill);
+    }
+
+    if (config.mouseStart !== null && config.mouseEnd !== null) {
+        peopleGroup.append("line")
+            .attr("class", "mouse-lines")
+            .attr("id", key)
+            .attr("x1", xScale(parseDate(config.mouseStart.toString())))
+            .attr("y1", yScale(person.LineNumber))
+            .attr("x2", xScale(parseDate(config.mouseEnd.toString())))
+            .attr("y2", yScale(person.LineNumber))
+            .attr("stroke", "transparent")
+            .attr("stroke-width", "6px")
+            .on("click", function() {
+                selectPerson(key);
+            })
+            .on("mouseover", function() {
+                mouseOverChartPeople(this, key, config.mouseStart, config.mouseEnd, config.tooltipLabel);
+            })
+            .on("mouseout", mouseOut);
+    }
+}
+
+function drawVisualPeople() {
+    people.forEach(function(key) {
+        drawVisualPerson(key);
+    });
+}
+
 // draw the all the names these will be redrawn many times
 function drawLines(){
     mouseOut(); // if a tooltip was open, close it
+    if (currentLineSystem === "visual") {
+        drawVisualPeople();
+        return;
+    }
     // % % % % % Case 1: Solid lines % % % 
     if (case1){
-        d3.timeout(drawCase1(),1);
+        d3.timeout(drawCase1, 1);
     }   
 
     if (case2){
-        d3.timeout(drawCase2(),1);
+        d3.timeout(drawCase2, 1);
     }
     
      if (case3){
-        d3.timeout(drawCase3(),1);
+        d3.timeout(drawCase3, 1);
     }
 
      if(case4){
-        d3.timeout(drawCase4(),1);
+        d3.timeout(drawCase4, 1);
     }
 
      if (case5){
-         d3.timeout(drawCase5(),1);
+         d3.timeout(drawCase5, 1);
     }
 
     if (case6){
-        d3.timeout(drawCase6(),1);  
+        d3.timeout(drawCase6, 1);  
     }
     
     if (case7){
-         d3.timeout(drawCase7(),1);
+         d3.timeout(drawCase7, 1);
     }
 
     if (case8){
-        d3.timeout(drawCase8(),1);
+        d3.timeout(drawCase8, 1);
     }
     if (case11){
-        d3.timeout(drawCase11(),1);
+        d3.timeout(drawCase11, 1);
     }
     
     if (case13){
-        d3.timeout(drawCase13(),1);
+        d3.timeout(drawCase13, 1);
     }
     
     if (case14){
-        d3.timeout(drawCase14(),1);
+        d3.timeout(drawCase14, 1);
     }
     if (case15){
-        d3.timeout(drawCase15(),1);
+        d3.timeout(drawCase15, 1);
     }
     var now = new Date();
     console.log(now.toUTCString()+ " end of drawLines()");
@@ -3378,8 +3686,9 @@ function drawCase(num){
     // set radio button
    // document.getElementById("line_CB").checked = true;
    
-   if (num == 0){
-        document.getElementById('line_label').innerHTML = "Any ";
+   currentLineSelection = num;
+
+   if (num == 0 || num == "0"){
         F_LineStyle = "";
         currentCase = "";
         currentGender = "";
@@ -3388,14 +3697,18 @@ function drawCase(num){
 
         //don't redraw if this is already the current case
         if (currentCase != "drawCase" || currentLineStyle != num  || changeCase == true){
-            document.getElementById('line_label').innerHTML =  lookupLineStyle(num).substring(0, lookupLineStyle(num).indexOf("(")-1); // show line type, strip case number
-//            document.getElementById('line_label').innerHTML = "<small>" + lookupLineStyle(num) + "</small>" // show case # to dropdown label
         currentCase = "drawCase";
             currentLineStyle = num;
             changeCase = false;
-        filterString = "someGuy.lineType =='case" + num +"'"
+        if (currentLineSystem === "visual") {
+            filterString = "someGuy.VisualCase =='" + num + "'"
+        } else {
+            filterString = "someGuy.lineType =='case" + num + "'"
+        }
         } 
-        if (num == 1){
+        if (currentLineSystem === "visual") {
+            filterString = "someGuy.VisualCase =='" + num + "'"
+        } else if (num == 1){
             filterString = "someGuy.lineType == 'case1' || someGuy.lineType == 'case6'"; // if drawing case 1, also draw case 6, both are solid line
         } else if (num == 5){
             filterString = "someGuy.lineType == 'case5' || someGuy.lineType == 'case11'"; // if drawing case 5, also draw case 11
@@ -3409,13 +3722,12 @@ function drawCase(num){
         F_LineStyle = "(" + filterString + ")";
 
     }
+    updateLineLabel();
     buildFullFilterQuery();
     document.getElementById("userInput").value= "";
     setLoadingUI();
     setTimeout(function() {
-        filterPeople(allPeople, globalFilterString);
-        document.body.classList.remove('waiting');
-        document.getElementById("loader").style.display = "none";
+        refreshChartForCurrentFilters();
     }, 0);
        
 }
@@ -4219,6 +4531,153 @@ function lookupLineStyle(inputLineStyle) {
     }
 }
 
+function lookupVisualLineStyle(inputVisualCase) {
+    switch (inputVisualCase) {
+        case "A":
+            return "3 dots line 2 dots";
+        case "B":
+            return "7 dots";
+        case "C":
+            return "solid line";
+        case "D":
+            return "3 dots solid line";
+        case "E":
+            return "3 dots solid line 1 dot under end";
+        case "F":
+            return "3 dots solid line 1 dot after end";
+        case "G":
+            return "solid line 1 dot under end";
+        case "H":
+            return "1 dot under start solid line";
+        case "I":
+            return "1 dot under start solid line 1 dot under end";
+        case "J":
+            return "1 dot under start solid line 1 dot after end";
+        case "K":
+            return "solid line 1 dot after end";
+        case "L":
+            return "solid line 3 dots after";
+        case "M":
+            return "solid line 1 dot after end";
+        case "N":
+            return "one dot under before solid line 3 dots after";
+        default:
+            return "";
+    }
+}
+
+var indexLineChoices = [
+    { value: 0, label: "Any", image: "" },
+    { value: 1, label: "Death year and life span", image: "biography/img/case1.png" },
+    { value: 2, label: "Death year", image: "biography/img/case2.png" },
+    { value: 3, label: "Flourished year", image: "biography/img/case3.png" },
+    { value: 4, label: "Death year and approx life span", image: "biography/img/case4.png" },
+    { value: 5, label: "Approx death year & approx life span", image: "biography/img/case5.png" },
+    { value: 7, label: "Birth year and approx death year", image: "biography/img/case7.png" },
+    { value: 8, label: "Approx death year", image: "biography/img/case8.png" },
+    { value: 13, label: "Approx flourished year", image: "biography/img/case13.png" },
+    { value: 15, label: "Birth year", image: "biography/img/case15.png" }
+];
+
+var visualLineChoices = [
+    { value: "A", label: "3 dots line 2 dots", image: "biography/img/case3.png" },
+    { value: "B", label: "7 dots", image: "biography/img/case13.png" },
+    { value: "C", label: "solid line", image: "biography/img/case1.png" },
+    { value: "D", label: "3 dots solid line", image: "biography/img/case2.png" },
+    { value: "E", label: "3 dots solid line 1 dot under end", image: "biography/img/CaseE.png" },
+    { value: "F", label: "3 dots solid line 1 dot after end", image: "biography/img/case5.png" },
+    { value: "G", label: "solid line 1 dot under end", image: "biography/img/case5.png" },
+    { value: "H", label: "1 dot under start solid line", image: "biography/img/case4.png" },
+    { value: "I", label: "1 dot under start solid line 1 dot under end", image: "biography/img/CaseI.png" },
+    { value: "J", label: "1 dot under start solid line 1 dot after end", image: "biography/img/caseJ.png" },
+    { value: "K", label: "solid line 1 dot after end", image: "biography/img/case14.png" },
+    { value: "L", label: "solid line 3 dots after", image: "biography/img/case15.png" },
+    { value: "M", label: "solid line 1 dot after end", image: "biography/img/case14.png" },
+    { value: "N", label: "one dot under before solid line 3 dots after", image: "biography/img/CaseN.png" }
+];
+
+function getCurrentLineChoices() {
+    return currentLineSystem === "visual" ? visualLineChoices : indexLineChoices;
+}
+
+function getLineChoiceLabel(selection) {
+    var choices = getCurrentLineChoices();
+    for (var i = 0; i < choices.length; i += 1) {
+        if (choices[i].value === selection) {
+            return choices[i].label;
+        }
+    }
+    return "";
+}
+
+function updateLineSystemLabel() {
+    var button = document.getElementById("case_system_label");
+    if (!button) return;
+    var label = currentLineSystem === "visual" ? "Chart Drawing" : "Index Data";
+    button.innerHTML = label + '<span class="caret"></span>';
+}
+
+function updateLineLabel() {
+    var button = document.getElementById("line_label");
+    if (!button) return;
+    if (currentLineSelection === 0 || currentLineSelection === "0" || currentLineSelection === "") {
+        button.innerHTML = "Any<span class=\"caret\"></span>";
+        return;
+    }
+
+    var label = currentLineSystem === "visual" ? lookupVisualLineStyle(currentLineSelection) : lookupLineStyle(currentLineSelection);
+    if (!label) {
+        label = String(currentLineSelection);
+    }
+
+    button.innerHTML = label + '<span class="caret"></span>';
+}
+
+function buildLineMenu() {
+    var menu = document.getElementById("lineMenu");
+    if (!menu) return;
+
+    var choices = getCurrentLineChoices();
+    var html = "";
+
+    choices.forEach(function(choice) {
+        var imageHtml = choice.image ? '<img src="' + choice.image + '" width="30%"> ' : "";
+        html += '<li><a tabindex="-1" onclick="drawCase(' + JSON.stringify(choice.value) + ')">' + imageHtml + choice.label + '</a></li>';
+    });
+
+    menu.innerHTML = html;
+    updateLineSystemLabel();
+    updateLineLabel();
+}
+
+function refreshChartForCurrentFilters() {
+    clearTimeline();
+    sortPeople(allPeople, globalFilterString);
+    drawLines();
+    filterPeople(allPeople, globalFilterString);
+    document.body.classList.remove('waiting');
+    document.getElementById("loader").style.display = "none";
+}
+
+function setLineSystem(mode, redrawChart) {
+    if (mode !== "index" && mode !== "visual") return;
+
+    currentLineSystem = mode;
+    currentLineSelection = 0;
+    currentLineStyle = "";
+    F_LineStyle = "";
+    changeCase = true;
+    currentCase = "drawCase";
+    buildLineMenu();
+    if (redrawChart !== false) {
+        setLoadingUI();
+        buildFullFilterQuery();
+        setTimeout(function() {
+            refreshChartForCurrentFilters();
+        }, 0);
+    }
+}
+
 
 function clearCheckBoxes(){
     //document.getElementById("drawName_CB").checked = true;
@@ -4227,6 +4686,9 @@ function clearCheckBoxes(){
     document.getElementById('gender_label').innerHTML = "Any ";
     F_profession = "";
     document.getElementById('profession_label').innerHTML = "Any  ";
+    currentLineSystem = "index";
+    currentLineSelection = 0;
+    currentLineStyle = "";
     F_LineStyle = "";
     document.getElementById('line_label').innerHTML = "Any  ";
     // document.getElementById("age_CB").checked = false;
