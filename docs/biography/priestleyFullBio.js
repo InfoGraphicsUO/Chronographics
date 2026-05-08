@@ -37,6 +37,7 @@ var currentDragY=0;
 
 
 var globalFilterString = "";
+var F_varyingLineStyle = "";
 var clickList= [];
 
 
@@ -873,6 +874,9 @@ function loadBioData(){
       document.getElementById("region_label").disabled = false;
      }
   document.getElementById("line_label").disabled = false;
+    if (document.getElementById("varyingLineStyle_CB")) {
+            document.getElementById("varyingLineStyle_CB").disabled = false;
+    }
   document.getElementById("ageAprox_CB").disabled = false;
 //  document.getElementById("clearFiltersButton").disabled = false;
   document.getElementById("clearFiltersButton").classList.remove("disabled");
@@ -963,6 +967,7 @@ function loadBioData(){
 
                     someGuy["case"] = d["case"].trim(); // original case code from the data
                     someGuy["VisualCase"] = d["VisualCase"].trim(); // visual-case label used for display/menu grouping
+                    someGuy["ExpectedVisualCase"] = lookupExpectedVisualCaseFromOriginalCase(someGuy["case"]); // expected visual case given original index case
                     someGuy["lineType"] = someGuy["case"]; // keep existing drawing logic on the original case code
                     someGuy["indexText"] = null; // in tab2 (TO DO, create indext when reading in data instead of on the fly)
 
@@ -1113,7 +1118,6 @@ function filterPeople(thesePeople, peopleFilter) {
         // deal with the people filtered
         document.getElementById("numPeople").innerHTML =  people.length + " of " + Object.keys(thesePeople).length + " people";
         if (people.length < 10) {console.log(people)} // for debug: print the people that match, only when fewer then 10
-
     } else {
         // no filter applied
         filterList.selectAll(".hidden").classed("hiddenGuy",false); // remove the display-none class from listed names
@@ -3404,6 +3408,10 @@ function buildFullFilterQuery(){
          if (globalFilterString != '') globalFilterString += ' && '
          globalFilterString += F_LineStyle;
      }
+    if (F_varyingLineStyle  != ""){
+         if (globalFilterString != '') globalFilterString += ' && '
+         globalFilterString += F_varyingLineStyle;
+     }
    
    if (F_age  != ""){
         if (globalFilterString != '') globalFilterString += ' && '
@@ -3456,6 +3464,23 @@ function drawAllPeople(){
 $("#ageAprox_CB").change(function() {
     console.log("Age Aprox CB clicked");
     drawYoungPeople(ageSlider.noUiSlider.get()[0],ageSlider.noUiSlider.get()[1]);
+});
+
+$("#varyingLineStyle_CB").change(function() {
+    // filter to show people that have different cases index vs visual
+    console.log("Varying line style checkbox clicked");
+    if (document.getElementById("varyingLineStyle_CB").checked == true) {
+        F_varyingLineStyle = "(someGuy.VisualCase != '' && someGuy.ExpectedVisualCase != '' && someGuy.VisualCase != someGuy.ExpectedVisualCase)";
+    } else {
+        F_varyingLineStyle = "";
+    }
+
+    buildFullFilterQuery();
+    document.getElementById("userInput").value = "";
+    setLoadingUI();
+    setTimeout(function() {
+        refreshChartForCurrentFilters();
+    }, 0);
 });
 
 function drawYoungPeople(minAge, maxAge){
@@ -4539,6 +4564,26 @@ function lookupVisualLineStyle(inputVisualCase) {
     }
 }
 
+function lookupExpectedVisualCaseFromOriginalCase(inputCase) {
+    // for finding differences between original index cases vs new visual cases
+    var caseCode = String(inputCase || "").trim().toLowerCase();
+    var caseCodeToVisualCase = {
+        "case1": "C",
+        "case2": "D",
+        "case3": "A",
+        "case4": "H",
+        "case5": "I",
+        "case6": "G",
+        "case8": "F",
+        "case11": "G",
+        "case13": "B",
+        "case14": "M",
+        "case15": "L"
+    };
+
+    return caseCodeToVisualCase[caseCode] || "";
+}
+
 var indexLineChoices = [
     { value: 0, label: "Any", image: "" },
     { value: 1, label: "Death year and life span", image: "biography/img/case1.png" },
@@ -4666,7 +4711,9 @@ function clearCheckBoxes(){
     currentLineSelection = 0;
     currentLineStyle = "";
     F_LineStyle = "";
+    F_varyingLineStyle = "";
     document.getElementById('line_label').innerHTML = "Any  ";
+    document.getElementById("varyingLineStyle_CB").checked = false;
     // document.getElementById("age_CB").checked = false;
     F_age="";
     ageSlider.noUiSlider.set([0, 0]);
