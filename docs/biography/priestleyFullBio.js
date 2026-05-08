@@ -1017,6 +1017,7 @@ function loadBioData(){
 
             document.getElementById("loader").style.display = "none";  /* turn off the loader */
             document.body.classList.remove('waiting');
+                setFilterControlsEnabled(true);
 
          // },
          // error: function(e) {
@@ -1133,6 +1134,7 @@ function filterPeople(thesePeople, peopleFilter) {
    later = new Date();
    diff = later-now;
    console.log(later.toUTCString()+" end of filterPeople")
+    setFilterControlsEnabled(true);
 }
 
 
@@ -3377,6 +3379,13 @@ function setLoadingUI(){
     document.getElementById("loader").style.display = "block";
     mouseOut(); // close the tooltip
     document.getElementById("numPeople").innerHTML =  "<span 'style=direction: ltr'><i>loading people...</i></span>"; 
+    setFilterControlsEnabled(false);
+}
+
+function setFilterControlsEnabled(enabled) {
+    var filterPanel = document.getElementById("filterControlsPanel");
+    if (!filterPanel) return;
+    filterPanel.classList.toggle("is-disabled", !enabled);
 }
 
 var F_diffChartName="";
@@ -4675,6 +4684,7 @@ function refreshChartForCurrentFilters() {
     filterPeople(allPeople, globalFilterString);
     document.body.classList.remove('waiting');
     document.getElementById("loader").style.display = "none";
+    setFilterControlsEnabled(true);
 }
 
 function setLineSystem(mode, redrawChart) {
