@@ -1162,8 +1162,9 @@ function sortPeople(thePeople, peopleFilter) {
     $.each(allPeople, function(key) {
         //console.log(key, value[0].Name);
         
-        // someGuy = allPeople[key][0] // used to push all the data, not just pushing  the k to speed things along
-        someGuy = key
+        var person = allPeople[key][0];
+        // evaluate filters against the loaded person record ... keep chart lists keyed by id
+        someGuy = person;
         
         //thePeople.forEach(function(someGuy){
 
@@ -1171,14 +1172,14 @@ function sortPeople(thePeople, peopleFilter) {
 
         if (useVisualCases) {
             if (eval(peopleFilter)) {
-                people.push(someGuy);
-                visualPeople.push(someGuy);
+                people.push(key);
+                visualPeople.push(key);
             }
         } else if (boolCases[testCase] && eval(peopleFilter)){ // only do the rest if the person matches the manual boolean and the current filter
 
         // sort the people into their lists based on the case listed in the  spreadsheet
         //console.log("test case " + testCase) 
-        people.push(someGuy); // list of all those that match this filter, just push the key
+        people.push(key); // list of all those that match this filter, just push the key
         //console.log(someGuy)
         //console.log(testCase)
 //          if(someGuy.name == "Suetonius"){
@@ -1189,39 +1190,39 @@ function sortPeople(thePeople, peopleFilter) {
 
             case 1:                    
                     //console.log("solid line (case1)");
-                    solidLines.push(someGuy); 
+                    solidLines.push(key); 
                     break;
             case 2:
                     //console.log("3 starting dots (case2)");
-                    threeBegin.push(someGuy);  
+                    threeBegin.push(key);
                     break;
             case 3:
                     //console.log("3 starting dots and 2 ending (case3)");
-                    threeBeginTwoEnd.push(someGuy); 
+                    threeBeginTwoEnd.push(key);
                     break;
             case 4:
                     //console.log("1 dot beneath beginning (case4)");
-                    oneBegin.push(someGuy); 
+                    oneBegin.push(key);
                     break;
             case 5:
                     //console.log("1 dot beneath ending (case5)");
-                    oneEndUnder.push(someGuy); 
+                    oneEndUnder.push(key);
                     break;
             case 6:
                     //console.log("solid line (case6)");
-                    solid2.push(someGuy);
+                    solid2.push(key);
                     break;
             case 7:
                     //console.log("1 dot end (case7)");
-                    oneEnd.push(someGuy); 
+                    oneEnd.push(key);
                     break;
             case 8:
                     //console.log("3 starting dots and 1 ending (case8)");
-                    threeBeginOneEnd.push(someGuy);
+                    threeBeginOneEnd.push(key);
                     break;
             case 11:
                     //console.log("1 dot beneath ending 2 (case11)");
-                    oneEndUnder2.push(someGuy); 
+                    oneEndUnder2.push(key); 
                     break;
             case 12:
                     //console.log("no line number (case12)");
@@ -1229,18 +1230,18 @@ function sortPeople(thePeople, peopleFilter) {
                     break;
             case 13:
                     //console.log("seven dots (case13)");
-                    sevenDots.push(someGuy); 
+                    sevenDots.push(key); 
                     break;
             case 14:
                     //console.log("1 dot end 2 (case14)");
-                    oneEnd2.push(someGuy);
+                    oneEnd2.push(key);
                     break;
             case 15:
                     //console.log("three end (case15)");
-                    threeEnd.push(someGuy);
+                    threeEnd.push(key);
                     break;
             default:
-                unsure.push(someGuy); 
+                unsure.push(key); 
         } // switch
 
 
@@ -3024,12 +3025,13 @@ function getChartValue(value, fallback) {
     return numericValue;
 }
 
-function getVisualCaseConfig(person) {
-    var birthDate = getChartValue(person.BirthDate, getChartValue(person.AproxBirthDate, getChartValue(person.AliveDate, 0)));
-    var deathDate = getChartValue(person.DeathDate, getChartValue(person.AproxDeathDate, getChartValue(person.AliveDate, 0)));
-    var aliveDate = getChartValue(person.AliveDate, getChartValue(person.AproxBirthDate, birthDate + 40));
-    var lifeLength = getChartValue(person.LifeLength, Math.max(0, deathDate - birthDate));
-    var visualCase = person.VisualCase || "C";
+function getVisualCaseConfig(someGuy) {
+    var birthDate = getChartValue(someGuy.BirthDate, getChartValue(someGuy.AproxBirthDate, getChartValue(someGuy.AliveDate, 0)));
+    var deathDate = getChartValue(someGuy.DeathDate, getChartValue(someGuy.AproxDeathDate, getChartValue(someGuy.AliveDate, 0)));
+    var aliveDate = getChartValue(someGuy.AliveDate, getChartValue(someGuy.AproxBirthDate, birthDate + 40));
+    var lifeLength = getChartValue(someGuy.LifeLength, Math.max(0, deathDate - birthDate));
+    var lineEnd = getChartValue(someGuy.AliveDate, getChartValue(someGuy.AproxDeathDate, getChartValue(someGuy.DeathDate, birthDate + lifeLength)));
+    var visualCase = someGuy.VisualCase || "C";
 
     var config = {
         drawLine: true,
@@ -3044,31 +3046,33 @@ function getVisualCaseConfig(person) {
         afterDots: [],
         mouseStart: birthDate,
         mouseEnd: deathDate,
-        tooltipLabel: person.DisplayName
+        tooltipLabel: someGuy.DisplayName
     };
 
     switch (visualCase) {
-        case "A":
-            config.lineStart = aliveDate - 13;
-            config.lineEnd = aliveDate + 7;
-            config.startDots = [-28, -23, -18];
-            config.endDots = [12, 17];
+        case "A": // 3 dots line 2 dots | unknown birth, unknown death, exact flourished date; exact alive date; flourished after; exact flourished date, certain life length; unknown birth, unknown death
+            // start and end dots bracket the same span for the visual case
+            config.lineStart = aliveDate - 25;
+            config.lineEnd = aliveDate + 10;
+            config.startDots = [-15, -10, -5];
+            config.endDots = [5, 10];
             config.textX = aliveDate - 7;
-            config.mouseStart = aliveDate - 37;
-            config.mouseEnd = aliveDate + 19;
-            config.tooltipLabel = "a. " + aliveDate;
+            config.mouseStart = aliveDate - 40;
+            config.mouseEnd = aliveDate + 20;
+            config.tooltipLabel = "fl. " + aliveDate;
             break;
-        case "B":
+        case "B": // 7 dots | unknown birth, unknown death, approx flourished date; unknown birth, unknown death, alive after
             config.drawLine = false;
-            config.lineStart = aliveDate - 2;
-            config.lineEnd = aliveDate + 28;
-            config.afterDots = [-32, -22, -12, -2, 8, 18, 28];
-            config.textX = aliveDate - 2;
-            config.mouseStart = aliveDate - 25;
+            // seven dots span the same full visual window
+            config.lineStart = aliveDate - 40;
+            config.lineEnd = aliveDate - 40;
+            config.afterDots = [0, 10, 20, 30, 40, 50, 60];
+            config.textX = aliveDate - 10;
+            config.mouseStart = aliveDate - 40;
             config.mouseEnd = aliveDate + 20;
             config.tooltipLabel = "fl. ab. " + aliveDate;
             break;
-        case "C":
+        case "C": // solid line | unknown birth, exact death date, certain life length
             config.lineStart = deathDate - lifeLength;
             config.lineEnd = deathDate;
             config.textX = config.lineStart + (lifeLength / 2);
@@ -3076,107 +3080,108 @@ function getVisualCaseConfig(person) {
             config.mouseEnd = config.lineEnd;
             config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
             break;
-        case "D":
-            config.lineStart = deathDate - 30;
+        case "D": // 3 dots solid line | unknown birth, exact death date; unknown birth, exact death date (?)
+            // three dots at the start then the line to death
+            config.lineStart = deathDate - 45;
             config.lineEnd = deathDate;
-            config.startDots = [-35, -40, -45];
-            config.textX = deathDate - 15;
-            config.mouseStart = deathDate - 45;
+            config.startDots = [-15, -10, -5];
+            config.textX = deathDate - 22;
+            config.mouseStart = deathDate - 60;
             config.mouseEnd = deathDate;
             config.tooltipLabel = "d. " + deathDate;
             break;
-        case "E":
-            config.lineStart = deathDate - 30;
+        case "E": // 3 dots solid line 1 dot under end | unknown birth, approx death date
+            config.lineStart = deathDate - 45;
             config.lineEnd = deathDate;
-            config.startDots = [-35, -40, -45];
-            config.underEnd = 2;
-            config.textX = deathDate - 15;
-            config.mouseStart = deathDate - 45;
+            config.startDots = [-15, -10, -5];
+            config.underEnd = 0;
+            config.textX = deathDate - 22;
+            config.mouseStart = deathDate - 60;
             config.mouseEnd = deathDate;
             config.tooltipLabel = "d. " + deathDate;
             break;
-        case "F":
-            config.lineStart = deathDate - 30;
+        case "F": // 3 dots solid line 1 dot after end | unknown birth, died after
+            config.lineStart = deathDate - 45;
             config.lineEnd = deathDate;
-            config.startDots = [-35, -40, -45];
+            config.startDots = [-15, -10, -5];
             config.afterDots = [5];
-            config.textX = deathDate - 15;
-            config.mouseStart = deathDate - 45;
+            config.textX = deathDate - 22;
+            config.mouseStart = deathDate - 60;
             config.mouseEnd = deathDate + 5;
             config.tooltipLabel = "d. " + deathDate;
             break;
-        case "G":
-            config.lineStart = deathDate - lifeLength;
+        case "G": // solid line 1 dot under end | unknown birth, approx death date, certain life length; exact birth date, unknown death, approx life length
+            config.lineStart = birthDate;
             config.lineEnd = deathDate;
-            config.underEnd = 2;
-            config.textX = config.lineStart + (lifeLength / 2);
+            config.underEnd = 0;
+            config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
             config.mouseStart = config.lineStart;
             config.mouseEnd = config.lineEnd;
             config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
             break;
-        case "H":
-            config.lineStart = deathDate - lifeLength;
+        case "H": // 1 dot under start solid line | unknown birth, exact death date, approx life length
+            config.lineStart = birthDate;
             config.lineEnd = deathDate;
-            config.underStart = 2;
-            config.textX = config.lineStart + (lifeLength / 2);
-            config.mouseStart = config.lineStart - 2;
-            config.mouseEnd = config.lineEnd + 2;
+            config.underStart = 0;
+            config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
+            config.mouseStart = config.lineStart;
+            config.mouseEnd = config.lineEnd;
             config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
             break;
-        case "I":
-            config.lineStart = deathDate - lifeLength;
+        case "I": // 1 dot under start solid line 1 dot under end | unknown birth, approx death date, approx life length
+            config.lineStart = birthDate;
             config.lineEnd = deathDate;
-            config.underStart = 2;
-            config.underEnd = 2;
-            config.textX = config.lineStart + (lifeLength / 2);
-            config.mouseStart = config.lineStart - 2;
-            config.mouseEnd = config.lineEnd + 2;
+            config.underStart = 0;
+            config.underEnd = 0;
+            config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
+            config.mouseStart = config.lineStart;
+            config.mouseEnd = config.lineEnd;
             config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
             break;
-        case "J":
-            config.lineStart = deathDate - lifeLength;
+        case "J": // 1 dot under start solid line 1 dot after end | unknown birth, died after, approx life length
+            config.lineStart = birthDate;
             config.lineEnd = deathDate;
-            config.underStart = 2;
+            config.underStart = 0;
             config.afterDots = [5];
-            config.textX = config.lineStart + (lifeLength / 2);
-            config.mouseStart = config.lineStart - 2;
+            config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
+            config.mouseStart = config.lineStart;
             config.mouseEnd = config.lineEnd + 5;
             config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
             break;
-        case "K":
+        case "K": // solid line 1 dot after end | exact birth date, unknown death, approx life length; exact birth date, died after
             config.lineStart = birthDate;
-            config.lineEnd = aliveDate;
-            config.afterDots = [3];
-            config.textX = birthDate + ((aliveDate - birthDate) / 2);
-            config.mouseStart = birthDate - 2;
-            config.mouseEnd = aliveDate + 5;
+            config.lineEnd = lineEnd;
+            config.afterDots = [5];
+            config.textX = birthDate + ((lineEnd - birthDate) / 2);
+            config.mouseStart = birthDate;
+            config.mouseEnd = lineEnd + 3;
             config.tooltipLabel = "b. " + birthDate + " d. af. " + deathDate;
             break;
-        case "L":
+        case "L": // solid line 3 dots after | exact birth date, unknown death
             config.lineStart = birthDate;
-            config.lineEnd = birthDate - 13;
-            config.afterDots = [7, 12, 17];
-            config.textX = birthDate;
-            config.mouseStart = birthDate - 2;
-            config.mouseEnd = birthDate + 20;
+            config.lineEnd = birthDate + Math.max(13, lifeLength);
+            config.afterDots = [10, 15, 20];
+            config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
+            config.mouseStart = birthDate;
+            config.mouseEnd = config.lineEnd + 20;
             config.tooltipLabel = "b. " + birthDate;
             break;
-        case "M":
+        case "M": // solid line 1 dot after end | exact birth date, unknown death, alive after
             config.lineStart = birthDate;
-            config.lineEnd = aliveDate;
-            config.afterDots = [3];
-            config.textX = birthDate + ((aliveDate - birthDate) / 2);
-            config.mouseStart = birthDate - 2;
-            config.mouseEnd = aliveDate + 5;
+            config.lineEnd = lineEnd;
+            config.afterDots = [5];
+            config.textX = birthDate + ((lineEnd - birthDate) / 2);
+            config.mouseStart = birthDate;
+            config.mouseEnd = lineEnd + 20;
             config.tooltipLabel = "b. " + birthDate + " d. af. " + deathDate;
             break;
-        case "N":
+        case "N": // one dot under before solid line 3 dots after | approx birth date, unknown death
             config.lineStart = birthDate;
-            config.lineEnd = birthDate - 13;
-            config.underStart = 2;
-            config.afterDots = [7, 12, 17];
-            config.textX = birthDate;
-            config.mouseStart = birthDate - 2;
+            config.lineEnd = birthDate + 5;
+            config.underStart = 0;
+            config.afterDots = [10, 15, 20];
+            config.textX = birthDate + 10;
+            config.mouseStart = birthDate;
             config.mouseEnd = birthDate + 20;
             config.tooltipLabel = "b. " + birthDate;
             break;
@@ -3186,7 +3191,7 @@ function getVisualCaseConfig(person) {
             config.textX = config.lineStart + (lifeLength / 2);
             config.mouseStart = config.lineStart;
             config.mouseEnd = config.lineEnd;
-            config.tooltipLabel = person.DisplayName;
+            config.tooltipLabel = someGuy.DisplayName;
             break;
     }
 
@@ -3198,20 +3203,20 @@ function getVisualCaseConfig(person) {
 }
 
 function drawVisualPerson(key) {
-    var person = allPeople[key][0];
-    var config = getVisualCaseConfig(person);
-    var visualFill = notBlack;
-    var visualStroke = notBlack;
+    var someGuy = allPeople[key][0];
+    var config = getVisualCaseConfig(someGuy);
+    var dot = notBlack;
+    var line = notBlack;
 
     if (config.drawLine) {
         peopleGroup.append("line")
             .attr("class", "people-lines")
             .attr("id", key)
             .attr("x1", xScale(parseDate(config.lineStart.toString())))
-            .attr("y1", yScale(person.LineNumber))
+            .attr("y1", yScale(someGuy.LineNumber))
             .attr("x2", xScale(parseDate(config.lineEnd.toString())))
-            .attr("y2", yScale(person.LineNumber))
-            .attr("stroke", visualStroke)
+            .attr("y2", yScale(someGuy.LineNumber))
+            .attr("stroke", line)
             .attr("stroke-width", lineWidths);
     }
 
@@ -3220,9 +3225,9 @@ function drawVisualPerson(key) {
             .attr("class", "timeline-text")
             .attr("id", key)
             .attr("text-anchor", "middle")
-            .text(function() { return person.DisplayName; })
+            .text(function() { return someGuy.DisplayName; })
             .attr("x", xScale(parseDate(config.textX.toString())))
-            .attr("y", yScale(person.LineNumber) - lineOffset)
+            .attr("y", yScale(someGuy.LineNumber) - lineOffset)
             .on("click", function(e) {
                 selectPerson(key);
             })
@@ -3238,10 +3243,10 @@ function drawVisualPerson(key) {
                 .attr("class", "circles")
                 .attr("id", key)
                 .attr("cx", xScale(parseDate((config.lineStart + offset).toString())))
-                .attr("cy", yScale(person.LineNumber))
+                .attr("cy", yScale(someGuy.LineNumber))
                 .attr("r", dotSize)
                 .attr("stroke-width", "0.4px")
-                .style("fill", visualFill);
+                .style("fill", dot);
         });
     }
 
@@ -3251,10 +3256,23 @@ function drawVisualPerson(key) {
                 .attr("class", "circles")
                 .attr("id", key)
                 .attr("cx", xScale(parseDate((config.lineEnd + offset).toString())))
-                .attr("cy", yScale(person.LineNumber))
+                .attr("cy", yScale(someGuy.LineNumber))
                 .attr("r", dotSize)
                 .attr("stroke-width", "0.4px")
-                .style("fill", visualFill);
+                .style("fill", dot);
+        });
+    }
+
+    if (config.endDots && config.endDots.length > 0) {
+        config.endDots.forEach(function(offset) {
+            peopleGroup.append("circle")
+                .attr("class", "circles")
+                .attr("id", key)
+                .attr("cx", xScale(parseDate((config.lineEnd + offset).toString())))
+                .attr("cy", yScale(someGuy.LineNumber))
+                .attr("r", dotSize)
+                .attr("stroke-width", "0.4px")
+                .style("fill", dot);
         });
     }
 
@@ -3263,10 +3281,10 @@ function drawVisualPerson(key) {
             .attr("class", "circles")
             .attr("id", key)
             .attr("cx", xScale(parseDate((config.lineStart + config.underStart).toString())))
-            .attr("cy", yScale(person.LineNumber) + (lineOffset * 1.2))
+            .attr("cy", yScale(someGuy.LineNumber) + (lineOffset * 1.2))
             .attr("r", dotSize)
             .attr("stroke-width", "0.4px")
-            .style("fill", visualFill);
+            .style("fill", dot);
     }
 
     if (config.underEnd !== null) {
@@ -3274,10 +3292,10 @@ function drawVisualPerson(key) {
             .attr("class", "circles")
             .attr("id", key)
             .attr("cx", xScale(parseDate((config.lineEnd - config.underEnd).toString())))
-            .attr("cy", yScale(person.LineNumber) + (lineOffset * 1.2))
+            .attr("cy", yScale(someGuy.LineNumber) + (lineOffset * 1.2))
             .attr("r", dotSize)
             .attr("stroke-width", "0.4px")
-            .style("fill", visualFill);
+            .style("fill", dot);
     }
 
     if (config.mouseStart !== null && config.mouseEnd !== null) {
@@ -3285,9 +3303,9 @@ function drawVisualPerson(key) {
             .attr("class", "mouse-lines")
             .attr("id", key)
             .attr("x1", xScale(parseDate(config.mouseStart.toString())))
-            .attr("y1", yScale(person.LineNumber))
+            .attr("y1", yScale(someGuy.LineNumber))
             .attr("x2", xScale(parseDate(config.mouseEnd.toString())))
-            .attr("y2", yScale(person.LineNumber))
+            .attr("y2", yScale(someGuy.LineNumber))
             .attr("stroke", "transparent")
             .attr("stroke-width", "6px")
             .on("click", function() {
@@ -3437,32 +3455,21 @@ function buildFullFilterQuery(){
 // functions for drawing by filters
 function drawAllPeople(){
     console.log("All button")
-    
-    //don't redraw if this is already the current case with no change to draw names
-    if (currentCase != "drawAllPeople" || changeCase == true){
-        currentCase = "drawAllPeople";
-        changeCase = false;
-        //document.getElementById("currentFilter").innerHTML = "All People";
-        //clearTimeline();
-        // clear global people
-        
-        // clear all checkboxes
-        clearCheckBoxes();
-        globalFilterString = "";
-        document.getElementById("userInput").value= "";
-        setLoadingUI();
-        setTimeout(function() {
-            filterPeople(allPeople, true);
-            document.body.classList.remove('waiting');
-            document.getElementById("loader").style.display = "none";
-        }, 0);
 
+    currentCase = "drawAllPeople";
+    changeCase = false;
+
+    // clear all filters and rebuild the chart from the full data set
+    clearCheckBoxes();
+    buildFullFilterQuery();
+    document.getElementById("userInput").value= "";
+    setLoadingUI();
+    setTimeout(function() {
+        refreshChartForCurrentFilters();
         d3.selectAll(".f-list").classed("d-none",false); // add the display-none class to names in the filter list
         d3.selectAll(".f-list").classed("d-block",true); // remove the display-block class to names in the filter list
-        
         d3.select("#descriptive_text").html("Click a name to view text."); // clear text description
-     }
-    
+    }, 0);
 }
 
 
@@ -3560,54 +3567,40 @@ function drawAliveDuring(minYear, maxYear){
 
 //function for drawing by gender
 function drawGender(gender){
+    //document.getElementById("gender_CB").checked = true;
+    document.getElementById('gender_label').innerHTML = gender;
 
-   //document.getElementById("gender_CB").checked = true;
-   document.getElementById('gender_label').innerHTML = gender;
-   // clear gender
-   if (gender == "Any"){
+    if (gender == "Any"){
         F_gender = "";
         currentCase = "";
         currentGender = "";
         changeCase = false;
-    } else
-
-    //don't redraw if this is already the current case
-    if (currentGender != gender || changeCase == true ){
+    } else if (currentGender != gender || changeCase == true) {
         currentCase = "drawGender";
         changeCase = false;
-               
         currentGender = gender;
 
-
+        var filterString;
         switch(gender.toLowerCase()){
-            // try making this an array!!!
-
-            case "female":                    
+            case "female":
             case "male":
-                // both female and male cases
-                filterString = "someGuy.gender=='" + gender.toLowerCase() +"'";  
+                filterString = "someGuy.gender=='" + gender.toLowerCase() + "'";
                 break;
-        //    case "unknown":
-        //         filterString = "(someGuy.gender!='male' && someGuy.gender== 'female')"; 
-        //         break;
             default:
                 filterString = "(someGuy.gender!='male' && someGuy.gender!= 'female')";
         }
-        
-        //clearTimeline();
-        F_gender = filterString;  
-    }
+
+        F_gender = filterString;
         buildFullFilterQuery();
         console.log(F_gender)
-        document.getElementById("userInput").value= "";
 
         setLoadingUI();
         setTimeout(function() {
             filterPeople(allPeople, globalFilterString);
             document.body.classList.remove('waiting');
             document.getElementById("loader").style.display = "none";
-        }, 0);       
-  
+        }, 0);
+    }
 }
 
 
@@ -4642,7 +4635,7 @@ function buildLineMenu() {
 
     choices.forEach(function(choice) {
         var imageHtml = choice.image ? '<img src="' + choice.image + '" width="30%"> ' : "";
-        html += '<li><a tabindex="-1" onclick="drawCase(' + JSON.stringify(choice.value) + ')">' + imageHtml + choice.label + '</a></li>';
+        html += "<li><a tabindex=\"-1\" onclick='drawCase(" + JSON.stringify(choice.value) + ")'>" + imageHtml + choice.label + "</a></li>";
     });
 
     menu.innerHTML = html;
@@ -4661,6 +4654,10 @@ function refreshChartForCurrentFilters() {
 
 function setLineSystem(mode, redrawChart) {
     if (mode !== "index" && mode !== "visual") return;
+
+    if (currentLineSystem === mode) {
+        return;
+    }
 
     currentLineSystem = mode;
     currentLineSelection = 0;
@@ -4686,7 +4683,6 @@ function clearCheckBoxes(){
     document.getElementById('gender_label').innerHTML = "Any ";
     F_profession = "";
     document.getElementById('profession_label').innerHTML = "Any  ";
-    currentLineSystem = "index";
     currentLineSelection = 0;
     currentLineStyle = "";
     F_LineStyle = "";
