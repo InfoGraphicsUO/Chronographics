@@ -3324,6 +3324,31 @@ function drawVisualPeople() {
     });
 }
 
+function getIndexLineRenderers() {
+    return [
+        { enabled: case1, render: drawCase1 },
+        { enabled: case2, render: drawCase2 },
+        { enabled: case3, render: drawCase3 },
+        { enabled: case4, render: drawCase4 },
+        { enabled: case5, render: drawCase5 },
+        { enabled: case6, render: drawCase6 },
+        { enabled: case7, render: drawCase7 },
+        { enabled: case8, render: drawCase8 },
+        { enabled: case11, render: drawCase11 },
+        { enabled: case13, render: drawCase13 },
+        { enabled: case14, render: drawCase14 },
+        { enabled: case15, render: drawCase15 }
+    ];
+}
+
+function drawIndexPeople() {
+    getIndexLineRenderers().forEach(function(caseRenderer) {
+        if (caseRenderer.enabled) {
+            d3.timeout(caseRenderer.render, 1);
+        }
+    });
+}
+
 // draw the all the names these will be redrawn many times
 function drawLines(){
     mouseOut(); // if a tooltip was open, close it
@@ -3331,52 +3356,7 @@ function drawLines(){
         drawVisualPeople();
         return;
     }
-    // % % % % % Case 1: Solid lines % % % 
-    if (case1){
-        d3.timeout(drawCase1, 1);
-    }   
-
-    if (case2){
-        d3.timeout(drawCase2, 1);
-    }
-    
-     if (case3){
-        d3.timeout(drawCase3, 1);
-    }
-
-     if(case4){
-        d3.timeout(drawCase4, 1);
-    }
-
-     if (case5){
-         d3.timeout(drawCase5, 1);
-    }
-
-    if (case6){
-        d3.timeout(drawCase6, 1);  
-    }
-    
-    if (case7){
-         d3.timeout(drawCase7, 1);
-    }
-
-    if (case8){
-        d3.timeout(drawCase8, 1);
-    }
-    if (case11){
-        d3.timeout(drawCase11, 1);
-    }
-    
-    if (case13){
-        d3.timeout(drawCase13, 1);
-    }
-    
-    if (case14){
-        d3.timeout(drawCase14, 1);
-    }
-    if (case15){
-        d3.timeout(drawCase15, 1);
-    }
+    drawIndexPeople();
     var now = new Date();
     console.log(now.toUTCString()+ " end of drawLines()");
     document.addEventListener("DOMContentLoaded", function(event) { 
