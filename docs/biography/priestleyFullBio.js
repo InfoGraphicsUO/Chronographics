@@ -1175,13 +1175,14 @@ function sortPeople(thePeople, peopleFilter) {
         //thePeople.forEach(function(someGuy){
 
         var testCase = parseInt(allPeople[key][0].lineType.match(/\d+/)[0]) // this person is in the list of cases we are drawing. e.g. "case3" -> 3. Mostly used to speed drawing during development
+        var keepAllIndexCases = currentLineSystem === "index" && F_varyingLineStyle !== "";
 
         if (useVisualCases) {
             people.push(key);
             if (eval(peopleFilter)) {
                 visualPeople.push(key);
             }
-        } else if (boolCases[testCase] && eval(peopleFilter)){ // only do the rest if the person matches the manual boolean and the current filter
+        } else if (keepAllIndexCases || (boolCases[testCase] && eval(peopleFilter))){ // only do the rest if the person matches the manual boolean and the current filter
 
         // sort the people into their lists based on the case listed in the  spreadsheet
         //console.log("test case " + testCase) 
@@ -3366,9 +3367,14 @@ function getIndexLineRenderers() {
 }
 
 function drawIndexPeople() {
+    var drawSynchronously = F_varyingLineStyle !== "";
     getIndexLineRenderers().forEach(function(caseRenderer) {
         if (caseRenderer.enabled) {
-            d3.timeout(caseRenderer.render, 1);
+            if (drawSynchronously) {
+                caseRenderer.render();
+            } else {
+                d3.timeout(caseRenderer.render, 1);
+            }
         }
     });
 }
@@ -3380,6 +3386,7 @@ function drawLines(){
         drawVisualPeople();
         return;
     }
+    drawBackgroundLines();
     drawIndexPeople();
     var now = new Date();
     console.log(now.toUTCString()+ " end of drawLines()");
@@ -4676,7 +4683,7 @@ function getLineChoiceLabel(selection) {
 function updateLineSystemLabel() {
     var button = document.getElementById("case_system_label");
     if (!button) return;
-    var label = currentLineSystem === "visual" ? "Chart Drawing" : "Index Data";
+    var label = currentLineSystem === "visual" ? "Engraved Chart" : "Index";
     button.innerHTML = label + '<span class="caret"></span>';
 }
 
