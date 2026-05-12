@@ -4177,7 +4177,11 @@ function mouseOutSectionTitle(d){
     
 
     
-    var imgItem = "<img src='biography/img/"+thisCase+".png' height='12px' width='"+ageWidth+"'> "
+    var tooltipImage = currentLineSystem === "visual" ? lookupVisualCaseImage(thisCase) : "";
+    if (!tooltipImage) {
+        tooltipImage = thisCase + ".png";
+    }
+    var imgItem = "<img src='biography/img/" + tooltipImage + "' height='12px' width='" + ageWidth + "'> "
     
     
     var startDateText = "";
@@ -4658,6 +4662,28 @@ function lookupExpectedVisualCaseFromOriginalCase(inputCase) {
     };
 
     return caseCodeToVisualCase[caseCode] || "";
+}
+
+function lookupVisualCaseImage(inputVisualCase) {
+    // mapping for visual case images
+    var visualCaseToImage = {
+        A: "case3.png",
+        B: "case13.png",
+        C: "case1.png",
+        D: "case2.png",
+        E: "CaseE.png",
+        F: "case5.png",
+        G: "case5.png",
+        H: "case4.png",
+        I: "CaseI.png",
+        J: "caseJ.png",
+        K: "case14.png",
+        L: "case15.png",
+        M: "case14.png",
+        N: "CaseN.png"
+    };
+
+    return visualCaseToImage[inputVisualCase] || "";
 }
 
 var indexLineChoices = [
