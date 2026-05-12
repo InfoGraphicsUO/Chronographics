@@ -87,6 +87,27 @@
         #BioTouriFrame{
             height: 100vh;
         }
+
+      #filterControlsPanel {
+        position: relative;
+      }
+
+      #filterControlsPanel .filter-controls-overlay {
+        display: none;
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        cursor: not-allowed;
+        background: rgba(255, 255, 255, 0.01);
+      }
+
+      #filterControlsPanel.is-disabled {
+        opacity: 0.55;
+      }
+
+      #filterControlsPanel.is-disabled .filter-controls-overlay {
+        display: block;
+      }
     </style>
 </head>
 
@@ -245,7 +266,8 @@ Interactive chart section
                 </div><br>
              </div>
                        <div class="row">
-    <div class="col-sm-3">
+    <div class="col-sm-3 bio-filter-panel is-disabled" id="filterControlsPanel">
+      <div class="filter-controls-overlay" aria-hidden="true"></div>
       <div class="row">
         <div class="col-sm-7 p-0 pr-2 d-inline">
              <!-- title row  div-->
@@ -366,6 +388,17 @@ Interactive chart section
                                   </div>
                             </span>
             <!-- line style -->
+                                       <span class="dropdown-row">
+                                        <label class="m-0" title="Choose whether the case menu follows the original index data or the chart drawing mapping">Data source <i class="fa fa-question-circle-o" aria-hidden="true"></i></label>
+                                        <div class="dropdown d-inline">
+                                          <button id="case_system_label" class="btn btn-default btn-drop dropdown-toggle small" type="button" data-toggle="dropdown" disabled>Index<span class="caret"></span>
+                                          </button>
+                                          <ul id="caseSystemMenu" class="dropdown-menu small">
+                                            <li><a tabindex="-1" onclick="setLineSystem('index')"> Index</a></li>
+                                            <li><a tabindex="-1" onclick="setLineSystem('visual')"> Engraved Chart</a></li>
+                                          </ul>
+                                        </div>
+                                       </span>
                             <span class="dropdown-row">
                               <label class="m-0" title="The line Priestley used to draw a person's lifespan on the chart, expressing certainty by a full line and uncertainty by dots.">Life line style <i class="fa fa-question-circle-o" aria-hidden="true"></i></label>
                               <div class="dropdown d-inline">
@@ -485,6 +518,9 @@ Interactive chart section
                                      </ul>
                                  </div> 
                             </span>
+                                <div class="ml-1 mt-1">
+                                  <label class="small m-0" title="Show only people whose original index case differs from their visual case mapping."><input type="checkbox" id="varyingLineStyle_CB" class="smallCheckbox" disabled>&nbsp;Only show varying line style</label>
+                                </div>
                             
                             
 

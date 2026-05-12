@@ -25,6 +25,8 @@ var drawNames = true; //boolean for drawing text on chart of bio off by default/
 var currentCase = "drawAllPeople";
 var changeCase = false;
 var currentProfession = "";
+var currentLineSystem = "index"; // case mode for the chart line filter
+var currentLineSelection = 0; // current selected line case in the active mode
 var currentLineStyle = "";
 var currentContinent = "";
 var currentRegion = "";
@@ -35,7 +37,9 @@ var currentDragY=0;
 
 
 var globalFilterString = "";
+var F_varyingLineStyle = "";
 var clickList= [];
+var currentFilterMatchSet = null; // cached set of ids that match the current filter string
 
 
 // ~ = ~ = ~ = ~ = ~ SVG elements ~ = ~ = ~ = ~ = ~ //
@@ -231,6 +235,7 @@ zoomSlider.noUiSlider.on('set',function(values, handle){
 
 // clear all checkboxes when script is loaded, after the slider is setup
 clearCheckBoxes();
+setTimeout(buildLineMenu, 0);
 
 // ~ ~ ~ Function to scale the main group ~  ~ ~
 function applyChartTransform(scale) {
@@ -796,6 +801,7 @@ var solid2 = [];
 var unsure2 = [];
 var sevenDots = []
 var threeEnd = []
+var visualPeople = [];
 
 // which lines to draw by default or change manually
 // not really needed any more since the drawing can also no be controlled in the font end, but this allows us to control it before hand.
@@ -864,10 +870,14 @@ function loadBioData(){
   document.getElementById("gender_label").disabled = false;
   document.getElementById("profession_label").disabled = false;
   document.getElementById("continent_label").disabled = false;
+    document.getElementById("case_system_label").disabled = false;
   if($('#region_label').length > 0) {
       document.getElementById("region_label").disabled = false;
      }
   document.getElementById("line_label").disabled = false;
+    if (document.getElementById("varyingLineStyle_CB")) {
+            document.getElementById("varyingLineStyle_CB").disabled = false;
+    }
   document.getElementById("ageAprox_CB").disabled = false;
 //  document.getElementById("clearFiltersButton").disabled = false;
   document.getElementById("clearFiltersButton").classList.remove("disabled");
@@ -880,7 +890,7 @@ function loadBioData(){
   $('.middleGroup').css('pointer-events', 'auto');
 
     // git
-    d3.request("biography/csv/Chronographics Biographies(9_19_2025).csv") 
+    d3.request("biography/csv/Chronographics Biographies(5_7_2026).csv") 
     //local dev
     //d3.request("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/biography/csv/PriestleyBioData_Feb2_2023(2_20_2024).csv")
       .mimeType("text/csv")
@@ -956,7 +966,10 @@ function loadBioData(){
                     }
                     someGuy["Region"] = d["Region_final"]//new
 
-                    someGuy["lineType"] = d["case"].trim(); //get the line type eg. 'case1', but remove newlines and other whitespace (was a problem on case 3)
+                    someGuy["case"] = d["case"].trim(); // original case code from the data
+                    someGuy["VisualCase"] = d["VisualCase"].trim(); // visual-case label used for display/menu grouping
+                    someGuy["ExpectedVisualCase"] = lookupExpectedVisualCaseFromOriginalCase(someGuy["case"]); // expected visual case given original index case
+                    someGuy["lineType"] = someGuy["case"]; // keep existing drawing logic on the original case code
                     someGuy["indexText"] = null; // in tab2 (TO DO, create indext when reading in data instead of on the fly)
 
                     // calculate aprox age
@@ -1005,6 +1018,8 @@ function loadBioData(){
 
             document.getElementById("loader").style.display = "none";  /* turn off the loader */
             document.body.classList.remove('waiting');
+                setFilterControlsEnabled(true);
+                logChartReady("loadBioData");
 
          // },
          // error: function(e) {
@@ -1078,35 +1093,20 @@ function filterPeople(thesePeople, peopleFilter) {
        // d3.selectAll("#list-" + id).classed("hidden",true); // remove the display-block class from list name
         
         // add back those that match
-        $.each(allPeople, function(key) { // new way to iterate, just using keys
-         someGuy = allPeople[key][0]; 
-        
-        
-        //thesePeople.forEach(function(someGuy){  // old way to iterate, passing all data
-           // console.log(someGuy)
-          // console.log("match: " + someGuy.gender)
-          var  id = key // someGuy.UO_ID //someGuy.DisplayName.replace(/[\'\. ,:-]+/g, "-") // get clean version of name for ID
-          if(eval(peopleFilter)){ // test against the current UI filter
-              // //console.log("match: " + someGuy.DisplayName)
-              peopleGroup.selectAll("#"+id+".people-lines,#"+id+".circles").classed("hiddenGuy",false); // add the display-none class to chart lines
-              if (drawNames) peopleGroup.selectAll("#"+id+".timeline-text").classed("hiddenGuy",false); // add the display-none class to chart name
-              filterList.selectAll("#list-" + id).classed("d-none",false); // if they match, remove the display-none 
-              filterList.selectAll("#list-" + id).classed("d-block",true); // if they match, add the display-block class
-              // //filterCount ++;
-              people.push(someGuy); // list of all those that match this filter
-              
-              //list people in the box if there is a filter applied (anything but "true")
-              //if(peopleFilter != true) document.getElementById("filterResultsBox").innerHTML += "<element onClick='resultClicked()' id='list-"+ id + "''>" + someGuy.DisplayName + "</element><br>";
-          } else { // if they don't match
-            
-          }
-             
-        });
+        if (currentFilterMatchSet) {
+            currentFilterMatchSet.forEach(function(id) {
+                someGuy = allPeople[id][0];
+                peopleGroup.selectAll("#"+id+".people-lines,#"+id+".circles").classed("hiddenGuy",false); // add the display-none class to chart lines
+                if (drawNames) peopleGroup.selectAll("#"+id+".timeline-text").classed("hiddenGuy",false); // add the display-none class to chart name
+                filterList.selectAll("#list-" + id).classed("d-none",false); // if they match, remove the display-none 
+                filterList.selectAll("#list-" + id).classed("d-block",true); // if they match, add the display-block class
+                people.push(someGuy); // list of all those that match this filter
+            });
+        }
 
         // deal with the people filtered
         document.getElementById("numPeople").innerHTML =  people.length + " of " + Object.keys(thesePeople).length + " people";
         if (people.length < 10) {console.log(people)} // for debug: print the people that match, only when fewer then 10
-
     } else {
         // no filter applied
         filterList.selectAll(".hidden").classed("hiddenGuy",false); // remove the display-none class from listed names
@@ -1122,6 +1122,7 @@ function filterPeople(thesePeople, peopleFilter) {
    later = new Date();
    diff = later-now;
    console.log(later.toUTCString()+" end of filterPeople")
+    setFilterControlsEnabled(true);
 }
 
 
@@ -1145,26 +1146,42 @@ function sortPeople(thePeople, peopleFilter) {
    sevenDots = [];
    threeEnd = [];
   // noLineNumber = [];
+    visualPeople = [];
     
     console.log("filter "+ peopleFilter);  // logs current filter
+
+    var peopleFilterPredicate = compilePeopleFilterPredicate(peopleFilter);
+    currentFilterMatchSet = peopleFilterPredicate ? new Set() : null;
     
     // iterate through the dictionary
     // access the info about a person using: allPeople[key][0].FIELD_NAME
+    var useVisualCases = currentLineSystem === "visual";
     $.each(allPeople, function(key) {
         //console.log(key, value[0].Name);
         
-        // someGuy = allPeople[key][0] // used to push all the data, not just pushing  the k to speed things along
-        someGuy = key
+        var person = allPeople[key][0];
+        // evaluate filters against the loaded person record ... keep chart lists keyed by id
+        someGuy = person;
         
         //thePeople.forEach(function(someGuy){
 
         var testCase = parseInt(allPeople[key][0].lineType.match(/\d+/)[0]) // this person is in the list of cases we are drawing. e.g. "case3" -> 3. Mostly used to speed drawing during development
+        var keepAllIndexCases = currentLineSystem === "index";
+        var matchesFilter = peopleFilterPredicate ? peopleFilterPredicate(person) : true;
 
-        if (boolCases[testCase] && eval(peopleFilter)){ // only do the rest if the person matches the manual boolean and the current filter
+        // build the set once here so later passes can reveal only the matching ids without rerunning the filter
+        if (currentFilterMatchSet && matchesFilter) {
+            currentFilterMatchSet.add(key);
+        }
+
+        if (useVisualCases) {
+            people.push(key);
+            if (matchesFilter) visualPeople.push(key);
+        } else if (keepAllIndexCases || (boolCases[testCase] && matchesFilter)){ // only do the rest if the person matches the manual boolean and the current filter
 
         // sort the people into their lists based on the case listed in the  spreadsheet
         //console.log("test case " + testCase) 
-        people.push(someGuy); // list of all those that match this filter, just push the key
+        people.push(key); // list of all those that match this filter, just push the key
         //console.log(someGuy)
         //console.log(testCase)
 //          if(someGuy.name == "Suetonius"){
@@ -1175,39 +1192,39 @@ function sortPeople(thePeople, peopleFilter) {
 
             case 1:                    
                     //console.log("solid line (case1)");
-                    solidLines.push(someGuy); 
+                    solidLines.push(key); 
                     break;
             case 2:
                     //console.log("3 starting dots (case2)");
-                    threeBegin.push(someGuy);  
+                    threeBegin.push(key);
                     break;
             case 3:
                     //console.log("3 starting dots and 2 ending (case3)");
-                    threeBeginTwoEnd.push(someGuy); 
+                    threeBeginTwoEnd.push(key);
                     break;
             case 4:
                     //console.log("1 dot beneath beginning (case4)");
-                    oneBegin.push(someGuy); 
+                    oneBegin.push(key);
                     break;
             case 5:
                     //console.log("1 dot beneath ending (case5)");
-                    oneEndUnder.push(someGuy); 
+                    oneEndUnder.push(key);
                     break;
             case 6:
                     //console.log("solid line (case6)");
-                    solid2.push(someGuy);
+                    solid2.push(key);
                     break;
             case 7:
                     //console.log("1 dot end (case7)");
-                    oneEnd.push(someGuy); 
+                    oneEnd.push(key);
                     break;
             case 8:
                     //console.log("3 starting dots and 1 ending (case8)");
-                    threeBeginOneEnd.push(someGuy);
+                    threeBeginOneEnd.push(key);
                     break;
             case 11:
                     //console.log("1 dot beneath ending 2 (case11)");
-                    oneEndUnder2.push(someGuy); 
+                    oneEndUnder2.push(key); 
                     break;
             case 12:
                     //console.log("no line number (case12)");
@@ -1215,18 +1232,18 @@ function sortPeople(thePeople, peopleFilter) {
                     break;
             case 13:
                     //console.log("seven dots (case13)");
-                    sevenDots.push(someGuy); 
+                    sevenDots.push(key); 
                     break;
             case 14:
                     //console.log("1 dot end 2 (case14)");
-                    oneEnd2.push(someGuy);
+                    oneEnd2.push(key);
                     break;
             case 15:
                     //console.log("three end (case15)");
-                    threeEnd.push(someGuy);
+                    threeEnd.push(key);
                     break;
             default:
-                unsure.push(someGuy); 
+                unsure.push(key); 
         } // switch
 
 
@@ -1896,7 +1913,7 @@ function drawCase1(){
        // if (page == "biographyMap.html"){   drawPeopleOnMap(solidLines);  } 
 
         var dataEnter = peopleGroup.selectAll("div")
-            .data(solidLines)
+            .data(getForegroundPeople(solidLines))
             .enter();
         // Add the lines
         dataEnter.append("line")
@@ -1982,7 +1999,7 @@ function drawCase2(){
         //if (page == "biographyMap.html"){   drawPeopleOnMap(threeBegin);  }       
 
         var threeBeginEnter = peopleGroup.selectAll("div")
-            .data(threeBegin)
+            .data(getForegroundPeople(threeBegin))
             .enter();
         // Add the lines
         threeBeginEnter.append("line")
@@ -2079,7 +2096,7 @@ function drawCase3(){
       //  if (page == "biographyMap.html"){   drawPeopleOnMap(threeBeginTwoEnd);      }   
 
         var threeBeginTwoEndEnter = peopleGroup.selectAll("div")
-            .data(threeBeginTwoEnd)
+            .data(getForegroundPeople(threeBeginTwoEnd))
             .enter();
         // Add the lines
         threeBeginTwoEndEnter.append("line")
@@ -2178,7 +2195,7 @@ function drawCase4(){
       //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneBegin);  }       
 
         var oneBeginEnter = peopleGroup.selectAll("div")
-            .data(oneBegin)
+            .data(getForegroundPeople(oneBegin))
             .enter();
         // Add the lines
         oneBeginEnter.append("line")
@@ -2279,7 +2296,7 @@ function drawCase5(){
       //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneEndUnder); }        
 
         var oneEndUnderEnter = peopleGroup.selectAll("div")
-            .data(oneEndUnder)
+            .data(getForegroundPeople(oneEndUnder))
             .enter();
         // Add the lines
         oneEndUnderEnter.append("line")
@@ -2376,7 +2393,7 @@ function drawCase6(){
       //  if (page == "biographyMap.html"){drawPeopleOnMap(solid2);}
 
         var solid2Enter = peopleGroup.selectAll("div")
-            .data(solid2)
+            .data(getForegroundPeople(solid2))
             .enter();
         // Add the lines
         solid2Enter.append("line")
@@ -2457,7 +2474,7 @@ function drawCase7(){
       //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneEnd); }
 
         var oneEndEnter = peopleGroup.selectAll("div")
-            .data(oneEnd)
+            .data(getForegroundPeople(oneEnd))
             .enter();
         // Add the lines
         oneEndEnter.append("line")
@@ -2557,7 +2574,7 @@ function drawCase8(){
       //  if (page == "biographyMap.html"){ 	drawPeopleOnMap(threeBeginOneEnd); }
 
         var threeBeginOneEndEnter = peopleGroup.selectAll("div")
-            .data(threeBeginOneEnd)
+            .data(getForegroundPeople(threeBeginOneEnd))
             .enter();
         // Add the lines
         threeBeginOneEndEnter.append("line")
@@ -2653,7 +2670,7 @@ function drawCase11(){
       //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneEndUnder2); }        
 
         var oneEndUnder2Enter = peopleGroup.selectAll("div")
-            .data(oneEndUnder2)
+            .data(getForegroundPeople(oneEndUnder2))
             .enter();
         // Add the lines
         oneEndUnder2Enter.append("line")
@@ -2749,7 +2766,7 @@ function drawCase13(){
         //  if (page == "biographyMap.html"){ 	drawPeopleOnMap(sevenDots);    }     
 
         var sevenDotsEnter = peopleGroup.selectAll("div")
-            .data(sevenDots)
+            .data(getForegroundPeople(sevenDots))
             .enter();
         // Add the text
         if (drawNames) {
@@ -2831,7 +2848,7 @@ function drawCase14(){
       //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneEnd2); }
 
         var oneEnd2Enter = peopleGroup.selectAll("div")
-            .data(oneEnd2)
+            .data(getForegroundPeople(oneEnd2))
             .enter();
         // Add the lines
         oneEnd2Enter.append("line")
@@ -2928,7 +2945,7 @@ function drawCase15(){
             console.log("drawCase15")
 
             var threeEndEnter = peopleGroup.selectAll("div")
-                .data(threeEnd)
+                .data(getForegroundPeople(threeEnd))
                 .enter();
             // Add the lines
             threeEndEnter.append("line")
@@ -3002,55 +3019,371 @@ function drawCase15(){
             .on("mouseout", mouseOut);
 }
 
+function getChartValue(value, fallback) {
+    var numericValue = parseFloat(value);
+    if (isNaN(numericValue)) {
+        return fallback;
+    }
+    return numericValue;
+}
+
+function getVisualCaseConfig(someGuy) {
+    var birthDate = getChartValue(someGuy.BirthDate, getChartValue(someGuy.AproxBirthDate, getChartValue(someGuy.AliveDate, 0)));
+    var deathDate = getChartValue(someGuy.DeathDate, getChartValue(someGuy.AproxDeathDate, getChartValue(someGuy.AliveDate, 0)));
+    var aliveDate = getChartValue(someGuy.AliveDate, getChartValue(someGuy.AproxBirthDate, birthDate + 40));
+    var lifeLength = getChartValue(someGuy.LifeLength, Math.max(0, deathDate - birthDate));
+    var lineEnd = getChartValue(someGuy.AliveDate, getChartValue(someGuy.AproxDeathDate, getChartValue(someGuy.DeathDate, birthDate + lifeLength)));
+    var visualCase = someGuy.VisualCase || "C";
+
+    var config = {
+        drawLine: true,
+        lineStart: birthDate,
+        lineEnd: deathDate,
+        textX: null,
+        textY: null,
+        startDots: [],
+        endDots: [],
+        underStart: null,
+        underEnd: null,
+        afterDots: [],
+        mouseStart: birthDate,
+        mouseEnd: deathDate,
+        tooltipLabel: someGuy.DisplayName
+    };
+
+    switch (visualCase) {
+        case "A": // 3 dots line 2 dots | unknown birth, unknown death, exact flourished date; exact alive date; flourished after; exact flourished date, certain life length; unknown birth, unknown death
+            // start and end dots bracket the same span for the visual case
+            config.lineStart = aliveDate - 13;
+            config.lineEnd = aliveDate + 7;
+            config.startDots = [-15, -10, -5];
+            config.endDots = [5, 10];
+            config.textX = aliveDate - 7;
+            config.mouseStart = aliveDate - 37;
+            config.mouseEnd = aliveDate + 19;
+            config.tooltipLabel = "fl. " + aliveDate;
+            break;
+        case "B": // 7 dots | unknown birth, unknown death, approx flourished date; unknown birth, unknown death, alive after
+            config.drawLine = false;
+            // seven dots span the same full visual window
+            config.lineStart = aliveDate - 32;
+            config.lineEnd = aliveDate - 32;
+            config.afterDots = [0, 10, 20, 30, 40, 50, 60];
+            config.textX = aliveDate - 2;
+            config.mouseStart = aliveDate - 35;
+            config.mouseEnd = aliveDate + 16;
+            config.tooltipLabel = "fl. ab. " + aliveDate;
+            break;
+        case "C": // solid line | unknown birth, exact death date, certain life length
+            config.lineStart = deathDate - lifeLength;
+            config.lineEnd = deathDate;
+            config.textX = config.lineStart + (lifeLength / 2);
+            config.mouseStart = config.lineStart;
+            config.mouseEnd = config.lineEnd;
+            config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
+            break;
+        case "D": // 3 dots solid line | unknown birth, exact death date; unknown birth, exact death date (?)
+            // three dots at the start then the line to death
+            config.lineStart = deathDate - 30;
+            config.lineEnd = deathDate;
+            config.startDots = [-15, -10, -5];
+            config.textX = deathDate - 15;
+            config.mouseStart = deathDate - 50;
+            config.mouseEnd = deathDate;
+            config.tooltipLabel = "d. " + deathDate;
+            break;
+        case "E": // 3 dots solid line 1 dot under end | unknown birth, approx death date
+            config.lineStart = deathDate - 40;
+            config.lineEnd = deathDate;
+            config.startDots = [-15, -10, -5];
+            config.underEnd = 0;
+            config.textX = deathDate - 22;
+            config.mouseStart = deathDate - 60;
+            config.mouseEnd = deathDate;
+            config.tooltipLabel = "d. " + deathDate;
+            break;
+        case "F": // 3 dots solid line 1 dot after end | unknown birth, died after
+            config.lineStart = deathDate - 30;
+            config.lineEnd = deathDate;
+            config.startDots = [-15, -10, -5];
+            config.afterDots = [5];
+            config.textX = deathDate - 15;
+            config.mouseStart = deathDate - 45;
+            config.mouseEnd = deathDate + 5;
+            config.tooltipLabel = "d. " + deathDate;
+            break;
+        case "G": // solid line 1 dot under end | unknown birth, approx death date, certain life length; exact birth date, unknown death, approx life length
+            config.lineStart = birthDate;
+            config.lineEnd = deathDate;
+            config.underEnd = 0;
+            config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
+            config.mouseStart = config.lineStart;
+            config.mouseEnd = config.lineEnd;
+            config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
+            break;
+        case "H": // 1 dot under start solid line | unknown birth, exact death date, approx life length
+            config.lineStart = birthDate;
+            config.lineEnd = deathDate;
+            config.underStart = 0;
+            config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
+            config.mouseStart = config.lineStart;
+            config.mouseEnd = config.lineEnd;
+            config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
+            break;
+        case "I": // 1 dot under start solid line 1 dot under end | unknown birth, approx death date, approx life length
+            config.lineStart = birthDate;
+            config.lineEnd = deathDate;
+            config.underStart = 0;
+            config.underEnd = 0;
+            config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
+            config.mouseStart = config.lineStart;
+            config.mouseEnd = config.lineEnd;
+            config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
+            break;
+        case "J": // 1 dot under start solid line 1 dot after end | unknown birth, died after, approx life length
+            config.lineStart = birthDate;
+            config.lineEnd = deathDate;
+            config.underStart = 0;
+            config.afterDots = [5];
+            config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
+            config.mouseStart = config.lineStart;
+            config.mouseEnd = config.lineEnd + 5;
+            config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
+            break;
+        case "K": // solid line 1 dot after end | exact birth date, unknown death, approx life length; exact birth date, died after
+            config.lineStart = birthDate;
+            config.lineEnd = lineEnd;
+            config.afterDots = [5];
+            config.textX = birthDate + ((lineEnd - birthDate) / 2);
+            config.mouseStart = birthDate;
+            config.mouseEnd = lineEnd + 3;
+            config.tooltipLabel = "b. " + birthDate + " d. af. " + deathDate;
+            break;
+        case "L": // solid line 3 dots after | exact birth date, unknown death
+            config.lineStart = birthDate;
+            config.lineEnd = birthDate - 13;
+            config.afterDots = [20, 25, 30];
+            config.textX = birthDate;
+            config.mouseStart = birthDate;
+            config.mouseEnd = birthDate + 13;
+            config.tooltipLabel = "b. " + birthDate;
+            break;
+        case "M": // solid line 1 dot after end | exact birth date, unknown death, alive after
+            config.lineStart = birthDate;
+            config.lineEnd = lineEnd;
+            config.afterDots = [3];
+            config.textX = birthDate + ((lineEnd - birthDate) / 2);
+            config.mouseStart = birthDate;
+            config.mouseEnd = lineEnd + 5;
+            config.tooltipLabel = "b. " + birthDate + " d. af. " + deathDate;
+            break;
+        case "N": // one dot under before solid line 3 dots after | approx birth date, unknown death
+            config.lineStart = birthDate;
+            config.lineEnd = birthDate + 5;
+            config.underStart = 0;
+            config.afterDots = [10, 15, 20];
+            config.textX = birthDate + 10;
+            config.mouseStart = birthDate;
+            config.mouseEnd = birthDate + 20;
+            config.tooltipLabel = "b. " + birthDate;
+            break;
+        default:
+            config.lineStart = deathDate - lifeLength;
+            config.lineEnd = deathDate;
+            config.textX = config.lineStart + (lifeLength / 2);
+            config.mouseStart = config.lineStart;
+            config.mouseEnd = config.lineEnd;
+            config.tooltipLabel = someGuy.DisplayName;
+            break;
+    }
+
+    if (config.textX === null) {
+        config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
+    }
+
+    return config;
+}
+
+function drawVisualPerson(key) {
+    var someGuy = allPeople[key][0];
+    var config = getVisualCaseConfig(someGuy);
+    var dot = notBlack;
+    var line = notBlack;
+
+    if (config.drawLine) {
+        peopleGroup.append("line")
+            .datum(key)
+            .attr("class", "people-lines")
+            .attr("id", key)
+            .attr("x1", xScale(parseDate(config.lineStart.toString())))
+            .attr("y1", yScale(someGuy.LineNumber))
+            .attr("x2", xScale(parseDate(config.lineEnd.toString())))
+            .attr("y2", yScale(someGuy.LineNumber))
+            .attr("stroke", line)
+            .attr("stroke-width", lineWidths);
+    }
+
+    if (drawNames) {
+        peopleGroup.append("text")
+            .datum(key)
+            .attr("class", "timeline-text-background")
+            .attr("id", key)
+            .attr("text-anchor", "middle")
+            .text(function() { return someGuy.DisplayName; })
+            .attr("x", xScale(parseDate(config.textX.toString())))
+            .attr("y", yScale(someGuy.LineNumber) - lineOffset)
+            .style("fill", backgroundLineColor);
+
+        peopleGroup.append("text")
+            .datum(key)
+            .attr("class", "timeline-text")
+            .attr("id", key)
+            .attr("text-anchor", "middle")
+            .text(function() { return someGuy.DisplayName; })
+            .attr("x", xScale(parseDate(config.textX.toString())))
+            .attr("y", yScale(someGuy.LineNumber) - lineOffset)
+            .on("click", function(e) {
+                selectPerson(key);
+            })
+            .on("mouseover", function() {
+                mouseOverChartPeople(this, key, config.mouseStart, config.mouseEnd, config.tooltipLabel);
+            })
+            .on("mouseout", mouseOut);
+    }
+
+    if (config.startDots.length > 0) {
+        config.startDots.forEach(function(offset) {
+            peopleGroup.append("circle")
+                .datum(key)
+                .attr("class", "circles")
+                .attr("id", key)
+                .attr("cx", xScale(parseDate((config.lineStart + offset).toString())))
+                .attr("cy", yScale(someGuy.LineNumber))
+                .attr("r", dotSize)
+                .attr("stroke-width", "0.4px")
+                .style("fill", dot);
+        });
+    }
+
+    if (config.afterDots.length > 0) {
+        config.afterDots.forEach(function(offset) {
+            peopleGroup.append("circle")
+                .datum(key)
+                .attr("class", "circles")
+                .attr("id", key)
+                .attr("cx", xScale(parseDate((config.lineEnd + offset).toString())))
+                .attr("cy", yScale(someGuy.LineNumber))
+                .attr("r", dotSize)
+                .attr("stroke-width", "0.4px")
+                .style("fill", dot);
+        });
+    }
+
+    if (config.endDots && config.endDots.length > 0) {
+        config.endDots.forEach(function(offset) {
+            peopleGroup.append("circle")
+                .datum(key)
+                .attr("class", "circles")
+                .attr("id", key)
+                .attr("cx", xScale(parseDate((config.lineEnd + offset).toString())))
+                .attr("cy", yScale(someGuy.LineNumber))
+                .attr("r", dotSize)
+                .attr("stroke-width", "0.4px")
+                .style("fill", dot);
+        });
+    }
+
+    if (config.underStart !== null) {
+        peopleGroup.append("circle")
+            .datum(key)
+            .attr("class", "circles")
+            .attr("id", key)
+            .attr("cx", xScale(parseDate((config.lineStart + config.underStart).toString())))
+            .attr("cy", yScale(someGuy.LineNumber) + (lineOffset * 1.2))
+            .attr("r", dotSize)
+            .attr("stroke-width", "0.4px")
+            .style("fill", dot);
+    }
+
+    if (config.underEnd !== null) {
+        peopleGroup.append("circle")
+            .datum(key)
+            .attr("class", "circles")
+            .attr("id", key)
+            .attr("cx", xScale(parseDate((config.lineEnd - config.underEnd).toString())))
+            .attr("cy", yScale(someGuy.LineNumber) + (lineOffset * 1.2))
+            .attr("r", dotSize)
+            .attr("stroke-width", "0.4px")
+            .style("fill", dot);
+    }
+
+    if (config.mouseStart !== null && config.mouseEnd !== null) {
+        peopleGroup.append("line")
+            .datum(key)
+            .attr("class", "mouse-lines")
+            .attr("id", key)
+            .attr("x1", xScale(parseDate(config.mouseStart.toString())))
+            .attr("y1", yScale(someGuy.LineNumber))
+            .attr("x2", xScale(parseDate(config.mouseEnd.toString())))
+            .attr("y2", yScale(someGuy.LineNumber))
+            .attr("stroke", "transparent")
+            .attr("stroke-width", "6px")
+            .on("click", function() {
+                selectPerson(key);
+            })
+            .on("mouseover", function() {
+                mouseOverChartPeople(this, key, config.mouseStart, config.mouseEnd, config.tooltipLabel);
+            })
+            .on("mouseout", mouseOut);
+    }
+}
+
+function drawVisualPeople() {
+    people.forEach(function(key) {
+        drawVisualPerson(key);
+    });
+}
+
+function getIndexLineRenderers() {
+    return [
+        { enabled: case1, render: drawCase1 },
+        { enabled: case2, render: drawCase2 },
+        { enabled: case3, render: drawCase3 },
+        { enabled: case4, render: drawCase4 },
+        { enabled: case5, render: drawCase5 },
+        { enabled: case6, render: drawCase6 },
+        { enabled: case7, render: drawCase7 },
+        { enabled: case8, render: drawCase8 },
+        { enabled: case11, render: drawCase11 },
+        { enabled: case13, render: drawCase13 },
+        { enabled: case14, render: drawCase14 },
+        { enabled: case15, render: drawCase15 }
+    ];
+}
+
+function drawIndexPeople() {
+    // the varying line style filter needs the index chart to exist before filtering, so render synchronously in that case
+    var drawSynchronously = F_varyingLineStyle !== "";
+    getIndexLineRenderers().forEach(function(caseRenderer) {
+        if (caseRenderer.enabled) {
+            if (drawSynchronously) {
+                caseRenderer.render();
+            } else {
+                d3.timeout(caseRenderer.render, 1);
+            }
+        }
+    });
+}
+
 // draw the all the names these will be redrawn many times
 function drawLines(){
     mouseOut(); // if a tooltip was open, close it
-    // % % % % % Case 1: Solid lines % % % 
-    if (case1){
-        d3.timeout(drawCase1(),1);
-    }   
-
-    if (case2){
-        d3.timeout(drawCase2(),1);
+    if (currentLineSystem === "visual") {
+        drawVisualPeople();
+        return;
     }
-    
-     if (case3){
-        d3.timeout(drawCase3(),1);
-    }
-
-     if(case4){
-        d3.timeout(drawCase4(),1);
-    }
-
-     if (case5){
-         d3.timeout(drawCase5(),1);
-    }
-
-    if (case6){
-        d3.timeout(drawCase6(),1);  
-    }
-    
-    if (case7){
-         d3.timeout(drawCase7(),1);
-    }
-
-    if (case8){
-        d3.timeout(drawCase8(),1);
-    }
-    if (case11){
-        d3.timeout(drawCase11(),1);
-    }
-    
-    if (case13){
-        d3.timeout(drawCase13(),1);
-    }
-    
-    if (case14){
-        d3.timeout(drawCase14(),1);
-    }
-    if (case15){
-        d3.timeout(drawCase15(),1);
-    }
+    drawBackgroundLines();
+    drawIndexPeople();
     var now = new Date();
     console.log(now.toUTCString()+ " end of drawLines()");
     document.addEventListener("DOMContentLoaded", function(event) { 
@@ -3067,6 +3400,13 @@ function setLoadingUI(){
     document.getElementById("loader").style.display = "block";
     mouseOut(); // close the tooltip
     document.getElementById("numPeople").innerHTML =  "<span 'style=direction: ltr'><i>loading people...</i></span>"; 
+    setFilterControlsEnabled(false);
+}
+
+function setFilterControlsEnabled(enabled) {
+    var filterPanel = document.getElementById("filterControlsPanel");
+    if (!filterPanel) return;
+    filterPanel.classList.toggle("is-disabled", !enabled);
 }
 
 var F_diffChartName="";
@@ -3097,6 +3437,10 @@ function buildFullFilterQuery(){
     if (F_LineStyle  != ""){
          if (globalFilterString != '') globalFilterString += ' && '
          globalFilterString += F_LineStyle;
+     }
+    if (F_varyingLineStyle  != ""){
+         if (globalFilterString != '') globalFilterString += ' && '
+         globalFilterString += F_varyingLineStyle;
      }
    
    if (F_age  != ""){
@@ -3129,38 +3473,44 @@ function buildFullFilterQuery(){
 // functions for drawing by filters
 function drawAllPeople(){
     console.log("All button")
-    
-    //don't redraw if this is already the current case with no change to draw names
-    if (currentCase != "drawAllPeople" || changeCase == true){
-        currentCase = "drawAllPeople";
-        changeCase = false;
-        //document.getElementById("currentFilter").innerHTML = "All People";
-        //clearTimeline();
-        // clear global people
-        
-        // clear all checkboxes
-        clearCheckBoxes();
-        globalFilterString = "";
-        document.getElementById("userInput").value= "";
-        setLoadingUI();
-        setTimeout(function() {
-            filterPeople(allPeople, true);
-            document.body.classList.remove('waiting');
-            document.getElementById("loader").style.display = "none";
-        }, 0);
 
+    currentCase = "drawAllPeople";
+    changeCase = false;
+
+    // clear all filters and rebuild the chart from the full data set
+    clearCheckBoxes();
+    buildFullFilterQuery();
+    document.getElementById("userInput").value= "";
+    setLoadingUI();
+    setTimeout(function() {
+        refreshChartForCurrentFilters();
         d3.selectAll(".f-list").classed("d-none",false); // add the display-none class to names in the filter list
         d3.selectAll(".f-list").classed("d-block",true); // remove the display-block class to names in the filter list
-        
         d3.select("#descriptive_text").html("Click a name to view text."); // clear text description
-     }
-    
+    }, 0);
 }
 
 
 $("#ageAprox_CB").change(function() {
     console.log("Age Aprox CB clicked");
     drawYoungPeople(ageSlider.noUiSlider.get()[0],ageSlider.noUiSlider.get()[1]);
+});
+
+$("#varyingLineStyle_CB").change(function() {
+    // filter to show people that have different cases index vs visual
+    console.log("Varying line style checkbox clicked");
+    if (document.getElementById("varyingLineStyle_CB").checked == true) {
+        F_varyingLineStyle = "(someGuy.VisualCase != '' && someGuy.ExpectedVisualCase != '' && someGuy.VisualCase != someGuy.ExpectedVisualCase)";
+    } else {
+        F_varyingLineStyle = "";
+    }
+
+    buildFullFilterQuery();
+    document.getElementById("userInput").value = "";
+    setLoadingUI();
+    setTimeout(function() {
+        refreshChartForCurrentFilters();
+    }, 0);
 });
 
 function drawYoungPeople(minAge, maxAge){
@@ -3252,54 +3602,40 @@ function drawAliveDuring(minYear, maxYear){
 
 //function for drawing by gender
 function drawGender(gender){
+    //document.getElementById("gender_CB").checked = true;
+    document.getElementById('gender_label').innerHTML = gender;
 
-   //document.getElementById("gender_CB").checked = true;
-   document.getElementById('gender_label').innerHTML = gender;
-   // clear gender
-   if (gender == "Any"){
+    if (gender == "Any"){
         F_gender = "";
         currentCase = "";
         currentGender = "";
         changeCase = false;
-    } else
-
-    //don't redraw if this is already the current case
-    if (currentGender != gender || changeCase == true ){
+    } else if (currentGender != gender || changeCase == true) {
         currentCase = "drawGender";
         changeCase = false;
-               
         currentGender = gender;
 
-
+        var filterString;
         switch(gender.toLowerCase()){
-            // try making this an array!!!
-
-            case "female":                    
+            case "female":
             case "male":
-                // both female and male cases
-                filterString = "someGuy.gender=='" + gender.toLowerCase() +"'";  
+                filterString = "someGuy.gender=='" + gender.toLowerCase() + "'";
                 break;
-        //    case "unknown":
-        //         filterString = "(someGuy.gender!='male' && someGuy.gender== 'female')"; 
-        //         break;
             default:
                 filterString = "(someGuy.gender!='male' && someGuy.gender!= 'female')";
         }
-        
-        //clearTimeline();
-        F_gender = filterString;  
-    }
+
+        F_gender = filterString;
         buildFullFilterQuery();
         console.log(F_gender)
-        document.getElementById("userInput").value= "";
 
         setLoadingUI();
         setTimeout(function() {
             filterPeople(allPeople, globalFilterString);
             document.body.classList.remove('waiting');
             document.getElementById("loader").style.display = "none";
-        }, 0);       
-  
+        }, 0);
+    }
 }
 
 
@@ -3378,8 +3714,9 @@ function drawCase(num){
     // set radio button
    // document.getElementById("line_CB").checked = true;
    
-   if (num == 0){
-        document.getElementById('line_label').innerHTML = "Any ";
+   currentLineSelection = num;
+
+   if (num == 0 || num == "0"){
         F_LineStyle = "";
         currentCase = "";
         currentGender = "";
@@ -3388,14 +3725,18 @@ function drawCase(num){
 
         //don't redraw if this is already the current case
         if (currentCase != "drawCase" || currentLineStyle != num  || changeCase == true){
-            document.getElementById('line_label').innerHTML =  lookupLineStyle(num).substring(0, lookupLineStyle(num).indexOf("(")-1); // show line type, strip case number
-//            document.getElementById('line_label').innerHTML = "<small>" + lookupLineStyle(num) + "</small>" // show case # to dropdown label
         currentCase = "drawCase";
             currentLineStyle = num;
             changeCase = false;
-        filterString = "someGuy.lineType =='case" + num +"'"
+        if (currentLineSystem === "visual") {
+            filterString = "someGuy.VisualCase =='" + num + "'"
+        } else {
+            filterString = "someGuy.lineType =='case" + num + "'"
+        }
         } 
-        if (num == 1){
+        if (currentLineSystem === "visual") {
+            filterString = "someGuy.VisualCase =='" + num + "'"
+        } else if (num == 1){
             filterString = "someGuy.lineType == 'case1' || someGuy.lineType == 'case6'"; // if drawing case 1, also draw case 6, both are solid line
         } else if (num == 5){
             filterString = "someGuy.lineType == 'case5' || someGuy.lineType == 'case11'"; // if drawing case 5, also draw case 11
@@ -3409,13 +3750,12 @@ function drawCase(num){
         F_LineStyle = "(" + filterString + ")";
 
     }
+    updateLineLabel();
     buildFullFilterQuery();
     document.getElementById("userInput").value= "";
     setLoadingUI();
     setTimeout(function() {
-        filterPeople(allPeople, globalFilterString);
-        document.body.classList.remove('waiting');
-        document.getElementById("loader").style.display = "none";
+        refreshChartForCurrentFilters();
     }, 0);
        
 }
@@ -3615,7 +3955,7 @@ function escapeQuotes(str) {
 
 function clearTimeline(){ 
     // fade everything,
-    peopleGroup.selectAll(".people-lines, .circles, .timeline-text, .mouse-lines")
+    peopleGroup.selectAll(".people-lines, .circles, .timeline-text, .mouse-lines, .people-lines-background, .circles-background, .timeline-text-background")
         //.attr('pointer-events', 'none') // prevent mouse interaction while fading
         //.transition().duration(300) 
         //.style("opacity", 1e-6)//fade to near 0 before removing
@@ -3812,7 +4152,7 @@ function mouseOutSectionTitle(d){
 
 
     var bornUncertainty ="";
-    var thisCase = allPeople[key][0].lineType
+    var thisCase = currentLineSystem === "visual" && allPeople[key][0].VisualCase ? allPeople[key][0].VisualCase : allPeople[key][0].lineType
     if (thisCase == "case2" || thisCase == "case4" || thisCase == "case3" || thisCase == "case8" || thisCase == "case13") {
         bornUncertainty = "~ ";
     }
@@ -3837,7 +4177,11 @@ function mouseOutSectionTitle(d){
     
 
     
-    var imgItem = "<img src='biography/img/"+thisCase+".png' height='12px' width='"+ageWidth+"'> "
+    var tooltipImage = currentLineSystem === "visual" ? lookupVisualCaseImage(thisCase) : "";
+    if (!tooltipImage) {
+        tooltipImage = thisCase + ".png";
+    }
+    var imgItem = "<img src='biography/img/" + tooltipImage + "' height='12px' width='" + ageWidth + "'> "
     
     
     var startDateText = "";
@@ -3986,6 +4330,28 @@ function setProfessionDropDownColors(){
   d3.selectAll(".yellow-bg").style("background-color",lookupColorRGBA("yellow"));
 }
 
+function compilePeopleFilterPredicate(peopleFilter) {
+    // compile the filter string once so the person loop can reuse a function instead of repeatedly calling eval
+    if (peopleFilter === true) return null;
+
+    try {
+        return new Function("someGuy", "return (" + peopleFilter + ");");
+    } catch (error) {
+        console.log("filter compile failed", error);
+        return function() {
+            return false;
+        };
+    }
+}
+
+function getForegroundPeople(keys) {
+    // use the cached match set to keep only the people that survived the current filter
+    if (!currentFilterMatchSet) return keys;
+    return keys.filter(function(key) {
+        return currentFilterMatchSet.has(key);
+    });
+}
+
 console.log("middle of JS")
 
 function clearSelectedPeople(){
@@ -4002,6 +4368,30 @@ function clearSelectedPeople(){
     
     // empty out the click list
     clickList = [];
+}
+
+function restoreSelectedPeople() {
+    // after a redraw, reapply the selected classes so previously selected people stay highlighted
+    if (!clickList || clickList.length === 0) return;
+
+    clickList.forEach(function(id) {
+        peopleGroup.selectAll(".people-lines,.circles")
+            .filter(function(s) {
+                return s == id;
+            })
+            .classed("selectedGuy", true);
+
+        peopleGroup.selectAll(".timeline-text,.timeline-text-background")
+            .filter(function(s) {
+                return s == id;
+            })
+            .classed("selectedGuyText", true);
+    });
+}
+
+function logChartReady(sourceLabel) {
+    var now = new Date();
+    console.log(now.toUTCString() + " chart ready: " + sourceLabel);
 }
 
 
@@ -4038,7 +4428,7 @@ function selectPerson(e){
         }).classed("selectedGuy",true);
        
        // highlight the person's name on the chart 
-       peopleGroup.selectAll(".timeline-text")
+        peopleGroup.selectAll(".timeline-text,.timeline-text-background")
         .filter(function(s) {
                 return (s == e); 
         }).classed("selectedGuyText",true);
@@ -4219,6 +4609,202 @@ function lookupLineStyle(inputLineStyle) {
     }
 }
 
+function lookupVisualLineStyle(inputVisualCase) {
+    switch (inputVisualCase) {
+        case "A":
+            return "3 dots line 2 dots";
+        case "B":
+            return "7 dots";
+        case "C":
+            return "solid line";
+        case "D":
+            return "3 dots solid line";
+        case "E":
+            return "3 dots solid line 1 dot under end";
+        case "F":
+            return "3 dots solid line 1 dot after end";
+        case "G":
+            return "solid line 1 dot under end";
+        case "H":
+            return "1 dot under start solid line";
+        case "I":
+            return "1 dot under start solid line 1 dot under end";
+        case "J":
+            return "1 dot under start solid line 1 dot after end";
+        case "K":
+            return "solid line 1 dot after end";
+        case "L":
+            return "solid line 3 dots after";
+        case "M":
+            return "solid line 1 dot after end";
+        case "N":
+            return "one dot under before solid line 3 dots after";
+        default:
+            return "";
+    }
+}
+
+function lookupExpectedVisualCaseFromOriginalCase(inputCase) {
+    // for finding differences between original index cases vs new visual cases
+    var caseCode = String(inputCase || "").trim().toLowerCase();
+    var caseCodeToVisualCase = {
+        "case1": "C",
+        "case2": "D",
+        "case3": "A",
+        "case4": "H",
+        "case5": "I",
+        "case6": "G",
+        "case8": "F",
+        "case11": "G",
+        "case13": "B",
+        "case14": "M",
+        "case15": "L"
+    };
+
+    return caseCodeToVisualCase[caseCode] || "";
+}
+
+function lookupVisualCaseImage(inputVisualCase) {
+    // mapping for visual case images
+    var visualCaseToImage = {
+        A: "case3.png",
+        B: "case13.png",
+        C: "case1.png",
+        D: "case2.png",
+        E: "CaseE.png",
+        F: "case5.png",
+        G: "case5.png",
+        H: "case4.png",
+        I: "CaseI.png",
+        J: "caseJ.png",
+        K: "case14.png",
+        L: "case15.png",
+        M: "case14.png",
+        N: "CaseN.png"
+    };
+
+    return visualCaseToImage[inputVisualCase] || "";
+}
+
+var indexLineChoices = [
+    { value: 0, label: "Any", image: "" },
+    { value: 1, label: "Death year and life span", image: "biography/img/case1.png" },
+    { value: 2, label: "Death year", image: "biography/img/case2.png" },
+    { value: 3, label: "Flourished year", image: "biography/img/case3.png" },
+    { value: 4, label: "Death year and approx life span", image: "biography/img/case4.png" },
+    { value: 5, label: "Approx death year & approx life span", image: "biography/img/case5.png" },
+    { value: 7, label: "Birth year and approx death year", image: "biography/img/case7.png" },
+    { value: 8, label: "Approx death year", image: "biography/img/case8.png" },
+    { value: 13, label: "Approx flourished year", image: "biography/img/case13.png" },
+    { value: 15, label: "Birth year", image: "biography/img/case15.png" }
+];
+
+var visualLineChoices = [
+    { value: "A", label: "3 dots line 2 dots", image: "biography/img/case3.png" },
+    { value: "B", label: "7 dots", image: "biography/img/case13.png" },
+    { value: "C", label: "solid line", image: "biography/img/case1.png" },
+    { value: "D", label: "3 dots solid line", image: "biography/img/case2.png" },
+    { value: "E", label: "3 dots solid line 1 dot under end", image: "biography/img/CaseE.png" },
+    { value: "F", label: "3 dots solid line 1 dot after end", image: "biography/img/case5.png" },
+    { value: "G", label: "solid line 1 dot under end", image: "biography/img/case5.png" },
+    { value: "H", label: "1 dot under start solid line", image: "biography/img/case4.png" },
+    { value: "I", label: "1 dot under start solid line 1 dot under end", image: "biography/img/CaseI.png" },
+    { value: "J", label: "1 dot under start solid line 1 dot after end", image: "biography/img/caseJ.png" },
+    { value: "K", label: "solid line 1 dot after end", image: "biography/img/case14.png" },
+    { value: "L", label: "solid line 3 dots after", image: "biography/img/case15.png" },
+    { value: "M", label: "solid line 1 dot after end", image: "biography/img/case14.png" },
+    { value: "N", label: "one dot under before solid line 3 dots after", image: "biography/img/CaseN.png" }
+];
+
+function getCurrentLineChoices() {
+    return currentLineSystem === "visual" ? visualLineChoices : indexLineChoices;
+}
+
+function getLineChoiceLabel(selection) {
+    var choices = getCurrentLineChoices();
+    for (var i = 0; i < choices.length; i += 1) {
+        if (choices[i].value === selection) {
+            return choices[i].label;
+        }
+    }
+    return "";
+}
+
+function updateLineSystemLabel() {
+    var button = document.getElementById("case_system_label");
+    if (!button) return;
+    var label = currentLineSystem === "visual" ? "Engraved Chart" : "Index";
+    button.innerHTML = label + '<span class="caret"></span>';
+}
+
+function updateLineLabel() {
+    var button = document.getElementById("line_label");
+    if (!button) return;
+    if (currentLineSelection === 0 || currentLineSelection === "0" || currentLineSelection === "") {
+        button.innerHTML = "Any<span class=\"caret\"></span>";
+        return;
+    }
+
+    var label = currentLineSystem === "visual" ? lookupVisualLineStyle(currentLineSelection) : lookupLineStyle(currentLineSelection);
+    if (!label) {
+        label = String(currentLineSelection);
+    }
+
+    button.innerHTML = label + '<span class="caret"></span>';
+}
+
+function buildLineMenu() {
+    var menu = document.getElementById("lineMenu");
+    if (!menu) return;
+
+    var choices = getCurrentLineChoices();
+    var html = "";
+
+    choices.forEach(function(choice) {
+        var imageHtml = choice.image ? '<img src="' + choice.image + '" width="30%"> ' : "";
+        html += "<li><a tabindex=\"-1\" onclick='drawCase(" + JSON.stringify(choice.value) + ")'>" + imageHtml + choice.label + "</a></li>";
+    });
+
+    menu.innerHTML = html;
+    updateLineSystemLabel();
+    updateLineLabel();
+}
+
+function refreshChartForCurrentFilters() {
+    clearTimeline();
+    sortPeople(allPeople, globalFilterString);
+    drawLines();
+    filterPeople(allPeople, globalFilterString);
+    restoreSelectedPeople();
+    document.body.classList.remove('waiting');
+    document.getElementById("loader").style.display = "none";
+    setFilterControlsEnabled(true);
+    logChartReady("refreshChartForCurrentFilters");
+}
+
+function setLineSystem(mode, redrawChart) {
+    if (mode !== "index" && mode !== "visual") return;
+
+    if (currentLineSystem === mode) {
+        return;
+    }
+
+    currentLineSystem = mode;
+    currentLineSelection = 0;
+    currentLineStyle = "";
+    F_LineStyle = "";
+    changeCase = true;
+    currentCase = "drawCase";
+    buildLineMenu();
+    if (redrawChart !== false) {
+        setLoadingUI();
+        buildFullFilterQuery();
+        setTimeout(function() {
+            refreshChartForCurrentFilters();
+        }, 0);
+    }
+}
+
 
 function clearCheckBoxes(){
     //document.getElementById("drawName_CB").checked = true;
@@ -4227,8 +4813,12 @@ function clearCheckBoxes(){
     document.getElementById('gender_label').innerHTML = "Any ";
     F_profession = "";
     document.getElementById('profession_label').innerHTML = "Any  ";
+    currentLineSelection = 0;
+    currentLineStyle = "";
     F_LineStyle = "";
+    F_varyingLineStyle = "";
     document.getElementById('line_label').innerHTML = "Any  ";
+    document.getElementById("varyingLineStyle_CB").checked = false;
     // document.getElementById("age_CB").checked = false;
     F_age="";
     ageSlider.noUiSlider.set([0, 0]);
@@ -4265,7 +4855,7 @@ function resultUnClicked(e){
     populateSelectionBox()
     
     // remove highlight from the person's line and text on the chart 
-    peopleGroup.selectAll(".people-lines,.circles,.timeline-text")
+        peopleGroup.selectAll(".people-lines,.circles,.timeline-text,.timeline-text-background")
       .filter(function(s) {
                 return (s == id); 
       })
