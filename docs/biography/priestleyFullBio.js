@@ -1177,8 +1177,8 @@ function sortPeople(thePeople, peopleFilter) {
         var testCase = parseInt(allPeople[key][0].lineType.match(/\d+/)[0]) // this person is in the list of cases we are drawing. e.g. "case3" -> 3. Mostly used to speed drawing during development
 
         if (useVisualCases) {
+            people.push(key);
             if (eval(peopleFilter)) {
-                people.push(key);
                 visualPeople.push(key);
             }
         } else if (boolCases[testCase] && eval(peopleFilter)){ // only do the rest if the person matches the manual boolean and the current filter
@@ -3058,24 +3058,24 @@ function getVisualCaseConfig(someGuy) {
     switch (visualCase) {
         case "A": // 3 dots line 2 dots | unknown birth, unknown death, exact flourished date; exact alive date; flourished after; exact flourished date, certain life length; unknown birth, unknown death
             // start and end dots bracket the same span for the visual case
-            config.lineStart = aliveDate - 25;
-            config.lineEnd = aliveDate + 10;
+            config.lineStart = aliveDate - 13;
+            config.lineEnd = aliveDate + 7;
             config.startDots = [-15, -10, -5];
             config.endDots = [5, 10];
             config.textX = aliveDate - 7;
-            config.mouseStart = aliveDate - 40;
-            config.mouseEnd = aliveDate + 20;
+            config.mouseStart = aliveDate - 37;
+            config.mouseEnd = aliveDate + 19;
             config.tooltipLabel = "fl. " + aliveDate;
             break;
         case "B": // 7 dots | unknown birth, unknown death, approx flourished date; unknown birth, unknown death, alive after
             config.drawLine = false;
             // seven dots span the same full visual window
-            config.lineStart = aliveDate - 40;
-            config.lineEnd = aliveDate - 40;
+            config.lineStart = aliveDate - 32;
+            config.lineEnd = aliveDate - 32;
             config.afterDots = [0, 10, 20, 30, 40, 50, 60];
-            config.textX = aliveDate - 10;
-            config.mouseStart = aliveDate - 40;
-            config.mouseEnd = aliveDate + 20;
+            config.textX = aliveDate - 2;
+            config.mouseStart = aliveDate - 35;
+            config.mouseEnd = aliveDate + 16;
             config.tooltipLabel = "fl. ab. " + aliveDate;
             break;
         case "C": // solid line | unknown birth, exact death date, certain life length
@@ -3088,16 +3088,16 @@ function getVisualCaseConfig(someGuy) {
             break;
         case "D": // 3 dots solid line | unknown birth, exact death date; unknown birth, exact death date (?)
             // three dots at the start then the line to death
-            config.lineStart = deathDate - 45;
+            config.lineStart = deathDate - 30;
             config.lineEnd = deathDate;
             config.startDots = [-15, -10, -5];
-            config.textX = deathDate - 22;
-            config.mouseStart = deathDate - 60;
+            config.textX = deathDate - 15;
+            config.mouseStart = deathDate - 50;
             config.mouseEnd = deathDate;
             config.tooltipLabel = "d. " + deathDate;
             break;
         case "E": // 3 dots solid line 1 dot under end | unknown birth, approx death date
-            config.lineStart = deathDate - 45;
+            config.lineStart = deathDate - 40;
             config.lineEnd = deathDate;
             config.startDots = [-15, -10, -5];
             config.underEnd = 0;
@@ -3107,12 +3107,12 @@ function getVisualCaseConfig(someGuy) {
             config.tooltipLabel = "d. " + deathDate;
             break;
         case "F": // 3 dots solid line 1 dot after end | unknown birth, died after
-            config.lineStart = deathDate - 45;
+            config.lineStart = deathDate - 30;
             config.lineEnd = deathDate;
             config.startDots = [-15, -10, -5];
             config.afterDots = [5];
-            config.textX = deathDate - 22;
-            config.mouseStart = deathDate - 60;
+            config.textX = deathDate - 15;
+            config.mouseStart = deathDate - 45;
             config.mouseEnd = deathDate + 5;
             config.tooltipLabel = "d. " + deathDate;
             break;
@@ -3165,20 +3165,20 @@ function getVisualCaseConfig(someGuy) {
             break;
         case "L": // solid line 3 dots after | exact birth date, unknown death
             config.lineStart = birthDate;
-            config.lineEnd = birthDate + Math.max(13, lifeLength);
-            config.afterDots = [10, 15, 20];
-            config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
+            config.lineEnd = birthDate - 13;
+            config.afterDots = [20, 25, 30];
+            config.textX = birthDate;
             config.mouseStart = birthDate;
-            config.mouseEnd = config.lineEnd + 20;
+            config.mouseEnd = birthDate + 13;
             config.tooltipLabel = "b. " + birthDate;
             break;
         case "M": // solid line 1 dot after end | exact birth date, unknown death, alive after
             config.lineStart = birthDate;
             config.lineEnd = lineEnd;
-            config.afterDots = [5];
+            config.afterDots = [3];
             config.textX = birthDate + ((lineEnd - birthDate) / 2);
             config.mouseStart = birthDate;
-            config.mouseEnd = lineEnd + 20;
+            config.mouseEnd = lineEnd + 5;
             config.tooltipLabel = "b. " + birthDate + " d. af. " + deathDate;
             break;
         case "N": // one dot under before solid line 3 dots after | approx birth date, unknown death
@@ -3216,6 +3216,7 @@ function drawVisualPerson(key) {
 
     if (config.drawLine) {
         peopleGroup.append("line")
+            .datum(key)
             .attr("class", "people-lines")
             .attr("id", key)
             .attr("x1", xScale(parseDate(config.lineStart.toString())))
@@ -3228,6 +3229,17 @@ function drawVisualPerson(key) {
 
     if (drawNames) {
         peopleGroup.append("text")
+            .datum(key)
+            .attr("class", "timeline-text-background")
+            .attr("id", key)
+            .attr("text-anchor", "middle")
+            .text(function() { return someGuy.DisplayName; })
+            .attr("x", xScale(parseDate(config.textX.toString())))
+            .attr("y", yScale(someGuy.LineNumber) - lineOffset)
+            .style("fill", backgroundLineColor);
+
+        peopleGroup.append("text")
+            .datum(key)
             .attr("class", "timeline-text")
             .attr("id", key)
             .attr("text-anchor", "middle")
@@ -3246,6 +3258,7 @@ function drawVisualPerson(key) {
     if (config.startDots.length > 0) {
         config.startDots.forEach(function(offset) {
             peopleGroup.append("circle")
+                .datum(key)
                 .attr("class", "circles")
                 .attr("id", key)
                 .attr("cx", xScale(parseDate((config.lineStart + offset).toString())))
@@ -3259,6 +3272,7 @@ function drawVisualPerson(key) {
     if (config.afterDots.length > 0) {
         config.afterDots.forEach(function(offset) {
             peopleGroup.append("circle")
+                .datum(key)
                 .attr("class", "circles")
                 .attr("id", key)
                 .attr("cx", xScale(parseDate((config.lineEnd + offset).toString())))
@@ -3272,6 +3286,7 @@ function drawVisualPerson(key) {
     if (config.endDots && config.endDots.length > 0) {
         config.endDots.forEach(function(offset) {
             peopleGroup.append("circle")
+                .datum(key)
                 .attr("class", "circles")
                 .attr("id", key)
                 .attr("cx", xScale(parseDate((config.lineEnd + offset).toString())))
@@ -3284,6 +3299,7 @@ function drawVisualPerson(key) {
 
     if (config.underStart !== null) {
         peopleGroup.append("circle")
+            .datum(key)
             .attr("class", "circles")
             .attr("id", key)
             .attr("cx", xScale(parseDate((config.lineStart + config.underStart).toString())))
@@ -3295,6 +3311,7 @@ function drawVisualPerson(key) {
 
     if (config.underEnd !== null) {
         peopleGroup.append("circle")
+            .datum(key)
             .attr("class", "circles")
             .attr("id", key)
             .attr("cx", xScale(parseDate((config.lineEnd - config.underEnd).toString())))
@@ -3306,6 +3323,7 @@ function drawVisualPerson(key) {
 
     if (config.mouseStart !== null && config.mouseEnd !== null) {
         peopleGroup.append("line")
+            .datum(key)
             .attr("class", "mouse-lines")
             .attr("id", key)
             .attr("x1", xScale(parseDate(config.mouseStart.toString())))
@@ -3934,7 +3952,7 @@ function escapeQuotes(str) {
 
 function clearTimeline(){ 
     // fade everything,
-    peopleGroup.selectAll(".people-lines, .circles, .timeline-text, .mouse-lines")
+    peopleGroup.selectAll(".people-lines, .circles, .timeline-text, .mouse-lines, .people-lines-background, .circles-background, .timeline-text-background")
         //.attr('pointer-events', 'none') // prevent mouse interaction while fading
         //.transition().duration(300) 
         //.style("opacity", 1e-6)//fade to near 0 before removing
@@ -4131,7 +4149,7 @@ function mouseOutSectionTitle(d){
 
 
     var bornUncertainty ="";
-    var thisCase = allPeople[key][0].lineType
+    var thisCase = currentLineSystem === "visual" && allPeople[key][0].VisualCase ? allPeople[key][0].VisualCase : allPeople[key][0].lineType
     if (thisCase == "case2" || thisCase == "case4" || thisCase == "case3" || thisCase == "case8" || thisCase == "case13") {
         bornUncertainty = "~ ";
     }
@@ -4323,6 +4341,24 @@ function clearSelectedPeople(){
     clickList = [];
 }
 
+function restoreSelectedPeople() {
+    if (!clickList || clickList.length === 0) return;
+
+    clickList.forEach(function(id) {
+        peopleGroup.selectAll(".people-lines,.circles")
+            .filter(function(s) {
+                return s == id;
+            })
+            .classed("selectedGuy", true);
+
+        peopleGroup.selectAll(".timeline-text,.timeline-text-background")
+            .filter(function(s) {
+                return s == id;
+            })
+            .classed("selectedGuyText", true);
+    });
+}
+
 
 // person clicked in chart
 function selectPerson(e){
@@ -4357,7 +4393,7 @@ function selectPerson(e){
         }).classed("selectedGuy",true);
        
        // highlight the person's name on the chart 
-       peopleGroup.selectAll(".timeline-text")
+        peopleGroup.selectAll(".timeline-text,.timeline-text-background")
         .filter(function(s) {
                 return (s == e); 
         }).classed("selectedGuyText",true);
@@ -4682,6 +4718,7 @@ function refreshChartForCurrentFilters() {
     sortPeople(allPeople, globalFilterString);
     drawLines();
     filterPeople(allPeople, globalFilterString);
+    restoreSelectedPeople();
     document.body.classList.remove('waiting');
     document.getElementById("loader").style.display = "none";
     setFilterControlsEnabled(true);
@@ -4760,7 +4797,7 @@ function resultUnClicked(e){
     populateSelectionBox()
     
     // remove highlight from the person's line and text on the chart 
-    peopleGroup.selectAll(".people-lines,.circles,.timeline-text")
+        peopleGroup.selectAll(".people-lines,.circles,.timeline-text,.timeline-text-background")
       .filter(function(s) {
                 return (s == id); 
       })
