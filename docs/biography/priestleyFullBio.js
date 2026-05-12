@@ -39,6 +39,7 @@ var currentDragY=0;
 var globalFilterString = "";
 var F_varyingLineStyle = "";
 var clickList= [];
+var currentFilterMatchSet = null; // cached set of ids that match the current filter string
 
 
 // ~ = ~ = ~ = ~ = ~ SVG elements ~ = ~ = ~ = ~ = ~ //
@@ -1018,6 +1019,7 @@ function loadBioData(){
             document.getElementById("loader").style.display = "none";  /* turn off the loader */
             document.body.classList.remove('waiting');
                 setFilterControlsEnabled(true);
+                logChartReady("loadBioData");
 
          // },
          // error: function(e) {
@@ -1091,30 +1093,16 @@ function filterPeople(thesePeople, peopleFilter) {
        // d3.selectAll("#list-" + id).classed("hidden",true); // remove the display-block class from list name
         
         // add back those that match
-        $.each(allPeople, function(key) { // new way to iterate, just using keys
-         someGuy = allPeople[key][0]; 
-        
-        
-        //thesePeople.forEach(function(someGuy){  // old way to iterate, passing all data
-           // console.log(someGuy)
-          // console.log("match: " + someGuy.gender)
-          var  id = key // someGuy.UO_ID //someGuy.DisplayName.replace(/[\'\. ,:-]+/g, "-") // get clean version of name for ID
-          if(eval(peopleFilter)){ // test against the current UI filter
-              // //console.log("match: " + someGuy.DisplayName)
-              peopleGroup.selectAll("#"+id+".people-lines,#"+id+".circles").classed("hiddenGuy",false); // add the display-none class to chart lines
-              if (drawNames) peopleGroup.selectAll("#"+id+".timeline-text").classed("hiddenGuy",false); // add the display-none class to chart name
-              filterList.selectAll("#list-" + id).classed("d-none",false); // if they match, remove the display-none 
-              filterList.selectAll("#list-" + id).classed("d-block",true); // if they match, add the display-block class
-              // //filterCount ++;
-              people.push(someGuy); // list of all those that match this filter
-              
-              //list people in the box if there is a filter applied (anything but "true")
-              //if(peopleFilter != true) document.getElementById("filterResultsBox").innerHTML += "<element onClick='resultClicked()' id='list-"+ id + "''>" + someGuy.DisplayName + "</element><br>";
-          } else { // if they don't match
-            
-          }
-             
-        });
+        if (currentFilterMatchSet) {
+            currentFilterMatchSet.forEach(function(id) {
+                someGuy = allPeople[id][0];
+                peopleGroup.selectAll("#"+id+".people-lines,#"+id+".circles").classed("hiddenGuy",false); // add the display-none class to chart lines
+                if (drawNames) peopleGroup.selectAll("#"+id+".timeline-text").classed("hiddenGuy",false); // add the display-none class to chart name
+                filterList.selectAll("#list-" + id).classed("d-none",false); // if they match, remove the display-none 
+                filterList.selectAll("#list-" + id).classed("d-block",true); // if they match, add the display-block class
+                people.push(someGuy); // list of all those that match this filter
+            });
+        }
 
         // deal with the people filtered
         document.getElementById("numPeople").innerHTML =  people.length + " of " + Object.keys(thesePeople).length + " people";
@@ -1161,6 +1149,9 @@ function sortPeople(thePeople, peopleFilter) {
     visualPeople = [];
     
     console.log("filter "+ peopleFilter);  // logs current filter
+
+    var peopleFilterPredicate = compilePeopleFilterPredicate(peopleFilter);
+    currentFilterMatchSet = peopleFilterPredicate ? new Set() : null;
     
     // iterate through the dictionary
     // access the info about a person using: allPeople[key][0].FIELD_NAME
@@ -1175,14 +1166,18 @@ function sortPeople(thePeople, peopleFilter) {
         //thePeople.forEach(function(someGuy){
 
         var testCase = parseInt(allPeople[key][0].lineType.match(/\d+/)[0]) // this person is in the list of cases we are drawing. e.g. "case3" -> 3. Mostly used to speed drawing during development
-        var keepAllIndexCases = currentLineSystem === "index" && F_varyingLineStyle !== "";
+        var keepAllIndexCases = currentLineSystem === "index";
+        var matchesFilter = peopleFilterPredicate ? peopleFilterPredicate(person) : true;
+
+        // build the set once here so later passes can reveal only the matching ids without rerunning the filter
+        if (currentFilterMatchSet && matchesFilter) {
+            currentFilterMatchSet.add(key);
+        }
 
         if (useVisualCases) {
             people.push(key);
-            if (eval(peopleFilter)) {
-                visualPeople.push(key);
-            }
-        } else if (keepAllIndexCases || (boolCases[testCase] && eval(peopleFilter))){ // only do the rest if the person matches the manual boolean and the current filter
+            if (matchesFilter) visualPeople.push(key);
+        } else if (keepAllIndexCases || (boolCases[testCase] && matchesFilter)){ // only do the rest if the person matches the manual boolean and the current filter
 
         // sort the people into their lists based on the case listed in the  spreadsheet
         //console.log("test case " + testCase) 
@@ -1918,7 +1913,7 @@ function drawCase1(){
        // if (page == "biographyMap.html"){   drawPeopleOnMap(solidLines);  } 
 
         var dataEnter = peopleGroup.selectAll("div")
-            .data(solidLines)
+            .data(getForegroundPeople(solidLines))
             .enter();
         // Add the lines
         dataEnter.append("line")
@@ -2004,7 +1999,7 @@ function drawCase2(){
         //if (page == "biographyMap.html"){   drawPeopleOnMap(threeBegin);  }       
 
         var threeBeginEnter = peopleGroup.selectAll("div")
-            .data(threeBegin)
+            .data(getForegroundPeople(threeBegin))
             .enter();
         // Add the lines
         threeBeginEnter.append("line")
@@ -2101,7 +2096,7 @@ function drawCase3(){
       //  if (page == "biographyMap.html"){   drawPeopleOnMap(threeBeginTwoEnd);      }   
 
         var threeBeginTwoEndEnter = peopleGroup.selectAll("div")
-            .data(threeBeginTwoEnd)
+            .data(getForegroundPeople(threeBeginTwoEnd))
             .enter();
         // Add the lines
         threeBeginTwoEndEnter.append("line")
@@ -2200,7 +2195,7 @@ function drawCase4(){
       //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneBegin);  }       
 
         var oneBeginEnter = peopleGroup.selectAll("div")
-            .data(oneBegin)
+            .data(getForegroundPeople(oneBegin))
             .enter();
         // Add the lines
         oneBeginEnter.append("line")
@@ -2301,7 +2296,7 @@ function drawCase5(){
       //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneEndUnder); }        
 
         var oneEndUnderEnter = peopleGroup.selectAll("div")
-            .data(oneEndUnder)
+            .data(getForegroundPeople(oneEndUnder))
             .enter();
         // Add the lines
         oneEndUnderEnter.append("line")
@@ -2398,7 +2393,7 @@ function drawCase6(){
       //  if (page == "biographyMap.html"){drawPeopleOnMap(solid2);}
 
         var solid2Enter = peopleGroup.selectAll("div")
-            .data(solid2)
+            .data(getForegroundPeople(solid2))
             .enter();
         // Add the lines
         solid2Enter.append("line")
@@ -2479,7 +2474,7 @@ function drawCase7(){
       //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneEnd); }
 
         var oneEndEnter = peopleGroup.selectAll("div")
-            .data(oneEnd)
+            .data(getForegroundPeople(oneEnd))
             .enter();
         // Add the lines
         oneEndEnter.append("line")
@@ -2579,7 +2574,7 @@ function drawCase8(){
       //  if (page == "biographyMap.html"){ 	drawPeopleOnMap(threeBeginOneEnd); }
 
         var threeBeginOneEndEnter = peopleGroup.selectAll("div")
-            .data(threeBeginOneEnd)
+            .data(getForegroundPeople(threeBeginOneEnd))
             .enter();
         // Add the lines
         threeBeginOneEndEnter.append("line")
@@ -2675,7 +2670,7 @@ function drawCase11(){
       //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneEndUnder2); }        
 
         var oneEndUnder2Enter = peopleGroup.selectAll("div")
-            .data(oneEndUnder2)
+            .data(getForegroundPeople(oneEndUnder2))
             .enter();
         // Add the lines
         oneEndUnder2Enter.append("line")
@@ -2771,7 +2766,7 @@ function drawCase13(){
         //  if (page == "biographyMap.html"){ 	drawPeopleOnMap(sevenDots);    }     
 
         var sevenDotsEnter = peopleGroup.selectAll("div")
-            .data(sevenDots)
+            .data(getForegroundPeople(sevenDots))
             .enter();
         // Add the text
         if (drawNames) {
@@ -2853,7 +2848,7 @@ function drawCase14(){
       //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneEnd2); }
 
         var oneEnd2Enter = peopleGroup.selectAll("div")
-            .data(oneEnd2)
+            .data(getForegroundPeople(oneEnd2))
             .enter();
         // Add the lines
         oneEnd2Enter.append("line")
@@ -2950,7 +2945,7 @@ function drawCase15(){
             console.log("drawCase15")
 
             var threeEndEnter = peopleGroup.selectAll("div")
-                .data(threeEnd)
+                .data(getForegroundPeople(threeEnd))
                 .enter();
             // Add the lines
             threeEndEnter.append("line")
@@ -3367,6 +3362,7 @@ function getIndexLineRenderers() {
 }
 
 function drawIndexPeople() {
+    // the varying line style filter needs the index chart to exist before filtering, so render synchronously in that case
     var drawSynchronously = F_varyingLineStyle !== "";
     getIndexLineRenderers().forEach(function(caseRenderer) {
         if (caseRenderer.enabled) {
@@ -4330,6 +4326,28 @@ function setProfessionDropDownColors(){
   d3.selectAll(".yellow-bg").style("background-color",lookupColorRGBA("yellow"));
 }
 
+function compilePeopleFilterPredicate(peopleFilter) {
+    // compile the filter string once so the person loop can reuse a function instead of repeatedly calling eval
+    if (peopleFilter === true) return null;
+
+    try {
+        return new Function("someGuy", "return (" + peopleFilter + ");");
+    } catch (error) {
+        console.log("filter compile failed", error);
+        return function() {
+            return false;
+        };
+    }
+}
+
+function getForegroundPeople(keys) {
+    // use the cached match set to keep only the people that survived the current filter
+    if (!currentFilterMatchSet) return keys;
+    return keys.filter(function(key) {
+        return currentFilterMatchSet.has(key);
+    });
+}
+
 console.log("middle of JS")
 
 function clearSelectedPeople(){
@@ -4349,6 +4367,7 @@ function clearSelectedPeople(){
 }
 
 function restoreSelectedPeople() {
+    // after a redraw, reapply the selected classes so previously selected people stay highlighted
     if (!clickList || clickList.length === 0) return;
 
     clickList.forEach(function(id) {
@@ -4364,6 +4383,11 @@ function restoreSelectedPeople() {
             })
             .classed("selectedGuyText", true);
     });
+}
+
+function logChartReady(sourceLabel) {
+    var now = new Date();
+    console.log(now.toUTCString() + " chart ready: " + sourceLabel);
 }
 
 
@@ -4729,6 +4753,7 @@ function refreshChartForCurrentFilters() {
     document.body.classList.remove('waiting');
     document.getElementById("loader").style.display = "none";
     setFilterControlsEnabled(true);
+    logChartReady("refreshChartForCurrentFilters");
 }
 
 function setLineSystem(mode, redrawChart) {
