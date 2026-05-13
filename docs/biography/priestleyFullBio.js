@@ -4064,7 +4064,12 @@ function mouseOverChartSection(thisSection, d, section){
 //    console.log(d3.event.x) // NEED TO SCALE x for current zoom...
 //    console.log(d3.event) // NEED TO SCALE x for current zoom...
     
-    var tooltipHTML = sectionText[section]['label'] + "<br/>Era of "+ findRuler(d3.event.x) +"<br/>";
+    var hoverYearLabel = getHoverYearLabel();
+    var tooltipHTML = sectionText[section]['label'] + "<br/>";
+    if (hoverYearLabel) {
+        tooltipHTML += hoverYearLabel + "<br/>";
+    }
+    tooltipHTML += "Era of " + findRuler(d3.event.x) + "<br/>";
     
     toolTip.html(tooltipHTML)
       .style("left", (d3.event.pageX) + "px")     
@@ -4073,6 +4078,25 @@ function mouseOverChartSection(thisSection, d, section){
     toolTip.transition()
          .duration(100)    
          .style("opacity", .9);
+}
+
+function getHoverYearLabel() {
+    if (!d3.event) return "";
+    var mouse = d3.mouse(svg.node());
+    if (!mouse) return "";
+    var viewport = getChartViewport();
+    var scale = (viewport.wide / outerWidth) * currentZoom;
+    if (!scale) return "";
+    var chartX = (mouse[0] - currentDragX) / scale;
+    var dateValue = xScale.invert(chartX);
+    if (!dateValue || isNaN(dateValue.getTime())) return "";
+
+    var yearValue = dateValue.getFullYear();
+    if (isNaN(yearValue)) return "";
+    var roundedYear = Math.round(yearValue);
+    if (roundedYear === 0) return "1 BC";
+    if (roundedYear < 0) return Math.abs(roundedYear) + " BC";
+    return "AD " + roundedYear;
 }
 
 function mouseOutChartSection(thisSection){
