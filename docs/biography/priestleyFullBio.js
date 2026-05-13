@@ -4135,6 +4135,32 @@ function mouseOutSectionTitle(d){
 
 }
 
+function isVaryingLineStyleActive() {
+    // check if the varying line style filter is currently active
+    var checkbox = document.getElementById("varyingLineStyle_CB");
+    return (checkbox && checkbox.checked) || F_varyingLineStyle !== "";
+}
+
+function getPersonIndexLineImage(person) {
+    // grab the image of both cases for the varying line style hover tooltip
+    var caseCode = String(person.lineType || "").trim().toLowerCase();
+    var caseMatch = caseCode.match(/\d+/);
+    var caseNumber = caseMatch ? parseInt(caseMatch[0], 10) : null;
+
+    if (caseCode.indexOf("case") === 0) {
+        return caseCode + ".png";
+    }
+    if (caseNumber) {
+        return "case" + caseNumber + ".png";
+    }
+    return "";
+}
+
+function getPersonVisualLineImage(person) {
+    var visualCase = person.VisualCase || person.ExpectedVisualCase || "";
+    return lookupVisualCaseImage(visualCase) || "";
+}
+
 
 
  function mouseOverChartPeople(thisThing, key, fromDate, toDate, indexText){
@@ -4204,6 +4230,22 @@ function mouseOutSectionTitle(d){
     };
 //     var firstLine = thisCase + " " +
     var firstLine = "<span id='tooltip_topline'>"+allPeople[key][0].Name +" " + indexText + " " + P +"</span>";
+    var lineStyleInfo = "";
+    if (isVaryingLineStyleActive()) {
+        // if the varying line style filter is active, show both styles with labels
+        var indexImage = getPersonIndexLineImage(allPeople[key][0]);
+        var visualImage = getPersonVisualLineImage(allPeople[key][0]);
+        var indexLabel = currentLineSystem === "index" ? "<strong>Index</strong>" : "Index";
+        var visualLabel = currentLineSystem === "visual" ? "<strong>Engraved chart</strong>" : "Engraved chart";
+        var indexImg = indexImage ? "<img src='biography/img/" + indexImage + "' height='12px' />" : "";
+        var visualImg = visualImage ? "<img src='biography/img/" + visualImage + "' height='12px' />" : "";
+
+        if (indexImg || visualImg) {
+            lineStyleInfo = "<br/><span>Line style variation:</span>" +
+                "<span style='display:block; margin-left:12px;'>" + indexLabel + ": " + indexImg + "</span>" +
+                "<span style='display:block; margin-left:12px; margin-bottom:6px;'>" + visualLabel + ": " + visualImg + "</span>";
+        }
+    }
     
 
     
@@ -4254,7 +4296,7 @@ if (thisCase == "case3"||  thisCase == "case13") {
      
    var lastLine = "    Lifespan: " + A +" years<br/>Profession: " +  lookupProfessionCode(allPeople[key][0].profession) + "<br> Gender: " + G + " <br/>Region: " + R;  
      
-   tooltipHTML = firstLine+ "<span id='tooltip_timeline_text'>"+startDateText+imgItem+endDateText+ underText + "</span>"+ lastLine;  
+    tooltipHTML = firstLine + lineStyleInfo + "<span id='tooltip_timeline_text'>"+startDateText+imgItem+endDateText+ underText + "</span>"+ lastLine;  
     
     
     
