@@ -40,6 +40,8 @@ var globalFilterString = "";
 var F_varyingLineStyle = "";
 var clickList= [];
 var currentFilterMatchSet = null; // cached set of ids that match the current filter string
+var nameFilterTimeoutId = null;
+var nameFilterDebounceMs = 250; // search name filter delay (in ms)
 
 
 // ~ = ~ = ~ = ~ = ~ SVG elements ~ = ~ = ~ = ~ = ~ //
@@ -3938,25 +3940,42 @@ function userNameFunction() {
     // set radio button
     $("input[name=display_switch][value='all']").prop('checked', true);
     currentCase = "userNameFunction";
-    setLoadingUI();
-    clearCheckBoxes();
+    if (nameFilterTimeoutId) {
+        clearTimeout(nameFilterTimeoutId);
+    }
 
-    var x = document.getElementById("userInput").value;
-    filterString = "someGuy.Name.toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())"
-    filterString += "|| someGuy.DisplayName.toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())"
-    
-    
-    
-    console.log(x)
-    setTimeout(function() {
-        filterPeople(allPeople, filterString);
-        document.body.classList.remove('waiting');
-        document.getElementById("loader").style.display = "none";
-    }, 0);
+    nameFilterTimeoutId = setTimeout(function() {
+        setLoadingUI();
+        clearCheckBoxes();
+
+        var x = document.getElementById("userInput").value;
+        filterString = "someGuy.Name.toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())";
+        filterString += "|| someGuy.DisplayName.toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())";
+        filterString += "|| someGuy.BioName.toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())";
+
+        var peopleFilterPredicate = compilePeopleFilterPredicate(filterString);
+        currentFilterMatchSet = peopleFilterPredicate ? new Set() : null;
+
+        if (currentFilterMatchSet) {
+            Object.keys(allPeople).forEach(function(key) {
+                var person = allPeople[key][0];
+                if (peopleFilterPredicate(person)) {
+                    currentFilterMatchSet.add(key);
+                }
+            });
+        }
+
+        console.log(x);
+        setTimeout(function() {
+            filterPeople(allPeople, filterString);
+            document.body.classList.remove('waiting');
+            document.getElementById("loader").style.display = "none";
+        }, 0);
+    }, nameFilterDebounceMs);
 }
 
 function escapeQuotes(str) {
-    return String(str).replace("'", "\\'").replace('"', '\\"');
+    return String(str).replace(/'/g, "\\'").replace(/"/g, '\\"');
 }
 
 function clearTimeline(){ 
