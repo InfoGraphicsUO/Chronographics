@@ -1,3 +1,6 @@
+Issues repo:
+https://github.com/cartosattva/chronographics/issues
+
 Thanks for downloading this theme!
 
 Theme Name: Rapid
