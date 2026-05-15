@@ -3949,9 +3949,9 @@ function userNameFunction() {
         clearCheckBoxes();
 
         var x = document.getElementById("userInput").value;
-        filterString = "someGuy.Name.toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())";
-        filterString += "|| someGuy.DisplayName.toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())";
-        filterString += "|| someGuy.BioName.toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())";
+        filterString = "someGuy.Name.toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())"; // NameInIndex
+        filterString += "|| someGuy.DisplayName.toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())"; // NameOnChart
+        filterString += "|| someGuy.BioName.toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())"; // Bio Name (from source)
 
         var peopleFilterPredicate = compilePeopleFilterPredicate(filterString);
         currentFilterMatchSet = peopleFilterPredicate ? new Set() : null;
