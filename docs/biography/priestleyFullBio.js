@@ -4283,7 +4283,7 @@ function getPersonVisualLineImage(person) {
         var visualImg = visualImage ? "<img src='biography/img/" + visualImage + "' height='12px' />" : "";
 
         if (indexImg || visualImg) {
-            lineStyleInfo = "<br/><span>Line style variation:</span>" +
+            lineStyleInfo = "<span>Line style variation:</span>" +
                 "<span style='display:block; margin-left:12px;'>" + indexLabel + ": " + indexImg + "</span>" +
                 "<span style='display:block; margin-left:12px; margin-bottom:6px;'>" + visualLabel + ": " + visualImg + "</span>";
         }
