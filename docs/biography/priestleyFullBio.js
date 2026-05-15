@@ -1088,6 +1088,25 @@ function filterPeople(thesePeople, peopleFilter) {
     // set all people as hidden, then remove the "hidden" from people that match the filter
     if(peopleFilter != true){ 
 
+        // Compile predicate and populate currentFilterMatchSet if needed
+        try {
+            var predicate = compilePeopleFilterPredicate(peopleFilter);
+            if (predicate) {
+                currentFilterMatchSet = new Set();
+                Object.keys(thesePeople).forEach(function(key) {
+                    var p = thesePeople[key][0];
+                    try {
+                        if (predicate(p)) currentFilterMatchSet.add(key);
+                    } catch (e) { /* ignore individual eval errors */ }
+                });
+            } else {
+                currentFilterMatchSet = null;
+            }
+        } catch (e) {
+            console.log('Failed to compile filter predicate', e);
+            currentFilterMatchSet = null;
+        }
+
         people=[]; //clear out the current people list
         ////document.getElementById("filterResultsBox").innerHTML =""
         //var filterCount = 0;
@@ -1117,6 +1136,8 @@ function filterPeople(thesePeople, peopleFilter) {
         if (people.length < 10) {console.log(people)} // for debug: print the people that match, only when fewer then 10
     } else {
         // no filter applied
+        // Any = no filter
+        currentFilterMatchSet = null;
         filterList.selectAll(".hidden").classed("hiddenGuy",false); // remove the display-none class from listed names
         filterList.selectAll(".hidden").classed("d-block",true); // add the display-block class to the listed names
         d3.selectAll(".hidden").classed("hidden",false);  // remove the hidden 
@@ -3634,16 +3655,16 @@ function drawGender(gender){
         }
 
         F_gender = filterString;
-        buildFullFilterQuery();
-        console.log(F_gender)
-
-        setLoadingUI();
-        setTimeout(function() {
-            filterPeople(allPeople, globalFilterString);
-            document.body.classList.remove('waiting');
-            document.getElementById("loader").style.display = "none";
-        }, 0);
     }
+
+    buildFullFilterQuery();
+    console.log(F_gender)
+    setLoadingUI();
+    setTimeout(function() {
+        filterPeople(allPeople, globalFilterString);
+        document.body.classList.remove('waiting');
+        document.getElementById("loader").style.display = "none";
+    }, 0);
 }
 
 
@@ -4008,23 +4029,25 @@ function drawNameFunc() {
     if(document.getElementById("drawName_CB").checked){
         drawNames = true;
 
-        // put all background names back
-        peopleGroup.selectAll(".timeline-text-background").classed("d-none",false);
+        var idsToShow = currentFilterMatchSet ? Array.from(currentFilterMatchSet) : null;
 
-        // put foreground names back
-       if(globalFilterString==""){
-            //for all
-            peopleGroup.selectAll(".timeline-text").classed("d-none",false);
+        if (!idsToShow) {
+            // show all names when no filters are active
+            peopleGroup.selectAll(".timeline-text,.timeline-text-background")
+                .classed("d-none", false)
+                .classed("hiddenGuy", false);
         } else {
-            // just for filter
-           people.map(function(thisGuy){
-                //id = thisGuy.DisplayName.replace(/[\'\. ,:-]+/g, "-")
-                peopleGroup.selectAll("#"+thisGuy.UO_ID+".timeline-text").classed("d-none",false);
-           //      id = thisGuy.replace(/[\'\. ,:-]+/g, "-")
-           //          return "<element onClick='resultClicked()' id='list-"+ id + "\'>" + thisGuy + "</element><br>"
-           //      }).sort().join('')
+            // show only filtered names
+            peopleGroup.selectAll(".timeline-text,.timeline-text-background")
+                .classed("d-none", true)
+                .classed("hiddenGuy", false);
+
+            idsToShow.forEach(function(id) {
+                peopleGroup.selectAll("#" + id + ".timeline-text,#" + id + ".timeline-text-background")
+                    .classed("d-none", false)
+                    .classed("hiddenGuy", false);
             });
-       }
+        }
 
     // remove names   
     } else {
@@ -4429,9 +4452,7 @@ function compilePeopleFilterPredicate(peopleFilter) {
         return new Function("someGuy", "return (" + peopleFilter + ");");
     } catch (error) {
         console.log("filter compile failed", error);
-        return function() {
-            return false;
-        };
+        return function() { return true; };
     }
 }
 
