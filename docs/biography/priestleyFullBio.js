@@ -34,6 +34,10 @@ var currentGender = "";
 var currentZoom = 1.0;
 var currentDragX = 0;
 var currentDragY=0;
+var flyToEnabled = true;
+var flyToDurationMs = 1500;
+var flyToMinZoom = 4; // 1 = 100% zoom, 2 = 200% zoom, etc.
+var isZoomSliderSyncing = false;
 
 
 var globalFilterString = "";
@@ -219,6 +223,7 @@ var zoomSlider = document.getElementById('zoomSlider');
 //mergeTooltips(slider, 15, ' - '); // not working
 
 zoomSlider.noUiSlider.on('slide',function(values, handle){
+        if (isZoomSliderSyncing) return;
     var sliderZoom = values[0].replace('%', '')/100.0
     if (Math.abs(sliderZoom - currentZoom) < 0.0001) return;
     var viewport = getChartViewport();
@@ -228,6 +233,7 @@ zoomSlider.noUiSlider.on('slide',function(values, handle){
 });
 
 zoomSlider.noUiSlider.on('set',function(values, handle){
+        if (isZoomSliderSyncing) return;
     var sliderZoom = values[0].replace('%', '')/100.0
     if (Math.abs(sliderZoom - currentZoom) < 0.0001) return;
     var viewport = getChartViewport();
@@ -367,6 +373,94 @@ function sizeChange(factor, viewport) {
    
 
     
+}
+
+function syncZoomSlider(zoomValue) {
+    // keep the slider UI in sync when zoom is changed programmatically
+    if (!zoomSlider || !zoomSlider.noUiSlider) return;
+    // guard against slider handlers re-triggering zoom logic
+    isZoomSliderSyncing = true;
+    zoomSlider.noUiSlider.set([zoomValue * 100]);
+    isZoomSliderSyncing = false;
+}
+
+function findFlyToNode(personId) {
+    // find the main chart node that represents this person
+    if (!peopleGroup) return null;
+    return peopleGroup
+    // prefer visible chart elements first, fall back to any matching node
+        .selectAll(".people-lines, .mouse-lines, .timeline-text")
+        .filter(function(d) { return d === personId; })
+        .node();
+}
+
+function flyToChartPosition(chartX, chartY) {
+    // animate pan/zoom so the given chart point lands in the center of the viewport
+    if (!flyToEnabled) return;
+    var viewport = getChartViewport();
+    var targetZoom = Math.max(currentZoom, flyToMinZoom);
+    var targetScale = (viewport.wide / outerWidth) * targetZoom;
+    var targetDragX = (viewport.wide / 2) - (chartX * targetScale);
+    var targetDragY = (viewport.high / 2) - (chartY * targetScale);
+
+    // capture the current view so we can tween from the existing pan/zoom
+    var startZoom = currentZoom;
+    var startDragX = currentDragX;
+    var startDragY = currentDragY;
+    var startTime = Date.now();
+    var durationMs = Math.max(0, flyToDurationMs || 0);
+
+    if (durationMs === 0) {
+        currentZoom = targetZoom;
+        currentDragX = targetDragX;
+        currentDragY = targetDragY;
+        clampPan(targetScale, viewport);
+        applyChartTransform(targetScale);
+        syncZoomSlider(currentZoom);
+        return;
+    }
+
+    var timer = d3.timer(function() {
+        // ease out for a smoother finish
+        var elapsed = Date.now() - startTime;
+        var t = Math.min(1, elapsed / durationMs);
+        var eased = 1 - Math.pow(1 - t, 3);
+
+        // interpolate zoom and pan together so the chart doesn't "slip" during the move
+        currentZoom = startZoom + (targetZoom - startZoom) * eased;
+        currentDragX = startDragX + (targetDragX - startDragX) * eased;
+        currentDragY = startDragY + (targetDragY - startDragY) * eased;
+
+        // reapply transform at the new zoom and clamp if we overshoot
+        var scale = (viewport.wide / outerWidth) * currentZoom;
+        clampPan(scale, viewport);
+        applyChartTransform(scale);
+
+        if (t >= 1) {
+            timer.stop();
+            // keep the slider aligned with the final zoom level
+            syncZoomSlider(currentZoom);
+            return true;
+        }
+        return false;
+    });
+}
+
+function flyToPerson(personId) {
+    // helper that centers the chart on the selected person
+    if (!flyToEnabled) return;
+    if (!personId) return;
+
+    // get the rendered bounding box and target its center
+    var node = findFlyToNode(personId);
+    if (!node || !node.getBBox) return;
+
+    var bbox = node.getBBox();
+    if (!bbox || !isFinite(bbox.x) || !isFinite(bbox.y)) return;
+
+    var centerX = bbox.x + (bbox.width / 2);
+    var centerY = bbox.y + (bbox.height / 2);
+    flyToChartPosition(centerX, centerY);
 }
 
 
@@ -4568,6 +4662,8 @@ function selectPerson(e){
         setDescriptiveText(e) // keep them in the selection list and put their info in the description box
     
     }
+
+    flyToPerson(id);
 }
 
 
@@ -4987,7 +5083,9 @@ function resultClicked(){
     
    //console.log("event: " + event) // debug
    //console.log("clickity") // debug
-    fullExtentBio(); // when clicking in the list, set the chart to full extent
+    if (!flyToEnabled) {
+        fullExtentBio(); // when clicking in the list, set the chart to full extent
+    }
 
     // get the ID and replace any special characters
     // var  id = event.target.innerHTML.replace(/[\'\. ,:-]+/g, "-")
