@@ -3369,7 +3369,7 @@ function drawVisualPerson(key) {
                 selectPerson(key);
             })
             .on("mouseover", function() {
-                mouseOverChartPeople(this, key, config.mouseStart, config.mouseEnd, config.tooltipLabel);
+                mouseOverChartPeople(this, key, config.lineStart, config.lineEnd, config.tooltipLabel);
             })
             .on("mouseout", mouseOut);
     }
@@ -3455,7 +3455,7 @@ function drawVisualPerson(key) {
                 selectPerson(key);
             })
             .on("mouseover", function() {
-                mouseOverChartPeople(this, key, config.mouseStart, config.mouseEnd, config.tooltipLabel);
+                mouseOverChartPeople(this, key, config.lineStart, config.lineEnd, config.tooltipLabel);
             })
             .on("mouseout", mouseOut);
     }
@@ -4340,17 +4340,28 @@ function getPersonVisualLineImage(person) {
     if (allPeople[key][0].LifeLength > 0) {
         if (allPeople[key][0].LifePrecision != "") A = "~ "
         A += allPeople[key][0].LifeLength;
-    } else A = "~ " + String(allPeople[key][0].AproxAge);
+    } else {
+        if (allPeople[key][0].AproxAge === 45 || allPeople[key][0].AproxAge === 0 || isNaN(allPeople[key][0].AproxAge)) {
+            A = "unknown";
+        } else {
+            A = "~ " + String(allPeople[key][0].AproxAge);
+        }
+    }
 
 
     var bornUncertainty ="";
     var thisCase = currentLineSystem === "visual" && allPeople[key][0].VisualCase ? allPeople[key][0].VisualCase : allPeople[key][0].lineType
-    if (thisCase == "case2" || thisCase == "case4" || thisCase == "case3" || thisCase == "case8" || thisCase == "case13") {
+    var tooltipCaseKey = allPeople[key][0].lineType || thisCase;
+    var isEstimatedAge = allPeople[key][0].LifePrecision != "" || tooltipCaseKey == "case4" || tooltipCaseKey == "case5";
+    if (A && A !== "unknown" && isEstimatedAge && A.indexOf("~") !== 0) {
+        A = "~ " + A;
+    }
+    if (tooltipCaseKey == "case2" || tooltipCaseKey == "case4" || tooltipCaseKey == "case3" || tooltipCaseKey == "case8" || tooltipCaseKey == "case13") {
         bornUncertainty = "~ ";
     }
 
     var deathUncertainty ="";
-    if (thisCase == "case5" || thisCase == "case7" || thisCase == "case11" || thisCase == "case14" || thisCase == "case3" || thisCase == "case8" || thisCase == "case13") {
+    if (tooltipCaseKey == "case5" || tooltipCaseKey == "case7" || tooltipCaseKey == "case11" || tooltipCaseKey == "case14" || tooltipCaseKey == "case3" || tooltipCaseKey == "case8" || tooltipCaseKey == "case13") {
         deathUncertainty = "~ ";
     }
     
@@ -4411,13 +4422,13 @@ function getPersonVisualLineImage(person) {
      
 
 
-if (thisCase == "case2" ||  thisCase == "case8") {
+if (tooltipCaseKey == "case2" ||  tooltipCaseKey == "case8") {
     startDateText = "" // no text before line
     A = "unknown" // replace age
 
 } 
      
-if (thisCase == "case3"||  thisCase == "case13") {
+if (tooltipCaseKey == "case3"||  tooltipCaseKey == "case13") {
      startDateText = "" // no text before line
      endDateText = "" // no text after line
      A = "unknown" // replace age
@@ -4432,7 +4443,11 @@ if (thisCase == "case3"||  thisCase == "case13") {
      
    var lastLine = "    Lifespan: " + A +" years<br/>Profession: " +  lookupProfessionCode(allPeople[key][0].profession) + "<br> Gender: " + G + " <br/>Region: " + R;  
      
-    tooltipHTML = firstLine + lineStyleInfo + "<span id='tooltip_timeline_text'>"+startDateText+imgItem+endDateText+ underText + "</span>"+ lastLine;  
+    var showTimelineText = !isVaryingLineStyleActive();
+    var timelineText = showTimelineText
+        ? "<span id='tooltip_timeline_text'>" + startDateText + imgItem + endDateText + underText + "</span>"
+        : "";
+    tooltipHTML = firstLine + lineStyleInfo + timelineText + lastLine;  
     
     
     
