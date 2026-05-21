@@ -891,20 +891,7 @@ var alternateDict = {} // make a dictionary for the Aikin descriptions
 
 var noLineNumber = [];  // don't reset or we lose this count, has those without a line number
 var people = [];
-var solidLines = [];
-var threeBegin = [];
-var threeBeginTwoEnd = [];
-var oneBegin = [];
-var oneEndUnder = [];
-var oneEndUnder2 = [];
-var oneEnd = [];
-var oneEnd2 = [];
-var threeBeginOneEnd = [];
 var unsure = [];
-var solid2 = [];
-var unsure2 = [];
-var sevenDots = []
-var threeEnd = []
 var visualPeople = [];
 
 // which lines to draw by default or change manually
@@ -1208,21 +1195,26 @@ function filterPeople(thesePeople, peopleFilter) {
 
         // console.log("filtering: " + Object.keys(thesePeople).length);
         // make all people invisible
-        peopleGroup.selectAll(".people-lines,.circles").classed("hiddenGuy",true); // add the display-none class to chart name
-        if (drawNames) peopleGroup.selectAll(".timeline-text").classed("hiddenGuy",true); // add the display-none class to chart name
+        peopleGroup.selectAll(".people-lines,.circles,.mouse-lines").classed("hiddenGuy", true);
+        if (drawNames) peopleGroup.selectAll(".timeline-text").classed("hiddenGuy", true);
         filterList.selectAll(".f-list").classed("d-none",true); // add the display-none class to names in the filter list
         filterList.selectAll(".f-list").classed("d-block",false); // remove the display-block class to names in the filter list
        // d3.selectAll("#list-" + id).classed("hidden",true); // remove the display-block class from list name
         
-        // add back those that match
+        // add back those that match (use datum id — each person has multiple SVG nodes with the same id attribute)
         if (currentFilterMatchSet) {
+            peopleGroup.selectAll(".people-lines,.circles,.mouse-lines")
+                .filter(function(d) { return d && currentFilterMatchSet.has(d); })
+                .classed("hiddenGuy", false);
+            if (drawNames) {
+                peopleGroup.selectAll(".timeline-text")
+                    .filter(function(d) { return d && currentFilterMatchSet.has(d); })
+                    .classed("hiddenGuy", false);
+            }
             currentFilterMatchSet.forEach(function(id) {
-                someGuy = allPeople[id][0];
-                peopleGroup.selectAll("#"+id+".people-lines,#"+id+".circles").classed("hiddenGuy",false); // add the display-none class to chart lines
-                if (drawNames) peopleGroup.selectAll("#"+id+".timeline-text").classed("hiddenGuy",false); // add the display-none class to chart name
-                filterList.selectAll("#list-" + id).classed("d-none",false); // if they match, remove the display-none 
-                filterList.selectAll("#list-" + id).classed("d-block",true); // if they match, add the display-block class
-                people.push(someGuy); // list of all those that match this filter
+                filterList.selectAll("#list-" + id).classed("d-none", false);
+                filterList.selectAll("#list-" + id).classed("d-block", true);
+                people.push(id);
             });
         }
 
@@ -1255,21 +1247,7 @@ function sortPeople(thePeople, peopleFilter) {
     
    // clear out lists    
    people = [];
-   solidLines = [];
-   threeBegin = [];
-   threeBeginTwoEnd = [];
-   oneBegin = [];
-   oneEndUnder = [];
-   oneEndUnder2 = [];
-   oneEnd = [];
-   oneEnd2 = [];
-   threeBeginOneEnd = [];
    unsure = [];
-   solid2 = [];
-   unsure2 = [];
-   sevenDots = [];
-   threeEnd = [];
-  // noLineNumber = [];
     visualPeople = [];
     
     // console.log("filter "+ peopleFilter);  // logs current filter
@@ -1302,73 +1280,10 @@ function sortPeople(thePeople, peopleFilter) {
             people.push(key);
             if (matchesFilter) visualPeople.push(key);
         } else if (keepAllIndexCases || (boolCases[testCase] && matchesFilter)){ // only do the rest if the person matches the manual boolean and the current filter
-
-        // sort the people into their lists based on the case listed in the  spreadsheet
-        //console.log("test case " + testCase) 
-        people.push(key); // list of all those that match this filter, just push the key
-        //console.log(someGuy)
-        //console.log(testCase)
-//          if(someGuy.name == "Suetonius"){
-//              console.log(someGuy)
-//          }
-        switch(testCase){
-            // try making this an array!!!
-
-            case 1:                    
-                    //console.log("solid line (case1)");
-                    solidLines.push(key); 
-                    break;
-            case 2:
-                    //console.log("3 starting dots (case2)");
-                    threeBegin.push(key);
-                    break;
-            case 3:
-                    //console.log("3 starting dots and 2 ending (case3)");
-                    threeBeginTwoEnd.push(key);
-                    break;
-            case 4:
-                    //console.log("1 dot beneath beginning (case4)");
-                    oneBegin.push(key);
-                    break;
-            case 5:
-                    //console.log("1 dot beneath ending (case5)");
-                    oneEndUnder.push(key);
-                    break;
-            case 6:
-                    //console.log("solid line (case6)");
-                    solid2.push(key);
-                    break;
-            case 7:
-                    //console.log("1 dot end (case7)");
-                    oneEnd.push(key);
-                    break;
-            case 8:
-                    //console.log("3 starting dots and 1 ending (case8)");
-                    threeBeginOneEnd.push(key);
-                    break;
-            case 11:
-                    //console.log("1 dot beneath ending 2 (case11)");
-                    oneEndUnder2.push(key); 
-                    break;
-            case 12:
-                    //console.log("no line number (case12)");
-                    // not pushing... were already pushed on read in
-                    break;
-            case 13:
-                    //console.log("seven dots (case13)");
-                    sevenDots.push(key); 
-                    break;
-            case 14:
-                    //console.log("1 dot end 2 (case14)");
-                    oneEnd2.push(key);
-                    break;
-            case 15:
-                    //console.log("three end (case15)");
-                    threeEnd.push(key);
-                    break;
-            default:
-                unsure.push(key); 
-        } // switch
+        people.push(key);
+        if (!isIndexCaseDrawable(testCase)) {
+            unsure.push(key);
+        }
 
 
 
@@ -1401,7 +1316,6 @@ function sortPeople(thePeople, peopleFilter) {
    // console.log("12. noLineNumber (not updated on redraw) " + noLineNumber.length)
    // console.log("9 (don't fit a case). people " + unsure.length)
 	
-   var numPeopleDrawn = solidLines.length + threeBegin.length + threeBeginTwoEnd.length + oneBegin.length + oneEndUnder.length + oneEndUnder2.length + oneEnd.length + oneEnd2.length + threeBeginOneEnd.length + solid2.length + sevenDots.length  + threeEnd.length;
    var numPeopleDrawn = people.length;
    //document.getElementById("numPeople").innerHTML = "(" + numPeopleDrawn + ")";
    document.getElementById("numPeople").innerHTML =  numPeopleDrawn + " people";
@@ -1458,1691 +1372,431 @@ function sortPeople(thePeople, peopleFilter) {
 }
 
 // draw the grey names first these won't be redrawn
-function drawBackgroundLines(){
-    // console.log("drawing background lines")
-        // draw the people from this case on the map
-    if (case1){
-             // % %  Case 1: Solid lines - Background  % % 
-            var dataEnter = peopleGroup.selectAll("div")
-                .data(solidLines)
-                .enter();
-            // Add the lines
-            dataEnter.append("line")
-                .attr("class", "people-lines-background")
-                .attr("x1", function(d){
-                    return xScale(parseDate((allPeople[d][0].DeathDate - allPeople[d][0].LifeLength).toString()));
-                })
-                .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("x2", function(d){
-                    return xScale(parseDate(allPeople[d][0].DeathDate.toString()));
-                })
-                .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("stroke", backgroundLineColor)
-                .attr("stroke-width", backgroundLineWidths)
-            // Add the text
-            if (drawNames) {
-            dataEnter.append("text")
+// % % % % % Index chart drawing (config + shared renderer) % % % % %
+// getIndexCaseConfig() describes each index case; renderTimelinePerson() draws lines, dots, and names.
+// Index uses two passes: grey background for everyone on the chart, then foreground for the current filter.
+
+// optional line colors when showColors is on (development / debugging)
+var INDEX_CASE_HIGHLIGHT_COLORS = {
+    2: "Gold",
+    3: "Chartreuse",
+    4: "Plum",
+    5: "Cyan",
+    7: "Green",
+    8: "Blue"
+};
+
+// pull the numeric case out of spreadsheet lineType, e.g. "case3" -> 3
+function parseIndexCaseNumber(someGuy) {
+    var match = String(someGuy.lineType || "").match(/\d+/);
+    return match ? parseInt(match[0], 10) : null;
+}
+
+// respect the case1, case2, ... toggles at the top of the file (boolCases)
+function isIndexCaseDrawable(caseNumber) {
+    return !!(caseNumber && boolCases[caseNumber]);
+}
+
+function getIndexCaseHighlightColor(caseNumber) {
+    return INDEX_CASE_HIGHLIGHT_COLORS[caseNumber] || null;
+}
+
+// foreground stroke: black by default, or a highlight color when showColors is on
+function getIndexStrokeColor(caseNumber) {
+    if (!showColors) {
+        return "black";
+    }
+    if (caseNumber === 6 || caseNumber === 15) {
+        return notBlack;
+    }
+    return getIndexCaseHighlightColor(caseNumber) || "black";
+}
+
+// format a year for index tooltips (BC dates use "n BC." like the old drawCase functions)
+function formatDeathYear(value) {
+    var numericValue = getChartValue(value, null);
+    if (numericValue === null) {
+        return "";
+    }
+    if (numericValue > 0) {
+        return String(numericValue);
+    }
+    return Math.abs(numericValue) + " BC.";
+}
+
+function formatBirthYear(value) {
+    return formatDeathYear(value);
+}
+
+// index cases use the raw spreadsheet dates (no Aprox* fallbacks like engraved chart)
+function getIndexDates(someGuy) {
+    var birthDate = getChartValue(someGuy.BirthDate, 0);
+    var deathDate = getChartValue(someGuy.DeathDate, 0);
+    var aliveDate = getChartValue(someGuy.AliveDate, 0);
+    var lifeLength = getChartValue(someGuy.LifeLength, 0);
+    return {
+        birthDate: birthDate,
+        deathDate: deathDate,
+        aliveDate: aliveDate,
+        lifeLength: lifeLength,
+        aproxDeathDate: getChartValue(someGuy.AproxDeathDate, deathDate)
+    };
+}
+
+// build a draw config for one person on the index chart (same shape as getVisualCaseConfig)
+function getIndexCaseConfig(someGuy) {
+    var dates = getIndexDates(someGuy);
+    var birthDate = dates.birthDate;
+    var deathDate = dates.deathDate;
+    var aliveDate = dates.aliveDate;
+    var lifeLength = dates.lifeLength;
+    var caseNumber = parseIndexCaseNumber(someGuy);
+    // defaults; each case below overrides line span, dots, label position, and tooltip
+    var config = {
+        caseNumber: caseNumber,
+        drawLine: true,
+        lineStart: deathDate - lifeLength,
+        lineEnd: deathDate,
+        textX: null,
+        startDots: [],
+        endDots: [],
+        fixedDots: [],
+        underStart: null,
+        underEnd: null,
+        afterDots: [],
+        mouseStart: null,
+        mouseEnd: null,
+        tooltipLabel: someGuy.DisplayName,
+        highlightColor: getIndexCaseHighlightColor(caseNumber),
+        strokeColor: getIndexStrokeColor(caseNumber)
+    };
+
+    switch (caseNumber) {
+        case 1: // solid line | Death year and life span; unknown birth, exact death date, certain life length (engraved ~C)
+            config.lineStart = deathDate - lifeLength;
+            config.lineEnd = deathDate;
+            config.textX = config.lineStart + (lifeLength / 2);
+            config.mouseStart = config.lineStart;
+            config.mouseEnd = config.lineEnd;
+            config.tooltipLabel = "d. " + formatDeathYear(deathDate) + ". " + lifeLength;
+            break;
+        case 2: // 3 dots solid line | Death year; unknown birth, exact death date (engraved ~D)
+            // three dots before death, then a shorter line into the death year
+            config.lineStart = deathDate - 45;
+            config.lineEnd = deathDate;
+            config.fixedDots = [{ field: "DeathDate", offsets: [-60, -55, -50] }];
+            config.textX = deathDate - 30;
+            config.mouseStart = deathDate - 60;
+            config.mouseEnd = deathDate;
+            config.tooltipLabel = "d." + formatDeathYear(deathDate);
+            break;
+        case 3: // 3 dots line 2 dots | Flourished year; unknown birth, unknown death, exact flourished date (engraved ~A)
+            config.lineStart = aliveDate - 25;
+            config.lineEnd = aliveDate + 10;
+            config.startDots = [-15, -10, -5];
+            config.endDots = [5, 10];
+            config.textX = aliveDate;
+            config.mouseStart = aliveDate - 30;
+            config.mouseEnd = aliveDate + 30;
+            config.tooltipLabel = (someGuy.AlivePrecision || "") + " " + (aliveDate > 0 ? aliveDate : Math.abs(aliveDate) + " BC.");
+            break;
+        case 4: // 1 dot under start solid line | Death year and approx life span; unknown birth, exact death date, approx life length (engraved ~H)
+            config.lineStart = deathDate - lifeLength;
+            config.lineEnd = deathDate;
+            config.underStart = 2;
+            config.textX = config.lineStart + (lifeLength / 2);
+            config.mouseStart = config.lineStart;
+            config.mouseEnd = config.lineEnd;
+            config.tooltipLabel = "d. " + formatDeathYear(deathDate) + " " + (someGuy.LifePrecision || "") + " " + lifeLength;
+            break;
+        case 5: // solid line 1 dot under end | Approx death year & approx life span; unknown birth, approx death date, approx life length (engraved ~I)
+            config.lineStart = deathDate - lifeLength;
+            config.lineEnd = deathDate;
+            config.underEnd = 2;
+            config.textX = config.lineStart + (lifeLength / 2);
+            config.mouseStart = config.lineStart;
+            config.mouseEnd = config.lineEnd;
+            config.tooltipLabel = "d. ab. " + formatDeathYear(deathDate) + " ab. " + lifeLength;
+            break;
+        case 6: // solid line | same menu filter as case 1; unknown birth, approx death date, certain life length (engraved ~G)
+            config.lineStart = deathDate;
+            config.lineEnd = deathDate - lifeLength;
+            config.textX = (deathDate - lifeLength) + (lifeLength / 2);
+            config.mouseStart = deathDate - lifeLength;
+            config.mouseEnd = deathDate;
+            config.tooltipLabel = "d. ab. " + formatDeathYear(deathDate) + ". " + lifeLength;
+            break;
+        case 7: // solid line 1 dot after end | Birth year and approx death year; exact birth date, unknown death (filter also includes case14)
+            config.lineStart = birthDate;
+            config.lineEnd = deathDate;
+            config.afterDots = [2];
+            config.textX = birthDate + ((deathDate - birthDate) / 2);
+            config.mouseStart = birthDate;
+            config.mouseEnd = deathDate + 5;
+            config.tooltipLabel = birthDate > 0
+                ? "b. " + birthDate + " d. af. " + deathDate
+                : "b. " + Math.abs(birthDate) + " BC. d. af. " + deathDate;
+            break;
+        case 8: // 3 dots solid line 1 dot after end | Approx death year; unknown birth, died after (engraved ~F)
+            config.lineStart = deathDate - 45;
+            config.lineEnd = deathDate;
+            config.fixedDots = [{ field: "DeathDate", offsets: [-60, -55, -50, 5] }];
+            config.textX = deathDate - 30;
+            config.mouseStart = deathDate - 60;
+            config.mouseEnd = deathDate + 5;
+            config.tooltipLabel = "d. af. " + formatDeathYear(deathDate);
+            break;
+        case 11: // solid line 1 dot under end | same menu filter as case 5; exact birth date, unknown death, approx life length (engraved ~G)
+            config.lineStart = birthDate + lifeLength;
+            config.lineEnd = birthDate;
+            config.underEnd = 2;
+            config.textX = birthDate + (lifeLength / 2);
+            config.mouseStart = birthDate;
+            config.mouseEnd = birthDate + lifeLength;
+            config.tooltipLabel = birthDate > 0
+                ? "b. " + birthDate + " " + (someGuy.LifePrecision || "") + " " + lifeLength
+                : "b. " + Math.abs(birthDate) + " BC. " + (someGuy.LifePrecision || "") + " " + lifeLength;
+            break;
+        case 13: // 7 dots | Approx flourished year; unknown birth, unknown death, approx flourished date (engraved ~B)
+            config.drawLine = false;
+            config.fixedDots = [{ field: "AliveDate", offsets: [-32, -22, -12, -2, 8, 18, 28] }];
+            config.textX = aliveDate - 2;
+            config.mouseStart = aliveDate - 40;
+            config.mouseEnd = aliveDate + 20;
+            config.tooltipLabel = "fl. ab. " + (aliveDate > 0 ? aliveDate : Math.abs(aliveDate) + " BC.");
+            break;
+        case 14: // solid line 1 dot after end | same menu filter as case 7; exact birth date, unknown death, alive after (engraved ~M)
+            config.lineStart = birthDate;
+            config.lineEnd = aliveDate;
+            config.afterDots = [3];
+            config.textX = birthDate + ((aliveDate - birthDate) / 2);
+            config.mouseStart = birthDate;
+            config.mouseEnd = aliveDate + 5;
+            config.tooltipLabel = birthDate > 0
+                ? "b. " + birthDate + " " + (someGuy.AlivePrecision || "") + " " + aliveDate
+                : "b. " + Math.abs(birthDate) + " BC. " + (someGuy.AlivePrecision || "") + " " + Math.abs(aliveDate) + " BC.";
+            break;
+        case 15: // solid line 3 dots after | Birth year; exact birth date, unknown death (engraved ~L)
+            config.lineStart = birthDate;
+            config.lineEnd = birthDate - 13;
+            config.afterDots = [7, 12, 17];
+            config.textX = birthDate;
+            config.mouseStart = birthDate;
+            config.mouseEnd = birthDate + 60;
+            config.tooltipLabel = "b. " + formatBirthYear(birthDate);
+            config.strokeColor = notBlack;
+            config.lineWidth = backgroundLineWidths;
+            break;
+        default:
+            // case 9, 10, 12, etc. not drawn on the index chart
+            return null;
+    }
+
+    // fill in anything the case block left blank
+    if (config.textX === null) {
+        config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
+    }
+    if (config.mouseStart === null) {
+        config.mouseStart = Math.min(config.lineStart, config.lineEnd);
+    }
+    if (config.mouseEnd === null) {
+        config.mouseEnd = Math.max(config.lineStart, config.lineEnd);
+    }
+
+    return config;
+}
+
+// index-only: place a dot at an absolute year (DeathDate / AliveDate + offset), not relative to lineStart
+function getFixedDotDate(someGuy, anchorField, offset) {
+    var anchorValue = getChartValue(someGuy[anchorField], 0);
+    return anchorValue + offset;
+}
+
+// shared SVG draw for index (background or foreground) and engraved chart (foreground only)
+// renderOptions: { layer: "background"|"foreground", interactive: bool, nameHalo: bool }
+function renderTimelinePerson(key, config, renderOptions) {
+    var someGuy = allPeople[key][0];
+    var layer = renderOptions.layer || "foreground";
+    var interactive = renderOptions.interactive !== false;
+    var isBackground = layer === "background";
+    var lineClass = isBackground ? "people-lines-background" : "people-lines";
+    var circleClass = isBackground ? "circles-background" : "circles";
+    var textClass = isBackground ? "timeline-text-background" : "timeline-text";
+    var lineColor = isBackground ? backgroundLineColor : config.strokeColor;
+    var lineWidth = isBackground ? backgroundLineWidths : (config.lineWidth || lineWidths);
+    var fillColor = isBackground ? backgroundLineColor : notBlack;
+
+    function showTooltip(element) {
+        mouseOverChartPeople(element, key, config.mouseStart, config.mouseEnd, config.tooltipLabel);
+    }
+
+    // life line (skipped for dot-only cases such as 13)
+    if (config.drawLine) {
+        peopleGroup.append("line")
+            .datum(key)
+            .attr("class", lineClass)
+            .attr("id", key)
+            .attr("x1", xScale(parseDate(config.lineStart.toString())))
+            .attr("y1", yScale(someGuy.LineNumber))
+            .attr("x2", xScale(parseDate(config.lineEnd.toString())))
+            .attr("y2", yScale(someGuy.LineNumber))
+            .attr("stroke", lineColor)
+            .attr("stroke-width", lineWidth);
+    }
+
+    if (drawNames) {
+        if (!isBackground && renderOptions.nameHalo) {
+            peopleGroup.append("text")
+                .datum(key)
                 .attr("class", "timeline-text-background")
+                .attr("id", key)
                 .attr("text-anchor", "middle")
-                .text(function(d){ return allPeople[d][0].DisplayName; })
-                .attr("x", function(d){
-                var start = (allPeople[d][0].DeathDate-allPeople[d][0].LifeLength);
-                    return xScale(parseDate((start + allPeople[d][0].LifeLength/2).toString()));
-                })
-                .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-                .style("fill", backgroundLineColor)
-            } 
-    }  
-    if (case2){
-            // % % % % Case 2: Solid line with THREE dots at the BEGIN - Background % % % % %
-   
-        var threeBeginEnter = peopleGroup.selectAll("div")
-            .data(threeBegin)
-            .enter();
-            // Add the lines
-            threeBeginEnter.append("line")
-                .attr("class", "people-lines-background")
-                .attr("x1", function(d){
-        //        console.log("threeBegin " + allPeople[d][0].DisplayName); // who is this? // old way to access
-                //console.log("threeBegin " + allPeople[d][0].DisplayName) // dictionary way to access
-                
-                    return xScale(parseDate(allPeople[d][0].DeathDate - 30));
-                })
-                .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("x2", function(d){
-                    return xScale(parseDate(allPeople[d][0].DeathDate));
-                })
-                .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("stroke", backgroundLineColor)
-                .attr("stroke-width", backgroundLineWidths);
-            //add the text
-            if (drawNames) {
-                threeBeginEnter.append("text")
-                    .attr("class", "timeline-text-background")
-                    .attr("text-anchor", "middle")
-                    .text(function(d){ return allPeople[d][0].DisplayName; })
-                    .attr("x", function(d){     
-                        var start = (allPeople[d][0].DeathDate-15);
-                        return xScale(parseDate(start));
-                    })
-                    .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-                    .style("fill", backgroundLineColor);
-                // add the circles
-                [-35, -40, -45].forEach(function(j){
-                threeBeginEnter.append("circle")
-                    .attr("class", "circles-background")
-                    .attr("cx", function(d){
-                        return xScale(parseDate(parseInt(allPeople[d][0].DeathDate) + j))
-                    })
-                    .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                        .attr("r", dotSize)
-                        .attr("stroke-width", "0.4px")
-                        .style("fill", backgroundLineColor);
-                })
-            }
-
-    }
-
-    if (case3){
-             // % % % Case 3: Solid lines with THREE dots at the BEGIN and TWO dots at the END - background % % % 
-                    // draw the people from this case on the map  
-            // no map on new page 
-      //  if (page == "biographyMap.html"){   drawPeopleOnMap(threeBeginTwoEnd);}   
-
-            var threeBeginTwoEndEnter = peopleGroup.selectAll("div")
-                .data(threeBeginTwoEnd)
-                .enter();
-            // Add the lines
-            threeBeginTwoEndEnter.append("line")
-                .attr("class", "people-lines-background")
-                .attr("x1", function(d){
-        //        console.log("threeBeginTwoEnd " + allPeople[d][0].DisplayName); // who is this?
-                    return xScale(parseDate((allPeople[d][0].AliveDate - 13).toString()));
-                })
-                .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("x2", function(d){
-                    return xScale(parseDate((allPeople[d][0].AliveDate + 7).toString()));
-                })
-                .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("stroke", backgroundLineColor)
-                .attr("stroke-width", backgroundLineWidths)
-
-            // Add the text
-            if (drawNames) {
-                threeBeginTwoEndEnter.append("text")
-                    .attr("class", "timeline-text-background")
-                    .attr("text-anchor", "middle")
-                    .text(function(d){ return allPeople[d][0].DisplayName; })
-                    .attr("x", function(d){     
-                    var start = (allPeople[d][0].AliveDate - 7);
-                        return xScale(parseDate(start.toString()));
-                    })
-                    .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-                    .style("fill", backgroundLineColor);
-            }
-
-                // Add the 5 dots (run through the data 5 times)
-                [-18, -23, -28, 12,17].forEach(function(j){
-                threeBeginTwoEndEnter.append("circle")
-                    .attr("class", "circles-background")
-                    .attr("cx", function(d){
-                        return xScale(parseDate((parseInt(allPeople[d][0].AliveDate) + j).toString()))
-                    })
-                    .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                        .attr("r", dotSize)
-                        .attr("stroke-width", "0.4px")
-                        .style("fill", backgroundLineColor);
-                })
-
-    }
-    if (case4) {
-            // % % % % % % Case 4: Solid line with ONE dot at the BEGINNING - Background% % %  
-        // no map on new page 
-      //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneBegin);  }       
-
-            var oneBeginEnter = peopleGroup.selectAll("div")
-                .data(oneBegin)
-                .enter();
-            // Add the lines
-            oneBeginEnter.append("line")
-                .attr("class", "people-lines-background")
-                .attr("x1", function(d){
-        //        console.log("oneBegin " + allPeople[d][0].DisplayName); // who is this?
-                    return xScale(parseDate((allPeople[d][0].DeathDate - allPeople[d][0].LifeLength).toString()));
-                })
-                .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("x2", function(d){
-                    return xScale(parseDate(allPeople[d][0].DeathDate.toString()));
-                })
-                .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("stroke", backgroundLineColor)
-                .attr("stroke-width", backgroundLineWidths)
-
-            // Add the text
-            if (drawNames) {
-            oneBeginEnter.append("text")
-                .attr("class", "timeline-text-background")
-                .attr("text-anchor", "middle")
-                .text(function(d){ return allPeople[d][0].DisplayName; })
-                .attr("x", function(d){
-                var start = (allPeople[d][0].DeathDate-allPeople[d][0].LifeLength);
-                    return xScale(parseDate((start + allPeople[d][0].LifeLength/2).toString()));   
-                })
-                .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
+                .text(function() { return someGuy.DisplayName; })
+                .attr("x", xScale(parseDate(config.textX.toString())))
+                .attr("y", yScale(someGuy.LineNumber) - lineOffset)
                 .style("fill", backgroundLineColor);
-            }
+        }
 
-            // Add the one dot below
-            oneBeginEnter.append("circle")
-                .attr("class", "circles-background")
-                .attr("cx", function(d){
-                return xScale(parseDate((allPeople[d][0].DeathDate - allPeople[d][0].LifeLength + 2).toString()));
-                })
-                .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber)+(lineOffset*1.2); })
-                .attr("r", dotSize)
-                .style("fill", backgroundLineColor)
-                .attr("stroke-width", "0.4px");
-
-
-    }
-
-    if (case5){
-        // % % % %  CASE 5:  Solid line with ONE dot UNDER at the END - Background % % % % % % 
-        // draw the people from this case on the map  
-            // no map on new page 
-      //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneEndUnder); }        
-
-            var oneEndUnderEnter = peopleGroup.selectAll("div")
-                .data(oneEndUnder)
-                .enter();
-            // Add the lines
-            oneEndUnderEnter.append("line")
-                .attr("class", "people-lines-background")
-                .attr("x1", function(d){
-        //        console.log("oneEndUnder " + allPeople[d][0].DisplayName); // who is this?
-                return xScale(parseDate((allPeople[d][0].DeathDate - allPeople[d][0].LifeLength).toString()));
-                })
-                .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("x2", function(d){
-                return xScale(parseDate(allPeople[d][0].DeathDate.toString()));
-                })
-                .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("stroke", backgroundLineColor)
-                .attr("stroke-width", backgroundLineWidths)
-
-            // Add the text
-            if (drawNames) {
-            oneEndUnderEnter.append("text")
-                .attr("class", "timeline-text-background")
-                .attr("text-anchor", "middle")
-                .text(function(d){ return allPeople[d][0].DisplayName; })
-                .attr("x", function(d){
-                var start = (allPeople[d][0].DeathDate-allPeople[d][0].LifeLength);
-                return xScale(parseDate((start + allPeople[d][0].LifeLength/2).toString()));   
-                })
-                .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-                .style("fill", backgroundLineColor);    
-            }
-
-            // Add the one dot below
-            oneEndUnderEnter.append("circle")
-                .attr("class", "circles-background")
-                .attr("cx", function(d){
-                return xScale(parseDate((allPeople[d][0].DeathDate - 2).toString()));
-                })
-                .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber)+(lineOffset*1.2); })
-                .attr("r", dotSize)
-                .style("fill", backgroundLineColor);
-    }
-
-    if (case6){
-        // % % % % % Case 6: solid2 - Background % % % % % % % % % % % % 
-            // draw the people from this case on the map 
-            // no map on new page 
-      //  if (page == "biographyMap.html"){drawPeopleOnMap(solid2); }
-
-            var solid2Enter = peopleGroup.selectAll("div")
-                .data(solid2)
-                .enter();
-            // Add the lines
-            solid2Enter.append("line")
-                .attr("class", "people-lines-background")
-                .attr("x1", function(d){
-                return xScale(parseDate((allPeople[d][0].DeathDate).toString()));
-                })
-                .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("x2", function(d){
-                return xScale(parseDate((allPeople[d][0].DeathDate-allPeople[d][0].LifeLength).toString()));
-                })
-                .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("stroke", backgroundLineColor)
-                .attr("stroke-width", backgroundLineWidths)
-                
-            // Add the text
-            if (drawNames) {
-            solid2Enter.append("text")
-                .attr("class", "timeline-text-background")
-                .attr("text-anchor", "middle")
-                .text(function(d){ return allPeople[d][0].DisplayName; })
-                .attr("x", function(d){     
-                var start = (allPeople[d][0].DeathDate-allPeople[d][0].LifeLength);
-                return xScale(parseDate((start+allPeople[d][0].LifeLength/2).toString()));
-                })
-                .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-                .style("fill", backgroundLineColor);
-            }
-    }
-
-    if (case7){
-            // % % % %  CASE 7: Solid line with ONE dot at the END - background % % % % %  
-            // draw the people from this case on the map  
-            // no map on new page 
-            //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneEnd); }
-
-            var oneEndEnter = peopleGroup.selectAll("div")
-                .data(oneEnd)
-                .enter();
-            // Add the lines
-            oneEndEnter.append("line")
-                .attr("class", "people-lines-background")
-                .attr("x1", function(d){
-        //        console.log("oneEnd " + allPeople[d][0].DisplayName); // who is this?
-                    return xScale(parseDate((allPeople[d][0].BirthDate).toString()));
-                })
-                .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("x2", function(d){
-                    return xScale(parseDate(allPeople[d][0].DeathDate.toString()));
-                })
-                .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("stroke", backgroundLineColor)
-                .attr("stroke-width", backgroundLineWidths)
-                
-            // Add the text
-            if (drawNames) {
-                oneEndEnter.append("text")
-                    .attr("class", "timeline-text-background")
-                    .attr("text-anchor", "middle")
-                    .text(function(d){ return allPeople[d][0].DisplayName; })
-                    .attr("x", function(d){
-                    var half = allPeople[d][0].BirthDate + (allPeople[d][0].DeathDate-allPeople[d][0].BirthDate)/2;
-                    var bday = allPeople[d][0].BirthDate*1;
-                    //console.log("half", bday, half)
-                    return xScale(parseDate(half.toString()));  
-                    })
-                    .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-                    .style("fill", backgroundLineColor);
-            }
-
-            // Add the one dot 
-            oneEndEnter.append("circle")
-                .attr("class", "circles-background")
-                .attr("cx", function(d){
-                return xScale(parseDate((allPeople[d][0].DeathDate).toString())) + 2;
-                })
-                .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("r", dotSize)
-                .attr("stroke-width", "0.4px")
-                .style("fill", backgroundLineColor);
-    }
-
-    if (case8){
-        // % % % CASE 8: Solid lines with THREE dots at the BEGIN and ONE dot at the END - background % % %
-        // draw the people from this case on the map  
-            // no map on new page 
-        //  if (page == "biographyMap.html"){   drawPeopleOnMap(threeBeginOneEnd); }
-
-            var threeBeginOneEndEnter = peopleGroup.selectAll("div")
-                .data(threeBeginOneEnd)
-                .enter();
-            // Add the lines
-            threeBeginOneEndEnter.append("line")
-                .attr("class", "people-lines-background")
-                .attr("x1", function(d){
-                return xScale(parseDate((allPeople[d][0].DeathDate - 30).toString()));
-                })
-                .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("x2", function(d){
-                return xScale(parseDate(allPeople[d][0].DeathDate.toString()));
-                })
-                .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("stroke", backgroundLineColor)
-                .attr("stroke-width", backgroundLineWidths)
-               
-            // Add the text
-            if (drawNames) {
-                threeBeginOneEndEnter.append("text")
-                    .attr("class", "timeline-text-background")
-                    .attr("text-anchor", "middle")
-                    .text(function(d){ return allPeople[d][0].DisplayName; })
-                    .attr("x", function(d){     
-                    var start = (allPeople[d][0].DeathDate-15);
-                    return xScale(parseDate(start.toString()));
-                    })
-                    .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-                    .style("fill", backgroundLineColor);
-            }
-
-            // Add the 4 dots (run through the data 4 times)
-            [-45, -40, -35, 5].forEach(function(j){
-            threeBeginOneEndEnter.append("circle")
-                .attr("class", "circles-background")
-                .attr("cx", function(d){
-                            return xScale(parseDate((parseInt(allPeople[d][0].DeathDate) + j).toString()))
-                })
-                .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("r", dotSize)
-                .attr("stroke-width", "0.4px")
-                .style("fill", backgroundLineColor);
-                })
-    }
-
-    if (case11){
-            // % % % %  CASE 11:  Solid line with ONE dot UNDER at the END - background % % % % % % 
-            // draw the people from this case on the map  
-            // no map on new page 
-            //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneEndUnder2); }   
-                 
-
-            var oneEndUnder2Enter = peopleGroup.selectAll("div")
-                .data(oneEndUnder2)
-                .enter();
-            // Add the lines
-            oneEndUnder2Enter.append("line")
-                .attr("class", "people-lines-background")
-                .attr("x1", function(d){
-        //        console.log("oneEndUnder " + allPeople[d][0].DisplayName); // who is this?
-                return xScale(
-
-                    parseDate((allPeople[d][0].BirthDate + allPeople[d][0].LifeLength).toString()));
-                    // console.log(allPeople[d][0].DisplayName)
-                })
-                .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("x2", function(d){
-                return xScale(parseDate(allPeople[d][0].BirthDate.toString()));
-                })
-                .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("stroke", backgroundLineColor)
-                .attr("stroke-width", backgroundLineWidths)
-
-                //add text
-            if (drawNames) {
-                oneEndUnder2Enter.append("text")
-                .attr("class", "timeline-text-background")
-                .attr("text-anchor", "middle")
-                .text(function(d){ return allPeople[d][0].DisplayName; })
-                .attr("x", function(d){
-                var start = (allPeople[d][0].BirthDate);
-                return xScale(parseDate((start + allPeople[d][0].LifeLength/2).toString()));   
-                })
-                .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-                .style("fill", backgroundLineColor);
-            }
-                // Add the one dot below
-            oneEndUnder2Enter.append("circle")
-                .attr("class", "circles-background")
-                .attr("cx", function(d){
-                return xScale(parseDate(((allPeople[d][0].BirthDate + allPeople[d][0].LifeLength) - 2).toString()));
-                })
-                .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber)+(lineOffset*1.2); })
-                .attr("r", dotSize)
-                .attr("stroke-width", "0.4px")
-                .style("fill", backgroundLineColor);
-    }
-
-    if (case13){
-            // % % % Case 13: seven dots - Background% % % 
-            // draw the people from this case on the map  
-            // no map on new page 
-            //  if (page == "biographyMap.html"){   drawPeopleOnMap(sevenDots);    }     
-
-            var sevenDotsEnter = peopleGroup.selectAll("div")
-                .data(sevenDots)
-                .enter();
-            // Add the text
-            if (drawNames) {
-            sevenDotsEnter.append("text")
-                .attr("class", "timeline-text-background")
-                .attr("text-anchor", "middle")
-                .text(function(d){ return allPeople[d][0].DisplayName; })
-                .attr("x", function(d){     
-                    var start = (allPeople[d][0].AliveDate - 2);
-                    return xScale(parseDate(start.toString()));
-                })
-                .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-                .style("fill", backgroundLineColor);
-            }
-
-            // Add the seven dots
-            [-32, -22, -12, -2, 8, 18, 28].forEach(function(j){
-            sevenDotsEnter.append("circle")
-                .attr("class", "circles-background")
-                .attr("cx", function(d){
-                            return xScale(parseDate((parseInt(allPeople[d][0].AliveDate) + j).toString()))
-                })
-                .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                    .attr("r", dotSize)
-                .attr("stroke-width", "0.4px")
-                .style("fill", backgroundLineColor);
-                })
-            
-    }
-
-    if (case14){
-            // % % % %  CASE 14: Solid line with ONE dot at the END - Background % % % % % 
-             // draw the people from this case on the map  
-            // no map on new page 
-             //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneEnd2); }
-
-            var oneEnd2Enter = peopleGroup.selectAll("div")
-                .data(oneEnd2)
-                .enter();
-            // Add the lines
-            oneEnd2Enter.append("line")
-                .attr("class", "people-lines-background")
-                .attr("x1", function(d){
-        //        console.log("oneEnd2 " + allPeople[d][0].DisplayName); // who is this?
-                    return xScale(parseDate((allPeople[d][0].BirthDate).toString()));
-                })
-                .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("x2", function(d){
-                    return xScale(parseDate(allPeople[d][0].AliveDate.toString()));
-                })
-                .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("stroke", backgroundLineColor)
-                .attr("stroke-width", backgroundLineWidths)
-            
-            // Add the text
-            if (drawNames) {
-                oneEnd2Enter.append("text")
-                    .attr("class", "timeline-text-background")
-                    .attr("text-anchor", "middle")
-                    .text(function(d){ return allPeople[d][0].DisplayName; })
-                    .attr("x", function(d){
-                    var half = allPeople[d][0].BirthDate + (allPeople[d][0].AliveDate-allPeople[d][0].BirthDate)/2;
-                    var bday = allPeople[d][0].BirthDate*1;
-                    //console.log("half", bday, half)
-                    return xScale(parseDate(half.toString()));  
-                    })
-                    .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-                    .style("fill", backgroundLineColor);
-            }
-
-            oneEnd2Enter.append("circle")
-                .attr("class", "circles-background")
-                .attr("cx", function(d){
-                return xScale(parseDate((allPeople[d][0].AliveDate).toString())) + 3;
-                })
-                .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("r", dotSize)
-                .attr("stroke-width", "0.4px")
-                .style("fill", backgroundLineColor);
-    }
-    if (case15){
-             // % % % Case 15: Solid lines with THREE DOTs at the END - background % % % 
-             // draw the people from this case on the map  
-
-            var threeEndEnter = peopleGroup.selectAll("div")
-                .data(threeEnd)
-                .enter();
-            // Add the lines
-            threeEndEnter.append("line")
-                .attr("class", "people-lines-background")
-                .attr("x1", function(d){
-        //        console.log("threeBeginTwoEnd " + allPeople[d][0].DisplayName); // who is this?
-                    return xScale(parseDate((allPeople[d][0].BirthDate).toString()));
-                })
-                .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("x2", function(d){
-                    return xScale(parseDate((allPeople[d][0].BirthDate - 13).toString()));
-                })
-                .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("stroke", backgroundLineColor)
-                .attr("stroke-width", backgroundLineWidths)
-
-            // Add the text
-            if (drawNames) {
-                threeEndEnter.append("text")
-                    .attr("class", "timeline-text-background")
-                    .attr("text-anchor", "middle")
-                    .text(function(d){ return allPeople[d][0].DisplayName; })
-                    .attr("x", function(d){     
-                    var start = (allPeople[d][0].BirthDate);
-                        return xScale(parseDate(start.toString()));
-                    })
-                    .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-                    .style("fill", backgroundLineColor);
-            }
-
-                // Add the 3 dots (run through the data 3 times)
-                [7,12,17].forEach(function(j){
-                threeEndEnter.append("circle")
-                    .attr("class", "circles-background")
-                    .attr("cx", function(d){
-                        return xScale(parseDate((parseInt(allPeople[d][0].BirthDate) + j).toString()))
-                    })
-                    .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                        .attr("r", dotSize)
-                        .attr("stroke-width", "0.4px")
-                        .style("fill", backgroundLineColor);
-                })
-
-     }
-}
-
-function drawCase1(){
-            // % % % % % Case 1: Solid lines % % % 
-
-        // draw the people from this case on the map 
-        // no map on new page 
-       // if (page == "biographyMap.html"){   drawPeopleOnMap(solidLines);  } 
-
-        var dataEnter = peopleGroup.selectAll("div")
-            .data(getForegroundPeople(solidLines))
-            .enter();
-        // Add the lines
-        dataEnter.append("line")
-            .attr("class", "people-lines")
-            .attr("id", function(d){ return d})
-            .attr("x1", function(d){
-        //    console.log("solidLines " + allPeople[d][0].DisplayName); // who is this?
-                return xScale(parseDate(allPeople[d][0].DeathDate - (allPeople[d][0].LifeLength).toString()));
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("x2", function(d){
-                return xScale(parseDate(allPeople[d][0].DeathDate.toString()));
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("stroke", "black")
-            .attr("stroke-width", lineWidths);
-        // Add the text
-        if (drawNames) {
-        dataEnter.append("text")
-            .attr("class", "timeline-text")
-            .attr("id", function(d){ return d})
+        var label = peopleGroup.append("text")
+            .datum(key)
+            .attr("class", textClass)
+            .attr("id", key)
             .attr("text-anchor", "middle")
-            .text(function(d){ return allPeople[d][0].DisplayName; })
-            .attr("x", function(d){
-                var start = (allPeople[d][0].DeathDate-(allPeople[d][0].LifeLength));
-                return xScale(parseDate(start + (allPeople[d][0].LifeLength/2)));
-            })
-            .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-            .on("mouseover", function(d){
-                // console.log(this)
-                if (allPeople[d][0].DeathDate > 0 ){
-                    mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - allPeople[d][0].LifeLength, allPeople[d][0].DeathDate, "d. " + allPeople[d][0].DeathDate + ". " + allPeople[d][0].LifeLength);
-                } else {
-                    mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - allPeople[d][0].LifeLength, allPeople[d][0].DeathDate, "d. " + Math.abs(allPeople[d][0].DeathDate) + " BC. " + allPeople[d][0].LifeLength);
-                }
-            })
-            .on("mouseout", mouseOut)
-            .on("click", function(e){ 
-                // findPage(e["Name"]); // put back for PDF 
-                //// updateLink(e);
-                selectPerson(e);
-           //  d3.select(this).style("fill", "red");  // change the selected text to red
-                // wikiLink(e["Wikipedia"]);
-                // get div for wikilink and insert e["Wikipedia"]
-            });
+            .text(function() { return someGuy.DisplayName; })
+            .attr("x", xScale(parseDate(config.textX.toString())))
+            .attr("y", yScale(someGuy.LineNumber) - lineOffset);
+
+        if (isBackground) {
+            label.style("fill", backgroundLineColor);
+        } else if (config.caseNumber === 15) {
+            label.style("fill", notBlack);
         }
-        //Add a transparent line for hovering/ mouse interactions//
-        dataEnter.append("line")
-            .attr("class", "mouse-lines")
-            .attr("id", function(d){return d})
-            .attr("x1", function(d){
-      //        console.log("solidLines " + allPeople[d][0].DisplayName); // who is this?
-                return xScale(parseDate(allPeople[d][0].DeathDate - allPeople[d][0].LifeLength));
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("x2", function(d){
-                return xScale(parseDate(allPeople[d][0].DeathDate.toString()));
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("stroke", "transparent")
-            // .attr("opacity",".4")
-            .attr("stroke-width", "5px")
-            .on("click", function(e) {
-                //findPage(e["Name"]); // put back for PDF
-                // updateLink(e);
-                selectPerson(e);
-            })
-            .on("mouseover", function(d){
-                if (allPeople[d][0].DeathDate > 0 ){
-                    mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - allPeople[d][0].LifeLength, allPeople[d][0].DeathDate, "d. " + allPeople[d][0].DeathDate + ". " + allPeople[d][0].LifeLength);
-                } else {
-                    mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - allPeople[d][0].LifeLength, allPeople[d][0].DeathDate, "d. " + Math.abs(allPeople[d][0].DeathDate) + " BC. " + allPeople[d][0].LifeLength);
-                }
-            })
-            .on("mouseout", mouseOut);
-    
-}
 
-function drawCase2(){
-    // % % % % Case 2: Solid line with THREE dots at the BEGIN % % % % % 
-   
-        // no map on new page 
-        //if (page == "biographyMap.html"){   drawPeopleOnMap(threeBegin);  }       
-
-        var threeBeginEnter = peopleGroup.selectAll("div")
-            .data(getForegroundPeople(threeBegin))
-            .enter();
-        // Add the lines
-        threeBeginEnter.append("line")
-            .attr("class", "people-lines")
-            .attr("id", function(d){ return d})
-            .attr("x1", function(d){
-      //        console.log("threeBegin " + allPeople[d][0].DisplayName); // who is this?
-                return xScale(parseDate((allPeople[d][0].DeathDate - 30).toString()));
+        if (interactive) {
+            label.on("click", function() {
+                selectPerson(key);
             })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("x2", function(d){
-                return xScale(parseDate(allPeople[d][0].DeathDate.toString()));
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("stroke", function(){if(showColors) return "Gold"; else return "black";})
-            .attr("stroke-width", lineWidths);
-        // Add the text
-        if (drawNames) {
-        threeBeginEnter.append("text")
-            .attr("class", "timeline-text")
-            .attr("id", function(d){ return d})
-            .attr("text-anchor", "middle")
-            .text(function(d){ return allPeople[d][0].DisplayName; })
-            .attr("x", function(d){     
-            var start = (allPeople[d][0].DeathDate-15);
-                return xScale(parseDate(start.toString()));
-            })
-            .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-            .on("click", function(e) {
-                //findPage(e["Name"]); // put back for PDF
-                // updateLink(e);
-                selectPerson(e);
-            })
-            .on("mouseover", function(d){
-                if (allPeople[d][0].DeathDate > 0 ){
-                    mouseOverChartPeople(this,d, (allPeople[d][0].DeathDate - 45),(allPeople[d][0].DeathDate), "d." + allPeople[d][0].DeathDate);
-                } else {
-                    mouseOverChartPeople(this,d, (allPeople[d][0].DeathDate - 45),(allPeople[d][0].DeathDate), "d." + Math.abs(allPeople[d][0].DeathDate) + " BC. ");
-                }
+            .on("mouseover", function() {
+                showTooltip(this);
             })
             .on("mouseout", mouseOut);
         }
+    }
 
-        // Add the three dots (run through the data three times)
-        [-35, -40, -45].forEach(function(j){
-        threeBeginEnter.append("circle")
-            .attr("class", "circles")
-            .attr("id", function(d){ return d})
-            .attr("cx", function(d){
-                        return xScale(parseDate((parseInt(allPeople[d][0].DeathDate) + j).toString()))
-            })
-            .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("r", dotSize)
-                .attr("stroke-width", lineWidths)
-                .style("fill", notBlack);
-            })
+    function appendDot(cxDate, cyOffset) {
+        peopleGroup.append("circle")
+            .datum(key)
+            .attr("class", circleClass)
+            .attr("id", key)
+            .attr("cx", xScale(parseDate(cxDate.toString())))
+            .attr("cy", yScale(someGuy.LineNumber) + (cyOffset || 0))
+            .attr("r", dotSize)
+            .attr("stroke-width", isBackground ? "0.4px" : lineWidths)
+            .style("fill", fillColor);
+    }
 
-                //Add a transparent line for hovering/ mouse interactions//
-        threeBeginEnter.append("line")
+    // dots on the line (offsets from lineStart / lineEnd)
+    (config.startDots || []).forEach(function(offset) {
+        appendDot(config.lineStart + offset, 0);
+    });
+
+    (config.endDots || []).forEach(function(offset) {
+        appendDot(config.lineEnd + offset, 0);
+    });
+
+    (config.afterDots || []).forEach(function(offset) {
+        appendDot(config.lineEnd + offset, 0);
+    });
+
+    // index-only: dots at fixed years from a spreadsheet column
+    (config.fixedDots || []).forEach(function(dotGroup) {
+        (dotGroup.offsets || []).forEach(function(offset) {
+            appendDot(getFixedDotDate(someGuy, dotGroup.field, offset), 0);
+        });
+    });
+
+    // dots drawn below the line (approx / uncertain dates)
+    if (config.underStart !== null) {
+        appendDot(config.lineStart + config.underStart, lineOffset * 1.2);
+    }
+
+    if (config.underEnd !== null) {
+        appendDot(config.lineEnd - config.underEnd, lineOffset * 1.2);
+    }
+
+    // wide transparent hit area for tooltip and selectPerson (foreground / engraved only)
+    if (interactive && config.mouseStart !== null && config.mouseEnd !== null) {
+        peopleGroup.append("line")
+            .datum(key)
             .attr("class", "mouse-lines")
-            .attr("id", function(d){return d})
-            .attr("x1", function(d){
-      //        console.log("threeBegin " + allPeople[d][0].DisplayName); // who is this?
-                return xScale(parseDate((allPeople[d][0].DeathDate - 50).toString()));
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("x2", function(d){ 
-                return xScale(parseDate(allPeople[d][0].DeathDate.toString()));
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
+            .attr("id", key)
+            .attr("x1", xScale(parseDate(config.mouseStart.toString())))
+            .attr("y1", yScale(someGuy.LineNumber))
+            .attr("x2", xScale(parseDate(config.mouseEnd.toString())))
+            .attr("y2", yScale(someGuy.LineNumber))
             .attr("stroke", "transparent")
-            .attr("stroke-width", "5px")
-            // .attr("opacity", "0.5")
-            .on("click", function(e) {
-                //findPage(e["Name"]); // put back for PDF
-                // updateLink(e);
-                selectPerson(e);
+            .attr("stroke-width", "6px")
+            .on("click", function() {
+                selectPerson(key);
             })
-            .on("mouseover", function(d){
-                if (allPeople[d][0].DeathDate > 0 ){
-                    mouseOverChartPeople(this,d, (allPeople[d][0].DeathDate - 45),(allPeople[d][0].DeathDate), "d." + allPeople[d][0].DeathDate);
-                } else {
-                    mouseOverChartPeople(this,d, (allPeople[d][0].DeathDate - 45),(allPeople[d][0].DeathDate), "d." + Math.abs(allPeople[d][0].DeathDate) + " BC. ");
-                }
+            .on("mouseover", function() {
+                showTooltip(this);
             })
             .on("mouseout", mouseOut);
     }
-         
-function drawCase3(){
-        // % % % Case 3: Solid lines with THREE dots at the BEGIN and TWO dots at the END % % % 
-
-        // draw the people from this case on the map  
-        // no map on new page 
-      //  if (page == "biographyMap.html"){   drawPeopleOnMap(threeBeginTwoEnd);      }   
-
-        var threeBeginTwoEndEnter = peopleGroup.selectAll("div")
-            .data(getForegroundPeople(threeBeginTwoEnd))
-            .enter();
-        // Add the lines
-        threeBeginTwoEndEnter.append("line")
-            .attr("class", "people-lines")
-            .attr("id", function(d){ return d})
-            .attr("x1", function(d){
-      //        console.log("threeBeginTwoEnd " + allPeople[d][0].DisplayName); // who is this?
-                return xScale(parseDate((allPeople[d][0].AliveDate - 13).toString()));
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("x2", function(d){
-                return xScale(parseDate((allPeople[d][0].AliveDate + 7).toString()));
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("stroke", function(){if(showColors) return "Chartreuse"; else return "black";})
-            .attr("stroke-width", lineWidths);
-
-        // Add the text
-        if (drawNames) {
-            threeBeginTwoEndEnter.append("text")
-                .attr("class", "timeline-text")
-            .attr("id", function(d){ return d})
-                .attr("text-anchor", "middle")
-                .text(function(d){ return allPeople[d][0].DisplayName; })
-                .attr("x", function(d){     
-                var start = (allPeople[d][0].AliveDate - 7);
-                    return xScale(parseDate(start.toString()));
-                })
-                .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-                .on("click", function(e) {
-                    //findPage(e["Name"]); // put back for PDF
-                    // updateLink(e);
-                    selectPerson(e);
-                })
-                .on("mouseover", function(d){
-                    if (allPeople[d][0].AliveDate > 0 ){
-                        mouseOverChartPeople(this,d,allPeople[d][0].AliveDate - 37, allPeople[d][0].AliveDate + 19, allPeople[d][0].AlivePrecision + " " + allPeople[d][0].AliveDate);
-                    } else {
-                        mouseOverChartPeople(this,d,allPeople[d][0].AliveDate - 37, allPeople[d][0].AliveDate + 19, allPeople[d][0].AlivePrecision + " " + Math.abs(allPeople[d][0].AliveDate) + " BC.");
-                    } 
-                })    
-                .on("mouseout", mouseOut);
-        }
-
-        // Add the 5 dots (run through the data 5 times)
-        [-18, -23, -28, 12,17].forEach(function(j){
-        threeBeginTwoEndEnter.append("circle")
-            .attr("class", "circles")
-            .attr("id", function(d){ return d})
-            .attr("cx", function(d){
-                        return xScale(parseDate((parseInt(allPeople[d][0].AliveDate) + j).toString()))
-            })
-            .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("r", dotSize)
-                .attr("stroke-width", lineWidths)
-                .style("fill", notBlack);
-            })
-
-                //Add a transparent line for hovering/ mouse interactions//
-        threeBeginTwoEndEnter.append("line")
-            .attr("class", "mouse-lines")
-            .attr("id", function(d){ return d})
-            .attr("x1", function(d){
-    //        console.log("threeBeginTwoEnd " + allPeople[d][0].DisplayName); // who is this?
-                return xScale(parseDate(allPeople[d][0].AliveDate)) - 13;
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("x2", function(d){
-                return xScale(parseDate(allPeople[d][0].AliveDate)) + 9;
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("stroke", "transparent")
-            .attr("stroke-width", "5px")
-            // .attr("opacity", "0.5")
-            .on("click", function(e) {
-                //findPage(e["Name"]); // put back for PDF
-                // updateLink(e);
-                selectPerson(e);
-            })
-            .on("mouseover", function(d){
-                if (allPeople[d][0].AliveDate > 0 ){
-                    mouseOverChartPeople(this,d,allPeople[d][0].AliveDate - 37, allPeople[d][0].AliveDate + 19, allPeople[d][0].AlivePrecision + " " + allPeople[d][0].AliveDate);
-                } else {
-                    mouseOverChartPeople(this,d,allPeople[d][0].AliveDate - 37, allPeople[d][0].AliveDate + 19, allPeople[d][0].AlivePrecision + " " + Math.abs(allPeople[d][0].AliveDate) + " BC.");
-                } 
-            }) 
-            .on("mouseout", mouseOut);
-
 }
 
-function drawCase4(){
-            // % % % % % % Case 4: Solid line with ONE dot at the BEGINNING % % %  
-
-        // draw the people from this case on the map  
-        // no map on new page 
-      //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneBegin);  }       
-
-        var oneBeginEnter = peopleGroup.selectAll("div")
-            .data(getForegroundPeople(oneBegin))
-            .enter();
-        // Add the lines
-        oneBeginEnter.append("line")
-            .attr("class", "people-lines")
-            .attr("id", function(d){ return d})
-            .attr("x1", function(d){
-    //        console.log("oneBegin " + allPeople[d][0].DisplayName); // who is this?
-                return xScale(parseDate((allPeople[d][0].DeathDate - allPeople[d][0].LifeLength).toString()));
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("x2", function(d){
-                return xScale(parseDate(allPeople[d][0].DeathDate.toString()));
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("stroke", function(){if(showColors) return "Plum"; else return "black";})
-            .attr("stroke-width", lineWidths);
-        // Add the text
-        if (drawNames) {
-        oneBeginEnter.append("text")
-            .attr("class", "timeline-text")
-            .attr("id", function(d){ return d})
-            .attr("text-anchor", "middle")
-            .text(function(d){ return allPeople[d][0].DisplayName; })
-            .attr("x", function(d){
-            var start = (allPeople[d][0].DeathDate-allPeople[d][0].LifeLength);
-                return xScale(parseDate((start + allPeople[d][0].LifeLength/2).toString()));   
-            })
-            .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-    //      .attr("stroke", notBlack)
-    //      .attr("fill", notBlack)
-            .on("click", function(e) {
-                //findPage(e["Name"]); // put back for PDF
-                // updateLink(e);
-                selectPerson(e);
-            })
-            .on("mouseover", function(d){
-                // console.log(d)
-                // console.log(this)
-                if (allPeople[d][0].DeathDate > 0 ){
-                    mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - allPeople[d][0].LifeLength, allPeople[d][0].DeathDate, "d." + " " + allPeople[d][0].DeathDate + " " + allPeople[d][0].LifePrecision + " " + allPeople[d][0].LifeLength);
-                } else {
-                    mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - allPeople[d][0].LifeLength, allPeople[d][0].DeathDate, "d." + " " + Math.abs(allPeople[d][0].DeathDate) + " BC. " + allPeople[d][0].LifePrecision + " " + allPeople[d][0].LifeLength);
-                }   
-            })
-            .on("mouseout", mouseOut);
-        }
-
-        // Add the one dot below
-        oneBeginEnter.append("circle")
-            .attr("class", "circles")
-            .attr("id", function(d){ return d})
-            .attr("cx", function(d){
-            return xScale(parseDate((allPeople[d][0].DeathDate - allPeople[d][0].LifeLength + 2).toString()));
-            })
-            .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber)+(lineOffset*1.2); })
-            .attr("r", dotSize)
-            .style("fill", notBlack);
-
-
-        //Add a transparent line for hovering/ mouse interactions//
-        oneBeginEnter.append("line")
-            .attr("class", "mouse-lines")
-            .attr("id", function(d){ return d})
-            .attr("x1", function(d){
-    //        console.log("oneBegin " + allPeople[d][0].DisplayName); // who is this?
-                return xScale(parseDate((allPeople[d][0].DeathDate - allPeople[d][0].LifeLength).toString())) - 2;
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber) + 2; })
-            .attr("x2", function(d){
-                return xScale(parseDate(allPeople[d][0].DeathDate.toString())) + 2;
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber) + 2; })
-            .attr("stroke", "transparent")
-            .attr("stroke-width", "6px")
-            // .attr("opacity", "0.5")
-            .on("click", function(e) {
-                //findPage(e["Name"]); // put back for PDF
-                // updateLink(e);
-                selectPerson(e);
-            })
-            .on("mouseover", function(d){
-                //console.log("this mouseover:" + this) 
-                if (allPeople[d][0].DeathDate > 0 ){  
-                    mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - allPeople[d][0].LifeLength, allPeople[d][0].DeathDate, "d." + " " + allPeople[d][0].DeathDate + " " + allPeople[d][0].LifePrecision + " " + allPeople[d][0].LifeLength);
-                } else {
-                    mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - allPeople[d][0].LifeLength, allPeople[d][0].DeathDate, "d." + " " + Math.abs(allPeople[d][0].DeathDate) + " BC. " + allPeople[d][0].LifePrecision + " " + allPeople[d][0].LifeLength);
-                }   
-            })
-            .on("mouseout", mouseOut);
-    
-}
-
-function drawCase5(){
-     // % % % %  CASE 5:  Solid line with ONE dot UNDER at the END % % % % % % 
-
-        // draw the people from this case on the map  
-        // no map on new page 
-      //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneEndUnder); }        
-
-        var oneEndUnderEnter = peopleGroup.selectAll("div")
-            .data(getForegroundPeople(oneEndUnder))
-            .enter();
-        // Add the lines
-        oneEndUnderEnter.append("line")
-            .attr("class", "people-lines")
-            .attr("id", function(d){ return d})
-            .attr("x1", function(d){
-    //        console.log("oneEndUnder " + allPeople[d][0].DisplayName); // who is this?
-            return xScale(parseDate((allPeople[d][0].DeathDate - allPeople[d][0].LifeLength).toString()));
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("x2", function(d){
-            return xScale(parseDate(allPeople[d][0].DeathDate.toString()));
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("stroke", function(){if(showColors) return "Cyan"; else return "black";})
-            .attr("stroke-width", lineWidths);
-        // Add the text
-        if (drawNames) {
-        oneEndUnderEnter.append("text")
-            .attr("class", "timeline-text")
-            .attr("id", function(d){ return d})
-            .attr("text-anchor", "middle")
-            .text(function(d){ return allPeople[d][0].DisplayName; })
-            .attr("x", function(d){
-            var start = (allPeople[d][0].DeathDate-allPeople[d][0].LifeLength);
-            return xScale(parseDate((start + allPeople[d][0].LifeLength/2).toString()));   
-            })
-            .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-    //      .attr("stroke", notBlack)
-    //      .attr("fill", notBlack)
-            .on("click", function(e) {
-                //findPage(e["Name"]); // put back for PDF
-                // updateLink(e);
-                selectPerson(e);
-            })
-            .on("mouseover", function(d){
-                if (allPeople[d][0].DeathDate > 0 ){
-                mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - allPeople[d][0].LifeLength, allPeople[d][0].DeathDate, "d. ab. " + allPeople[d][0].DeathDate + " ab. " + allPeople[d][0].LifeLength);
-                } else {
-                mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - allPeople[d][0].LifeLength, allPeople[d][0].DeathDate, "d. ab. " + Math.abs(allPeople[d][0].DeathDate) + " BC. " + "ab. " + allPeople[d][0].LifeLength);
-                }   
-            })
-            .on("mouseout", mouseOut);
-        }
-
-        // Add the one dot below
-        oneEndUnderEnter.append("circle")
-            .attr("class", "circles")
-            .attr("id", function(d){ return d})
-            .attr("cx", function(d){
-            return xScale(parseDate((allPeople[d][0].DeathDate - 2).toString()));
-            })
-            .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber)+(lineOffset*1.2); })
-            .attr("r", dotSize)
-            .attr("stroke-width", lineWidths)
-            .style("fill", notBlack);
-
-        //Add a transparent line for hovering/ mouse interactions//
-        oneEndUnderEnter.append("line")
-            .attr("class", "mouse-lines")
-            .attr("id", function(d){ return d})
-            .attr("x1", function(d){
-    //        console.log("oneEndUnder " + allPeople[d][0].DisplayName); // who is this?
-            return xScale(parseDate((allPeople[d][0].DeathDate - allPeople[d][0].LifeLength).toString())) - 2;
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber) + 2; })
-            .attr("x2", function(d){
-            return xScale(parseDate(allPeople[d][0].DeathDate.toString())) + 2;
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber) + 2; })
-            .attr("stroke", "transparent")
-            .attr("stroke-width", "6px")
-            .on("click", function(e) {
-                //findPage(e["Name"]); // put back for PDF
-                // updateLink(e);
-                selectPerson(e);
-            })
-            .on("mouseover", function(d){
-                if (allPeople[d][0].DeathDate > 0 ){
-                mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - allPeople[d][0].LifeLength, allPeople[d][0].DeathDate, "d. ab. " + allPeople[d][0].DeathDate + " ab. " + allPeople[d][0].LifeLength);
-                } else {
-                mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - allPeople[d][0].LifeLength, allPeople[d][0].DeathDate, "d. ab. " + Math.abs(allPeople[d][0].DeathDate) + " BC. ab. " + allPeople[d][0].LifeLength);
-                }   
-            })
-            .on("mouseout", mouseOut);
-}
-
-function drawCase6(){
-     // % % % % % Case 6: solid2 % % % % % % % % % % % %
-        //  essentially a solid line
-
-        // draw the people from this case on the map 
-        // no map on new page 
-      //  if (page == "biographyMap.html"){drawPeopleOnMap(solid2);}
-
-        var solid2Enter = peopleGroup.selectAll("div")
-            .data(getForegroundPeople(solid2))
-            .enter();
-        // Add the lines
-        solid2Enter.append("line")
-            .attr("class", "people-lines")
-            .attr("id", function(d){ return d})
-            .attr("x1", function(d){
-            return xScale(parseDate((allPeople[d][0].DeathDate).toString()));
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("x2", function(d){
-            return xScale(parseDate((allPeople[d][0].DeathDate-allPeople[d][0].LifeLength).toString()));
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("stroke", function(){ if(showColors) return notBlack; else return "black";})
-            .attr("stroke-width", lineWidths)
-            
-        // Add the text
-        if (drawNames) {
-        solid2Enter.append("text")
-            .attr("class", "timeline-text")
-            .attr("id", function(d){return d})
-            .attr("text-anchor", "middle")
-            .text(function(d){ return allPeople[d][0].DisplayName; })
-            .attr("x", function(d){		
-            var start = (allPeople[d][0].DeathDate-allPeople[d][0].LifeLength);
-            return xScale(parseDate((start+allPeople[d][0].LifeLength/2).toString()));
-            })
-            .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-            .on("click", function(e) {
-                //findPage(e["Name"]); // put back for PDF
-                // updateLink(e);
-                selectPerson(e);
-            })
-            .on("mouseover", function(d){
-                if (allPeople[d][0].DeathDate > 0 ){
-                mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - allPeople[d][0].LifeLength, allPeople[d][0].DeathDate, "d. ab. " + allPeople[d][0].DeathDate + ". " + allPeople[d][0].LifeLength);
-                } else {
-                mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - allPeople[d][0].LifeLength, allPeople[d][0].DeathDate, "d. ab. " + Math.abs(allPeople[d][0].DeathDate) + " BC. " + allPeople[d][0].LifeLength);
-                }   
-            })
-            .on("mouseout", mouseOut);
-        }
-
-        //Add a transparent line for hovering/ mouse interactions//
-        solid2Enter.append("line")
-            .attr("class", "mouse-lines")
-            .attr("id", function(d){return d})
-            .attr("x1", function(d){
-            return xScale(parseDate((allPeople[d][0].DeathDate).toString())) + 2;
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("x2", function(d){
-            return xScale(parseDate((allPeople[d][0].DeathDate-allPeople[d][0].LifeLength).toString())) - 2;
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("stroke", "transparent")
-            .attr("stroke-width", "6px")
-            .on("click", function(e) {
-                //findPage(e["Name"]); // put back for PDF
-                // updateLink(e);
-                selectPerson(e);
-            })
-            .on("mouseover", function(d){
-                if (allPeople[d][0].DeathDate > 0 ){
-                mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - allPeople[d][0].LifeLength, allPeople[d][0].DeathDate, "d. ab. " + allPeople[d][0].DeathDate + ". " + allPeople[d][0].LifeLength);
-                } else {
-                mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - allPeople[d][0].LifeLength, allPeople[d][0].DeathDate, "d. ab. " + Math.abs(allPeople[d][0].DeathDate) + " BC. " + allPeople[d][0].LifeLength);
-                }   
-            })
-            .on("mouseout", mouseOut);
+// draw one person on the index chart (grey background pass or interactive foreground pass)
+function drawIndexPerson(key, layer) {
+    var someGuy = allPeople[key][0];
+    var caseNumber = parseIndexCaseNumber(someGuy);
+    if (!isIndexCaseDrawable(caseNumber)) {
+        return;
     }
 
-function drawCase7(){
-     // % % % %  CASE 7: Solid line with ONE dot at the END % % % % %  
-
-        // draw the people from this case on the map  
-        // no map on new page 
-      //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneEnd); }
-
-        var oneEndEnter = peopleGroup.selectAll("div")
-            .data(getForegroundPeople(oneEnd))
-            .enter();
-        // Add the lines
-        oneEndEnter.append("line")
-            .attr("class", "people-lines")
-            .attr("id", function(d){return d})
-            .attr("x1", function(d){
-    //        console.log("oneEnd " + allPeople[d][0].DisplayName); // who is this?
-            return xScale(parseDate((allPeople[d][0].BirthDate).toString()));
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("x2", function(d){
-            return xScale(parseDate(allPeople[d][0].DeathDate.toString()));
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("stroke", function(){if(showColors) return "Green"; else return "black";})
-            .attr("stroke-width", lineWidths);
-            
-        // Add the text
-        if (drawNames) {
-            oneEndEnter.append("text")
-                .attr("class", "timeline-text")
-            .attr("id", function(d){return d})
-                .attr("text-anchor", "middle")
-                .text(function(d){ return allPeople[d][0].DisplayName; })
-                .attr("x", function(d){
-                var half = allPeople[d][0].BirthDate + (allPeople[d][0].DeathDate-allPeople[d][0].BirthDate)/2;
-                var bday = allPeople[d][0].BirthDate*1;
-                //console.log("half", bday, half)
-                return xScale(parseDate(half.toString()));  
-                })
-                .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-        //      .attr("stroke", "black")
-        //      .attr("fill", "black")
-                .on("click", function(e) {
-                    //findPage(e["Name"]); // put back for PDF
-                    // updateLink(e);
-                    selectPerson(e);
-                })
-                .on("mouseover", function(d){
-                    if (allPeople[d][0].DeathDate > 0 ){
-                    mouseOverChartPeople(this,d,allPeople[d][0].BirthDate, parseInt(allPeople[d][0].AproxDeathDate), "b. " + allPeople[d][0].BirthDate + " d. af. " + allPeople[d][0].DeathDate);
-                    } else {
-                    mouseOverChartPeople(this,d,allPeople[d][0].BirthDate, parseInt(allPeople[d][0].AproxDeathDate), "b. " + Math.abs(allPeople[d][0].DeathDate) + " BC. d. af. " + allPeople[d][0].DeathDate);
-                    }   
-                })
-                .on("mouseout", mouseOut);
-        }
-
-
-        // Add the one dot 
-        oneEndEnter.append("circle")
-            .attr("class", "circles")
-            .attr("id", function(d){return d})
-            .attr("cx", function(d){
-            return xScale(parseDate((allPeople[d][0].DeathDate).toString())) + 2;
-            })
-            .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("r", dotSize)
-            .attr("stroke-width", lineWidths)
-            .style("fill", notBlack);
-
-        //Add a transparent line for hovering/ mouse interactions//
-        oneEndEnter.append("line")
-            .attr("class", "mouse-lines")
-            .attr("id", function(d){return d})
-            .attr("x1", function(d){
-    //        console.log("oneEnd " + allPeople[d][0].DisplayName); // who is this?
-            return xScale(parseDate((allPeople[d][0].BirthDate).toString())) - 2;
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("x2", function(d){
-            return xScale(parseDate(allPeople[d][0].DeathDate.toString())) + 5;
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("stroke", "transparent")
-            .attr("stroke-width", "6px")
-            .on("click", function(e) {
-                //findPage(e["Name"]); // put back for PDF
-                // updateLink(e);
-                selectPerson(e);
-            })
-            .on("mouseover", function(d){
-                if (allPeople[d][0].DeathDate > 0 ){
-                mouseOverChartPeople(this,d,allPeople[d][0].BirthDate, (parseInt(allPeople[d][0].DeathDate) + 5), "b. " + allPeople[d][0].BirthDate + " d. af. " + allPeople[d][0].DeathDate);
-                } else {
-                mouseOverChartPeople(this,d,allPeople[d][0].BirthDate, (parseInt(allPeople[d][0].DeathDate) + 5), "b. " + Math.abs(allPeople[d][0].DeathDate) + " BC. d. af. " + allPeople[d][0].DeathDate);
-                }   
-            })
-            .on("mouseout", mouseOut);   
+    var config = getIndexCaseConfig(someGuy);
+    if (!config) {
+        return;
     }
-          
-function drawCase8(){
-     // % % % CASE 8: Solid lines with THREE dots at the BEGIN and ONE dot at the END % % %
 
-        // draw the people from this case on the map  
-        // no map on new page 
-      //  if (page == "biographyMap.html"){ 	drawPeopleOnMap(threeBeginOneEnd); }
-
-        var threeBeginOneEndEnter = peopleGroup.selectAll("div")
-            .data(getForegroundPeople(threeBeginOneEnd))
-            .enter();
-        // Add the lines
-        threeBeginOneEndEnter.append("line")
-            .attr("class", "people-lines")
-            .attr("id", function(d){return d})
-            .attr("x1", function(d){
-            return xScale(parseDate((allPeople[d][0].DeathDate - 30).toString()));
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("x2", function(d){
-            return xScale(parseDate(allPeople[d][0].DeathDate.toString()));
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("stroke", function(){if(showColors) return "Blue"; else return "black";})
-            .attr("stroke-width", lineWidths)
-           
-        // Add the text
-        if (drawNames) {
-            threeBeginOneEndEnter.append("text")
-                .attr("class", "timeline-text")
-            .attr("id", function(d){return d})
-                .attr("text-anchor", "middle")
-                .text(function(d){ return allPeople[d][0].DisplayName; })
-                .attr("x", function(d){		
-                var start = (allPeople[d][0].DeathDate-15);
-                return xScale(parseDate(start.toString()));
-                })
-                .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-        //	    .attr("stroke", "black")
-        //	    .attr("fill", "black")
-                .on("click", function(e) {
-                        //findPage(e["Name"]); // put back for PDF
-                        // updateLink(e);
-                        selectPerson(e);
-                })
-                .on("mouseover", function(d){
-                    if (allPeople[d][0].DeathDate > 0 ){
-                    mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - 45, (parseInt(allPeople[d][0].DeathDate) + 5), "d. af. " + allPeople[d][0].DeathDate);
-                    } else {
-                    mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - 45, (parseInt(allPeople[d][0].DeathDate) + 5), "d. af. " + Math.abs(allPeople[d][0].DeathDate) + " BC.");
-                    }   
-                })
-                .on("mouseout", mouseOut);
-        }
-
-        // Add the 4 dots (run through the data 4 times)
-        [-45, -40, -35, 5].forEach(function(j){
-        threeBeginOneEndEnter.append("circle")
-            .attr("class", "circles")
-            .attr("id", function(d){return d})
-            .attr("cx", function(d){
-                        return xScale(parseDate((parseInt(allPeople[d][0].DeathDate) + j).toString()))
-            })
-            .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("r", dotSize)
-            .style("fill", notBlack);
-            })
-
-        //Add a transparent line for hovering/ mouse interactions//
-        threeBeginOneEndEnter.append("line")
-            .attr("class", "mouse-lines")
-            .attr("id", function(d){return d})
-            .attr("x1", function(d){
-            return xScale(parseDate((allPeople[d][0].DeathDate - 30).toString())) - 10;
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("x2", function(d){
-            return xScale(parseDate(allPeople[d][0].DeathDate.toString())) + 5;
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("stroke", "transparent")
-            .attr("stroke-width", "6px")
-            .on("click", function(e) {
-                //findPage(e["Name"]); // put back for PDF
-                // updateLink(e);
-                selectPerson(e);
-            })
-            .on("mouseover", function(d){
-                if (allPeople[d][0].DeathDate > 0 ){
-                mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - 45, (parseInt(allPeople[d][0].DeathDate) + 5), "d. af. " + allPeople[d][0].DeathDate);
-                } else {
-                mouseOverChartPeople(this,d,allPeople[d][0].DeathDate - 45, (parseInt(allPeople[d][0].DeathDate) + 5), "d. af. " + Math.abs(allPeople[d][0].DeathDate) + " BC.");
-                }   
-            })
-            .on("mouseout", mouseOut);
+    renderTimelinePerson(key, config, {
+        layer: layer,
+        interactive: layer === "foreground",
+        nameHalo: false
+    });
 }
 
-function drawCase11(){
-     // % % % %  CASE 11:  Solid line with ONE dot UNDER at the END % % % % % % 
-
-        // draw the people from this case on the map  
-        // no map on new page 
-      //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneEndUnder2); }        
-
-        var oneEndUnder2Enter = peopleGroup.selectAll("div")
-            .data(getForegroundPeople(oneEndUnder2))
-            .enter();
-        // Add the lines
-        oneEndUnder2Enter.append("line")
-            .attr("class", "people-lines")
-            .attr("id", function(d){return d})
-            .attr("x1", function(d){
-    //        console.log("oneEndUnder " + allPeople[d][0].DisplayName); // who is this?
-            return xScale(parseDate((allPeople[d][0].BirthDate + allPeople[d][0].LifeLength).toString()));
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("x2", function(d){
-            return xScale(parseDate(allPeople[d][0].BirthDate.toString()));
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("stroke", function(){if(showColors) return "Cyan"; else return "black";})
-            .attr("stroke-width", lineWidths);
-
-            //add text
-        if (drawNames) {
-            oneEndUnder2Enter.append("text")
-            .attr("class", "timeline-text")
-            .attr("id", function(d){return d})
-            .attr("text-anchor", "middle")
-            .text(function(d){ return allPeople[d][0].DisplayName; })
-            .attr("x", function(d){
-            var start = (allPeople[d][0].BirthDate);
-            return xScale(parseDate((start + allPeople[d][0].LifeLength/2).toString()));   
-            })
-            .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-    //      .attr("stroke", notBlack)
-    //      .attr("fill", notBlack)
-            .on("click", function(e) {
-                //findPage(e["Name"]); // put back for PDF
-                // updateLink(e);
-                selectPerson(e);
-            })
-            .on("mouseover", function(d){
-                if (allPeople[d][0].DeathDate > 0 ){
-                mouseOverChartPeople(this,d,allPeople[d][0].BirthDate, allPeople[d][0].BirthDate + allPeople[d][0].LifeLength, "b. " + allPeople[d][0].BirthDate + " " + allPeople[d][0].LifePrecision + " " + allPeople[d][0].LifeLength);
-                } else {
-                mouseOverChartPeople(this,d,allPeople[d][0].BirthDate, allPeople[d][0].BirthDate + allPeople[d][0].LifeLength, "b. " + Math.abs(allPeople[d][0].BirthDate) + " BC. " + allPeople[d][0].LifePrecision + " " + allPeople[d][0].LifeLength);    
-                }   
-            })
-            .on("mouseout", mouseOut);
-        }
-
-            // Add the one dot below
-        oneEndUnder2Enter.append("circle")
-            .attr("class", "circles")
-            .attr("id", function(d){return d})
-            .attr("cx", function(d){
-            return xScale(parseDate(((allPeople[d][0].BirthDate + allPeople[d][0].LifeLength) - 2).toString()));
-            })
-            .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber)+(lineOffset*1.2); })
-            .attr("r", dotSize)
-            .style("fill", notBlack);
-
-        //Add a transparent line for hovering/ mouse interactions//
-        oneEndUnder2Enter.append("line")
-            .attr("class", "mouse-lines")
-            .attr("id", function(d){return d})
-            .attr("x1", function(d){
-    //        console.log("oneEndUnder " + allPeople[d][0].DisplayName); // who is this?
-            return xScale(parseDate((allPeople[d][0].BirthDate + allPeople[d][0].LifeLength).toString())) + 4;
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber) + 2; })
-            .attr("x2", function(d){
-            return xScale(parseDate(allPeople[d][0].BirthDate.toString())) - 4;
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber) + 2; })
-            .attr("stroke", "transparent")
-            .attr("stroke-width", "6px")
-            .on("click", function(e) {
-                //findPage(e["Name"]); // put back for PDF
-                // updateLink(e);
-                selectPerson(e);
-            })
-            .on("mouseover", function(d){
-                if (allPeople[d][0].DeathDate > 0 ){
-                mouseOverChartPeople(this,d,allPeople[d][0].BirthDate, allPeople[d][0].BirthDate + allPeople[d][0].LifeLength, "b. " + allPeople[d][0].BirthDate + " " + allPeople[d][0].LifePrecision + " " + allPeople[d][0].LifeLength);
-                } else {
-                mouseOverChartPeople(this,d,allPeople[d][0].BirthDate, allPeople[d][0].BirthDate + allPeople[d][0].LifeLength, "b. " + Math.abs(allPeople[d][0].BirthDate) + " BC. " + allPeople[d][0].LifePrecision + " " + allPeople[d][0].LifeLength);    
-                }   
-            })
-            .on("mouseout", mouseOut);
+// % % % Case background: grey lines and names for everyone on the chart % % %
+function drawBackgroundIndexPeople() {
+    people.forEach(function(key) {
+        drawIndexPerson(key, "background");
+    });
 }
 
-function drawCase13(){
-    // % % % Case 13: seven dots % % % 
-
-        // draw the people from this case on the map  
-        // no map on new page 
-        //  if (page == "biographyMap.html"){ 	drawPeopleOnMap(sevenDots);    }     
-
-        var sevenDotsEnter = peopleGroup.selectAll("div")
-            .data(getForegroundPeople(sevenDots))
-            .enter();
-        // Add the text
-        if (drawNames) {
-        sevenDotsEnter.append("text")
-            .attr("class", "timeline-text")
-            .attr("id", function(d){return d})
-            .attr("text-anchor", "middle")
-            .text(function(d){ return allPeople[d][0].DisplayName; })
-            .attr("x", function(d){		
-                var start = (allPeople[d][0].AliveDate - 2);
-                return xScale(parseDate(start.toString()));
-            })
-            .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-    //	    .attr("stroke", "black")
-    //	    .attr("fill", "black")
-            .on("click", function(e) {
-                //findPage(e["Name"]); // put back for PDF
-                // updateLink(e);
-                selectPerson(e);
-            })
-            .on("mouseover", function(d){
-                if (allPeople[d][0].AliveDate > 0 ){
-                mouseOverChartPeople(this,d,allPeople[d][0].AliveDate - 25, allPeople[d][0].AliveDate + 20, "fl. ab. " + allPeople[d][0].AliveDate);
-                } else {
-                mouseOverChartPeople(this,d,allPeople[d][0].AliveDate - 25, allPeople[d][0].AliveDate + 20, "fl. ab. " + Math.abs(allPeople[d][0].AliveDate) + " BC.");   
-                }   
-            })
-            .on("mouseout", mouseOut);
-        }
-
-
-        // Add the seven dots
-        [-32, -22, -12, -2, 8, 18, 28].forEach(function(j){
-        sevenDotsEnter.append("circle")
-            .attr("class", "circles")
-            .attr("id", function(d){return d})
-            .attr("cx", function(d){
-                        return xScale(parseDate((parseInt(allPeople[d][0].AliveDate) + j).toString()))
-            })
-            .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("r", dotSize)
-            .style("fill", notBlack);
-            })
-
-        //Add a transparent line for hovering/ mouse interactions//       
-        sevenDotsEnter.append("line")
-            .attr("class", "mouse-lines")
-            .attr("id", function(d){return d})
-           .attr("x1", function(d){
-            return xScale(parseDate((allPeople[d][0].AliveDate - 30).toString())) - 5;
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("x2", function(d){
-                return xScale(parseDate(allPeople[d][0].AliveDate.toString())) + 16;
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("stroke", "transparent")
-            .attr("stroke-width", "6px")
-            // .attr("opacity", "0.5")
-            .on("click", function(e) {
-                //findPage(e["Name"]); // put back for PDF
-                selectPerson(e);
-            })
-            .on("mouseover", function(d){
-                if (allPeople[d][0].AliveDate > 0 ){
-                mouseOverChartPeople(this,d,allPeople[d][0].AliveDate - 25, allPeople[d][0].AliveDate + 20, "fl. ab. " + allPeople[d][0].AliveDate);
-                } else {
-                mouseOverChartPeople(this,d,allPeople[d][0].AliveDate - 25, allPeople[d][0].AliveDate + 20, "fl. ab. " + Math.abs(allPeople[d][0].AliveDate) + " BC.");   
-                }   
-            })
-            .on("mouseout", mouseOut);
-
+// who gets a foreground (non-grey) draw — matches currentFilterMatchSet when a filter is active
+function getIndexForegroundKeys() {
+    if (currentFilterMatchSet) {
+        return Array.from(currentFilterMatchSet);
+    }
+    return people;
 }
 
-function drawCase14(){
-        // % % % %  CASE 14: Solid line with ONE dot at the END % % % % % 
-        // draw the people from this case on the map  
-        // no map on new page 
-      //  if (page == "biographyMap.html"){   drawPeopleOnMap(oneEnd2); }
-
-        var oneEnd2Enter = peopleGroup.selectAll("div")
-            .data(getForegroundPeople(oneEnd2))
-            .enter();
-        // Add the lines
-        oneEnd2Enter.append("line")
-            .attr("class", "people-lines")
-            .attr("id", function(d){return d})
-            .attr("x1", function(d){
-    //        console.log("oneEnd2 " + allPeople[d][0].DisplayName); // who is this?
-                return xScale(parseDate((allPeople[d][0].BirthDate).toString()));
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("x2", function(d){
-                return xScale(parseDate(allPeople[d][0].AliveDate.toString()));
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("stroke", function(){if(showColors) return "Green"; else return "black";})
-            .attr("stroke-width", lineWidths);
-        
-        // Add the text
-        if (drawNames) {
-            oneEnd2Enter.append("text")
-                .attr("class", "timeline-text")
-            .attr("id", function(d){return d})
-                .attr("text-anchor", "middle")
-                .text(function(d){ return allPeople[d][0].DisplayName; })
-                .attr("x", function(d){
-                    var half = allPeople[d][0].BirthDate + (allPeople[d][0].AliveDate-allPeople[d][0].BirthDate)/2;
-                    var bday = allPeople[d][0].BirthDate*1;
-                    //console.log("half", bday, half)
-                    return xScale(parseDate(half.toString()));  
-                })
-                .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-        //      .attr("stroke", "black")
-        //      .attr("fill", "black")
-                .on("click", function(e) {
-                    //findPage(e["Name"]); // put back for PDF 
-                    // updateLink(e);
-                    selectPerson(e);
-                })
-                .on("mouseover", function(d){
-                    if (allPeople[d][0].BirthDate > 0 ){
-                    mouseOverChartPeople(this,d,allPeople[d][0].BirthDate, parseInt(allPeople[d][0].AliveDate), "b. " + allPeople[d][0].BirthDate + " " + allPeople[d][0].AlivePrecision + " " + allPeople[d][0].AliveDate);
-                    } else {
-                    mouseOverChartPeople(this,d,allPeople[d][0].BirthDate, parseInt(allPeople[d][0].AliveDate), "b. " + Math.abs(allPeople[d][0].BirthDate) + " BC. " + allPeople[d][0].AlivePrecision + " " + Math.abs(allPeople[d][0].AliveDate) + " BC.") ;    
-                    }   
-                })
-                .on("mouseout", mouseOut);
-        }
-
-
-        oneEnd2Enter.append("circle")
-            .attr("class", "circles")
-            .attr("id", function(d){return d})
-            .attr("cx", function(d){
-                return xScale(parseDate((allPeople[d][0].AliveDate).toString())) + 3;
-            })
-            .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("r", dotSize)
-            .style("fill", notBlack);
-
-        // add the mouse lines
-        oneEnd2Enter.append("line")
-            .attr("class", "mouse-lines")
-            .attr("id", function(d){return d})
-            .attr("x1", function(d){
-    //        console.log("oneEnd " + allPeople[d][0].DisplayName); // who is this?
-                return xScale(parseDate((allPeople[d][0].BirthDate).toString())) - 2;
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("x2", function(d){
-            return xScale(parseDate(allPeople[d][0].AliveDate.toString())) + 5;
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("stroke", "transparent")
-            .attr("stroke-width", "6px")
-            .on("click", function(e) {
-                //findPage(e["Name"]); // put back for PDF
-                // updateLink(e);
-                selectPerson(e);
-            })
-            .on("mouseover", function(d){
-                if (allPeople[d][0].BirthDate > 0 ){
-                mouseOverChartPeople(this,d,allPeople[d][0].BirthDate, parseInt(allPeople[d][0].AliveDate), "b. " + allPeople[d][0].BirthDate + " " + allPeople[d][0].AlivePrecision + " " + allPeople[d][0].AliveDate);
-                } else {
-                mouseOverChartPeople(this,d,allPeople[d][0].BirthDate, parseInt(allPeople[d][0].AliveDate), "b. " + Math.abs(allPeople[d][0].BirthDate) + " BC. " + allPeople[d][0].AlivePrecision + " " + Math.abs(allPeople[d][0].AliveDate) + " BC.") ;    
-                }   
-            })
-            .on("mouseout", mouseOut);
+// % % % Case foreground: lines and names for the current filter only % % %
+function drawForegroundIndexPeople() {
+    getIndexForegroundKeys().forEach(function(key) {
+        drawIndexPerson(key, "foreground");
+    });
 }
 
-function drawCase15(){
-     // % % % Case 15: Solid lines with THREE DOTs at the END  % % % 
-                    // draw the people from this case on the map  
-            // no map on new page 
-            // console.log("drawCase15")
-
-            var threeEndEnter = peopleGroup.selectAll("div")
-                .data(getForegroundPeople(threeEnd))
-                .enter();
-            // Add the lines
-            threeEndEnter.append("line")
-                .attr("class", "people-lines")
-                .attr("x1", function(d){
-        //        console.log("threeBeginTwoEnd " + allPeople[d][0].DisplayName); // who is this?
-                    return xScale(parseDate((allPeople[d][0].BirthDate).toString()));
-                })
-                .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("x2", function(d){
-                    return xScale(parseDate((allPeople[d][0].BirthDate - 13).toString()));
-                })
-                .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                .attr("stroke", notBlack)
-                .attr("stroke-width", backgroundLineWidths)
-
-            // Add the text
-            if (drawNames) {
-                threeEndEnter.append("text")
-                    .attr("class", "timeline-text")
-                    .attr("text-anchor", "middle")
-                    .text(function(d){ return allPeople[d][0].DisplayName; })
-                    .attr("x", function(d){     
-                    var start = (allPeople[d][0].BirthDate);
-                        return xScale(parseDate(start.toString()));
-                    })
-                    .attr("y", function(d){ return yScale(allPeople[d][0].LineNumber)-lineOffset; })
-                    .style("fill", notBlack);
-            }
-
-            // Add the 3 dots (run through the data 3 times)
-            [7,12,17].forEach(function(j){
-            threeEndEnter.append("circle")
-                .attr("class", "circles")
-                .attr("cx", function(d){
-                    return xScale(parseDate((parseInt(allPeople[d][0].BirthDate) + j).toString()))
-                })
-                .attr("cy", function(d){ return yScale(allPeople[d][0].LineNumber); })
-                    .attr("r", dotSize)
-                    .attr("stroke-width", "0.4px")
-                    .style("fill", notBlack);
-            })
-
-            // add the mouse lines
-        threeEndEnter.append("line")
-            .attr("class", "mouse-lines")
-            .attr("id", function(d){return d})
-            .attr("x1", function(d){
-    //        console.log("oneEnd " + allPeople[d][0].DisplayName); // who is this?
-                return xScale(parseDate((allPeople[d][0].BirthDate).toString())) - 2;
-            })
-            .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("x2", function(d){
-            return xScale(parseDate(allPeople[d][0].BirthDate.toString())) + 13;
-            })
-            .attr("y2", function(d){ return yScale(allPeople[d][0].LineNumber); })
-            .attr("stroke", "transparent")
-            .attr("stroke-width", "6px")
-            .on("click", function(e) {
-                //findPage(e["Name"]); // put back for PDF
-                // updateLink(e);
-                selectPerson(e);
-            })
-            .on("mouseover", function(d){
-                if (allPeople[d][0].BirthDate > 0 ){
-                mouseOverChartPeople(this,d,allPeople[d][0].BirthDate, allPeople[d][0].BirthDate + 45, "b. " + allPeople[d][0].BirthDate);
-                } else {
-                mouseOverChartPeople(this,d,allPeople[d][0].BirthDate, allPeople[d][0].BirthDate + 45, "b. " + Math.abs(allPeople[d][0].BirthDate) + " BC. ") ;    
-                }   
-            })
-            .on("mouseout", mouseOut);
+function drawBackgroundLines() {
+    drawBackgroundIndexPeople();
 }
 
+function drawIndexPeople() {
+    drawForegroundIndexPeople();
+}
+
+// parse a numeric year/span from the sheet; used by index and engraved configs
 function getChartValue(value, fallback) {
     var numericValue = parseFloat(value);
     if (isNaN(numericValue)) {
@@ -3167,6 +1821,7 @@ function getVisualCaseConfig(someGuy) {
         textY: null,
         startDots: [],
         endDots: [],
+        fixedDots: [],
         underStart: null,
         underEnd: null,
         afterDots: [],
@@ -3208,31 +1863,31 @@ function getVisualCaseConfig(someGuy) {
             break;
         case "D": // 3 dots solid line | unknown birth, exact death date; unknown birth, exact death date (?)
             // three dots at the start then the line to death
-            config.lineStart = deathDate - 45;
+            config.lineStart = deathDate - 60;
             config.lineEnd = deathDate;
             config.startDots = [-15, -10, -5];
-            config.textX = deathDate - 22;
-            config.mouseStart = deathDate - 60;
+            config.textX = deathDate - 30;
+            config.mouseStart = deathDate - 75;
             config.mouseEnd = deathDate;
             config.tooltipLabel = "d. " + deathDate;
             break;
         case "E": // 3 dots solid line 1 dot under end | unknown birth, approx death date
-            config.lineStart = deathDate - 45;
+            config.lineStart = deathDate - 60;
             config.lineEnd = deathDate;
             config.startDots = [-15, -10, -5];
             config.underEnd = 0;
-            config.textX = deathDate - 22;
-            config.mouseStart = deathDate - 60;
+            config.textX = deathDate - 30;
+            config.mouseStart = deathDate - 75;
             config.mouseEnd = deathDate;
             config.tooltipLabel = "d. " + deathDate;
             break;
         case "F": // 3 dots solid line 1 dot after end | unknown birth, died after
-            config.lineStart = deathDate - 45;
+            config.lineStart = deathDate - 60;
             config.lineEnd = deathDate;
             config.startDots = [-15, -10, -5];
             config.afterDots = [5];
-            config.textX = deathDate - 22;
-            config.mouseStart = deathDate - 60;
+            config.textX = deathDate - 30;
+            config.mouseStart = deathDate - 75;
             config.mouseEnd = deathDate + 5;
             config.tooltipLabel = "d. " + deathDate;
             break;
@@ -3328,174 +1983,20 @@ function getVisualCaseConfig(someGuy) {
     return config;
 }
 
+// engraved chart: single pass, always notBlack, name halo behind the label
 function drawVisualPerson(key) {
-    var someGuy = allPeople[key][0];
-    var config = getVisualCaseConfig(someGuy);
-    var dot = notBlack;
-    var line = notBlack;
-
-    if (config.drawLine) {
-        peopleGroup.append("line")
-            .datum(key)
-            .attr("class", "people-lines")
-            .attr("id", key)
-            .attr("x1", xScale(parseDate(config.lineStart.toString())))
-            .attr("y1", yScale(someGuy.LineNumber))
-            .attr("x2", xScale(parseDate(config.lineEnd.toString())))
-            .attr("y2", yScale(someGuy.LineNumber))
-            .attr("stroke", line)
-            .attr("stroke-width", lineWidths);
-    }
-
-    if (drawNames) {
-        peopleGroup.append("text")
-            .datum(key)
-            .attr("class", "timeline-text-background")
-            .attr("id", key)
-            .attr("text-anchor", "middle")
-            .text(function() { return someGuy.DisplayName; })
-            .attr("x", xScale(parseDate(config.textX.toString())))
-            .attr("y", yScale(someGuy.LineNumber) - lineOffset)
-            .style("fill", backgroundLineColor);
-
-        peopleGroup.append("text")
-            .datum(key)
-            .attr("class", "timeline-text")
-            .attr("id", key)
-            .attr("text-anchor", "middle")
-            .text(function() { return someGuy.DisplayName; })
-            .attr("x", xScale(parseDate(config.textX.toString())))
-            .attr("y", yScale(someGuy.LineNumber) - lineOffset)
-            .on("click", function(e) {
-                selectPerson(key);
-            })
-            .on("mouseover", function() {
-                mouseOverChartPeople(this, key, config.lineStart, config.lineEnd, config.tooltipLabel);
-            })
-            .on("mouseout", mouseOut);
-    }
-
-    if (config.startDots.length > 0) {
-        config.startDots.forEach(function(offset) {
-            peopleGroup.append("circle")
-                .datum(key)
-                .attr("class", "circles")
-                .attr("id", key)
-                .attr("cx", xScale(parseDate((config.lineStart + offset).toString())))
-                .attr("cy", yScale(someGuy.LineNumber))
-                .attr("r", dotSize)
-                .attr("stroke-width", "0.4px")
-                .style("fill", dot);
-        });
-    }
-
-    if (config.afterDots.length > 0) {
-        config.afterDots.forEach(function(offset) {
-            peopleGroup.append("circle")
-                .datum(key)
-                .attr("class", "circles")
-                .attr("id", key)
-                .attr("cx", xScale(parseDate((config.lineEnd + offset).toString())))
-                .attr("cy", yScale(someGuy.LineNumber))
-                .attr("r", dotSize)
-                .attr("stroke-width", "0.4px")
-                .style("fill", dot);
-        });
-    }
-
-    if (config.endDots && config.endDots.length > 0) {
-        config.endDots.forEach(function(offset) {
-            peopleGroup.append("circle")
-                .datum(key)
-                .attr("class", "circles")
-                .attr("id", key)
-                .attr("cx", xScale(parseDate((config.lineEnd + offset).toString())))
-                .attr("cy", yScale(someGuy.LineNumber))
-                .attr("r", dotSize)
-                .attr("stroke-width", "0.4px")
-                .style("fill", dot);
-        });
-    }
-
-    if (config.underStart !== null) {
-        peopleGroup.append("circle")
-            .datum(key)
-            .attr("class", "circles")
-            .attr("id", key)
-            .attr("cx", xScale(parseDate((config.lineStart + config.underStart).toString())))
-            .attr("cy", yScale(someGuy.LineNumber) + (lineOffset * 1.2))
-            .attr("r", dotSize)
-            .attr("stroke-width", "0.4px")
-            .style("fill", dot);
-    }
-
-    if (config.underEnd !== null) {
-        peopleGroup.append("circle")
-            .datum(key)
-            .attr("class", "circles")
-            .attr("id", key)
-            .attr("cx", xScale(parseDate((config.lineEnd - config.underEnd).toString())))
-            .attr("cy", yScale(someGuy.LineNumber) + (lineOffset * 1.2))
-            .attr("r", dotSize)
-            .attr("stroke-width", "0.4px")
-            .style("fill", dot);
-    }
-
-    if (config.mouseStart !== null && config.mouseEnd !== null) {
-        peopleGroup.append("line")
-            .datum(key)
-            .attr("class", "mouse-lines")
-            .attr("id", key)
-            .attr("x1", xScale(parseDate(config.mouseStart.toString())))
-            .attr("y1", yScale(someGuy.LineNumber))
-            .attr("x2", xScale(parseDate(config.mouseEnd.toString())))
-            .attr("y2", yScale(someGuy.LineNumber))
-            .attr("stroke", "transparent")
-            .attr("stroke-width", "6px")
-            .on("click", function() {
-                selectPerson(key);
-            })
-            .on("mouseover", function() {
-                mouseOverChartPeople(this, key, config.lineStart, config.lineEnd, config.tooltipLabel);
-            })
-            .on("mouseout", mouseOut);
-    }
+    var config = getVisualCaseConfig(allPeople[key][0]);
+    config.strokeColor = notBlack;
+    renderTimelinePerson(key, config, {
+        layer: "foreground",
+        interactive: true,
+        nameHalo: true
+    });
 }
 
 function drawVisualPeople() {
     people.forEach(function(key) {
         drawVisualPerson(key);
-    });
-}
-
-function getIndexLineRenderers() {
-    return [
-        { enabled: case1, render: drawCase1 },
-        { enabled: case2, render: drawCase2 },
-        { enabled: case3, render: drawCase3 },
-        { enabled: case4, render: drawCase4 },
-        { enabled: case5, render: drawCase5 },
-        { enabled: case6, render: drawCase6 },
-        { enabled: case7, render: drawCase7 },
-        { enabled: case8, render: drawCase8 },
-        { enabled: case11, render: drawCase11 },
-        { enabled: case13, render: drawCase13 },
-        { enabled: case14, render: drawCase14 },
-        { enabled: case15, render: drawCase15 }
-    ];
-}
-
-function drawIndexPeople() {
-    // the varying line style filter needs the index chart to exist before filtering, so render synchronously in that case
-    var drawSynchronously = F_varyingLineStyle !== "";
-    getIndexLineRenderers().forEach(function(caseRenderer) {
-        if (caseRenderer.enabled) {
-            if (drawSynchronously) {
-                caseRenderer.render();
-            } else {
-                d3.timeout(caseRenderer.render, 1);
-            }
-        }
     });
 }
 
@@ -3506,6 +2007,7 @@ function drawLines(){
         drawVisualPeople();
         return;
     }
+    // index: grey everyone first, then foreground (refreshChartForCurrentFilters runs filterPeople after both)
     drawBackgroundLines();
     drawIndexPeople();
     var now = new Date();
@@ -4342,7 +2844,7 @@ function getPersonVisualLineImage(person) {
         if (allPeople[key][0].LifePrecision != "") A = "~ "
         A += allPeople[key][0].LifeLength;
     } else {
-        if (allPeople[key][0].AproxAge === 45 || allPeople[key][0].AproxAge === 0 || isNaN(allPeople[key][0].AproxAge)) {
+        if (allPeople[key][0].AproxAge === 60 || allPeople[key][0].AproxAge === 0 || isNaN(allPeople[key][0].AproxAge)) {
             A = "unknown";
         } else {
             A = "~ " + String(allPeople[key][0].AproxAge);
@@ -4998,7 +3500,13 @@ function buildLineMenu() {
 function refreshChartForCurrentFilters() {
     clearTimeline();
     sortPeople(allPeople, globalFilterString);
-    drawLines();
+    if (currentLineSystem === "visual") {
+        drawVisualPeople();
+    } else {
+        // draw foreground before filterPeople so .hiddenGuy is applied to real SVG nodes
+        drawBackgroundLines();
+        drawForegroundIndexPeople();
+    }
     filterPeople(allPeople, globalFilterString);
     restoreSelectedPeople();
     document.body.classList.remove('waiting');
