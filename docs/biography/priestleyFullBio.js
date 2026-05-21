@@ -66,7 +66,7 @@ outerHeight = container.height()-70; // minus the header
 var aspect = outerWidth/outerHeight;
 
 // adjust aspect ratio to keep to timeline shape
-console.log("aspect:"+ aspect)
+// console.log("aspect:"+ aspect)
 if (aspect > 1.8){
     aspect = 1.8
 }
@@ -114,7 +114,7 @@ noUiSlider.create(ageSlider, {
 ageSlider.noUiSlider.on('end',function(values, handle){
   //document.getElementById("age_CB").checked = true;
   drawYoungPeople(values[0], values[1])
-  console.log("age range: " + values[0] + " to "+ values[1]);
+  // console.log("age range: " + values[0] + " to "+ values[1]);
 });
 
 mergeTooltips(ageSlider, 15, ' - ');
@@ -141,7 +141,7 @@ noUiSlider.create(aliveSlider, {
      if(value.includes(" BC")){
          // if negative, remove substring and change value to negative 
          var fromYear = -1 * (parseInt(value.split(" BC")[0]))
-         console.log
+         // console.log
         return fromYear
      } else {
        // if positive, no change
@@ -167,12 +167,12 @@ mergeTooltips(aliveSlider, 50, ' - ');
 
 aliveSlider.noUiSlider.on('end',function(values, handle){
   //document.getElementById("alive_CB").checked = true;
-    console.log(values)
+    // console.log(values)
     var fromYear;
     if( typeof values[0] === 'string' && values[0].includes(" BC")){
          // if negative, remove substring and change value to negative 
          fromYear = -1 * (parseInt(values[0].split(" BC")[0]))
-         console.log(fromYear)
+         // console.log(fromYear)
      } else {
        // if int/positive, no change
         fromYear = parseInt(values[0])
@@ -182,7 +182,7 @@ aliveSlider.noUiSlider.on('end',function(values, handle){
     if( typeof values[1] === 'string' && values[1].includes(" BC")){
          // if negative, remove substring and change value to negative 
          toYear = -1 * (parseInt(values[1].split(" BC")[0]))
-         console.log(toYear)
+         // console.log(toYear)
      } else {
        // if int/positive, no change
         toYear = parseInt(values[1])
@@ -190,7 +190,7 @@ aliveSlider.noUiSlider.on('end',function(values, handle){
     
     
   drawAliveDuring(fromYear, toYear)
-  console.log("alive during: " + fromYear + " to "+ toYear);
+  // console.log("alive during: " + fromYear + " to "+ toYear);
 });
 // *** END ALIVE DUIING SLIDER ***
 
@@ -228,8 +228,8 @@ zoomSlider.noUiSlider.on('slide',function(values, handle){
     if (Math.abs(sliderZoom - currentZoom) < 0.0001) return;
     var viewport = getChartViewport();
     zoomChartTo(sliderZoom, viewport.wide / 2, viewport.high / 2)
-  console.log("slide currentZoom: " + currentZoom);
-  console.log("slide zoom factor: " + values[0]);
+  // console.log("slide currentZoom: " + currentZoom);
+  // console.log("slide zoom factor: " + values[0]);
 });
 
 zoomSlider.noUiSlider.on('set',function(values, handle){
@@ -238,8 +238,8 @@ zoomSlider.noUiSlider.on('set',function(values, handle){
     if (Math.abs(sliderZoom - currentZoom) < 0.0001) return;
     var viewport = getChartViewport();
     zoomChartTo(sliderZoom, viewport.wide / 2, viewport.high / 2)
-  console.log("set currentZoom: " + currentZoom);
-  console.log("set zoom factor: " + values[0]);
+  // console.log("set currentZoom: " + currentZoom);
+  // console.log("set zoom factor: " + values[0]);
 });
 // *** END ZOOM SLIDER ***
 
@@ -330,9 +330,9 @@ function zoomChartTo(nextZoom, anchorX, anchorY) {
 }
 
 function sizeChange(factor, viewport) {
-    console.log("resizing")
-    console.log("x: " + currentDragX)
-    console.log("y: " + currentDragY)
+    // console.log("resizing")
+    // console.log("x: " + currentDragX)
+    // console.log("y: " + currentDragY)
 
     // Resize the timeline
     var size = viewport || getChartViewport();
@@ -767,12 +767,12 @@ var categoryText = categoryRight.selectAll("div")
     .attr("transform", function(d){
                    center = (yScale(sectionLines[d.section-1]+1)   + ((yScale(sectionLines[d.section]-1)) - yScale(sectionLines[d.section-1]))/2.0 ); // subtract last line 1 to keep bottom section in range
                    if (isNaN(center)) center = 0 // if the location is not a number just return 0.
-                   console.log(center)
+                //    console.log(center)
                    return ("rotate(180,0,"+center+")")
                 })
     .call(wrap, 85)  // hard codded value for max height, need a select each or similar instead of ".call" for this to be calculated based on row height
     .on("mouseover", function(d){
-        console.log(d.label)
+        // console.log(d.label)
              mouseOverSectionTitle(d)
      })
     .on("mouseout", function(d){
@@ -947,7 +947,7 @@ var case10 = 0; // unsure2 //0
 // array for testing which cases to draw to speed up development
 boolCases=[0,case1,case2,case3,case4, case5, case6, case7, case8, case9, case10, case11, case12, case13, case14, case15]
 
-console.log("A");
+// console.log("A");
 
 var dataSheet; // for data loaded via d3
 
@@ -956,7 +956,7 @@ function loadBioData(){
     setLoadingUI();
     
     document.getElementById("filterResultsBox").innerHTML =  ""; 
-    console.log("loading bio data");
+    // console.log("loading bio data");
     //document.getElementById("loader").style.display = "wait"; /* waiting mouse */
     //document.getElementById("loaderButton").style.display = "none";  /* turn off the button is reset in setLoadingUI function*/
  /* turn on the loader wheel*/
@@ -1115,7 +1115,7 @@ function loadBioData(){
             sortPeople(allPeople, true); // second argument is a string that will evaluate to things you want to keep in the chart
             //sortPeople(allPeople, "someGuy.LifeLength < 50 && someGuy.LifeLength != null"); // second argument is a string that will evaluate to things you want to keep in the chart
             //drawBackgroundLines(); // just draw the grey lines and names
-            console.log("calling draw lines");
+            // console.log("calling draw lines");
             drawLines(); // draw all the lines and names
 //            drawCase1();
 //            drawCase2()
@@ -1135,7 +1135,7 @@ function loadBioData(){
          // }
      });
     var now = new Date();
-    console.log(now.toUTCString()+ " end of loadBioData()")
+    // console.log(now.toUTCString()+ " end of loadBioData()")
 }
 
 // LOAD people descriptions. 
@@ -1166,19 +1166,19 @@ d3.csv("biography/csv/Alternate_Dictionary.csv") // when live
     });
            
 
-console.log("b");
+// console.log("b");
 // console.log("someGuy[DisplayName]", someGuy["DisplayName"]); // debug (list everyone!)
 
 // second argument is true OR a STRING that will evaluate to things you want to keep in the chart e.g. true or "someGuy.Name.startsWith('S')"
 function filterPeople(thesePeople, peopleFilter) { 
    var now = new Date();
-   console.log(now.toUTCString()+" start of filterPeople");
+   // console.log(now.toUTCString()+" start of filterPeople");
   /* turn on the loader */
     // document.getElementById("loader").style.display = "block";
     
    var filterList = d3.selectAll('#filterResultsBox') // just get the filter list once, so we don't have to check the whole DOM for divs within it
    
-    console.log(peopleFilter);
+    // console.log(peopleFilter);
     // if filter is anything but "true" look at them one by one
     // set all people as hidden, then remove the "hidden" from people that match the filter
     if(peopleFilter != true){ 
@@ -1198,7 +1198,7 @@ function filterPeople(thesePeople, peopleFilter) {
                 currentFilterMatchSet = null;
             }
         } catch (e) {
-            console.log('Failed to compile filter predicate', e);
+            // console.log('Failed to compile filter predicate', e);
             currentFilterMatchSet = null;
         }
 
@@ -1206,7 +1206,7 @@ function filterPeople(thesePeople, peopleFilter) {
         ////document.getElementById("filterResultsBox").innerHTML =""
         //var filterCount = 0;
 
-        console.log("filtering: " + Object.keys(thesePeople).length);
+        // console.log("filtering: " + Object.keys(thesePeople).length);
         // make all people invisible
         peopleGroup.selectAll(".people-lines,.circles").classed("hiddenGuy",true); // add the display-none class to chart name
         if (drawNames) peopleGroup.selectAll(".timeline-text").classed("hiddenGuy",true); // add the display-none class to chart name
@@ -1228,7 +1228,7 @@ function filterPeople(thesePeople, peopleFilter) {
 
         // deal with the people filtered
         document.getElementById("numPeople").innerHTML =  people.length + " of " + Object.keys(thesePeople).length + " people";
-        if (people.length < 10) {console.log(people)} // for debug: print the people that match, only when fewer then 10
+        // if (people.length < 10) { console.log(people); } // for debug: print the people that match, only when fewer then 10
     } else {
         // no filter applied
         // Any = no filter
@@ -1245,13 +1245,13 @@ function filterPeople(thesePeople, peopleFilter) {
    // document.getElementById("loader").style.display = "none"; 
    later = new Date();
    diff = later-now;
-   console.log(later.toUTCString()+" end of filterPeople")
+   // console.log(later.toUTCString()+" end of filterPeople")
     setFilterControlsEnabled(true);
 }
 
 
 function sortPeople(thePeople, peopleFilter) { 
-    console.log("beginning of sort people" + Date())
+    // console.log("beginning of sort people" + Date())
     
    // clear out lists    
    people = [];
@@ -1272,7 +1272,7 @@ function sortPeople(thePeople, peopleFilter) {
   // noLineNumber = [];
     visualPeople = [];
     
-    console.log("filter "+ peopleFilter);  // logs current filter
+    // console.log("filter "+ peopleFilter);  // logs current filter
 
     var peopleFilterPredicate = compilePeopleFilterPredicate(peopleFilter);
     currentFilterMatchSet = peopleFilterPredicate ? new Set() : null;
@@ -1377,9 +1377,9 @@ function sortPeople(thePeople, peopleFilter) {
       } // if people filter      
 	});
 
-    console.log("All people: ")
-    console.log(Object.keys(allPeople).length) // all people read in
-    console.log("filtered people " + people.length) // list of those that are in this filter.
+    // console.log("All people: ")
+    // console.log(Object.keys(allPeople).length) // all people read in
+    // console.log("filtered people " + people.length) // list of those that are in this filter.
    //document.getElementById("numPeople").innerHTML = " " + people.length + "people";
     // document.getElementById("numPeople").innerHTML = "(" + allPeople.length + ")";
 
@@ -1453,13 +1453,13 @@ function sortPeople(thePeople, peopleFilter) {
 
 
    now = new Date();
-   console.log(now.toUTCString()+ " end of sortPeople()") 
+   // console.log(now.toUTCString()+ " end of sortPeople()") 
     return;
 }
 
 // draw the grey names first these won't be redrawn
 function drawBackgroundLines(){
-    console.log("drawing background lines")
+    // console.log("drawing background lines")
         // draw the people from this case on the map
     if (case1){
              // % %  Case 1: Solid lines - Background  % % 
@@ -1854,7 +1854,7 @@ function drawBackgroundLines(){
                 return xScale(
 
                     parseDate((allPeople[d][0].BirthDate + allPeople[d][0].LifeLength).toString()));
-                    console.log(allPeople[d][0].DisplayName)
+                    // console.log(allPeople[d][0].DisplayName)
                 })
                 .attr("y1", function(d){ return yScale(allPeople[d][0].LineNumber); })
                 .attr("x2", function(d){
@@ -3066,7 +3066,7 @@ function drawCase15(){
      // % % % Case 15: Solid lines with THREE DOTs at the END  % % % 
                     // draw the people from this case on the map  
             // no map on new page 
-            console.log("drawCase15")
+            // console.log("drawCase15")
 
             var threeEndEnter = peopleGroup.selectAll("div")
                 .data(getForegroundPeople(threeEnd))
@@ -3509,10 +3509,10 @@ function drawLines(){
     drawBackgroundLines();
     drawIndexPeople();
     var now = new Date();
-    console.log(now.toUTCString()+ " end of drawLines()");
+    // console.log(now.toUTCString()+ " end of drawLines()");
     document.addEventListener("DOMContentLoaded", function(event) { 
       //do work
-        console.log(now.toUTCString()+ " READY!")
+        // console.log(now.toUTCString()+ " READY!")
     });
 //    document.getElementById("loader").style.display = "none"; // turn OFF the loader every time something is drawn
     
@@ -3596,7 +3596,7 @@ function buildFullFilterQuery(){
 
 // functions for drawing by filters
 function drawAllPeople(){
-    console.log("All button")
+    // console.log("All button")
 
     currentCase = "drawAllPeople";
     changeCase = false;
@@ -3616,13 +3616,13 @@ function drawAllPeople(){
 
 
 $("#ageAprox_CB").change(function() {
-    console.log("Age Aprox CB clicked");
+    // console.log("Age Aprox CB clicked");
     drawYoungPeople(ageSlider.noUiSlider.get()[0],ageSlider.noUiSlider.get()[1]);
 });
 
 $("#varyingLineStyle_CB").change(function() {
     // filter to show people that have different cases index vs visual
-    console.log("Varying line style checkbox clicked");
+    // console.log("Varying line style checkbox clicked");
     if (document.getElementById("varyingLineStyle_CB").checked == true) {
         F_varyingLineStyle = "(someGuy.VisualCase != '' && someGuy.ExpectedVisualCase != '' && someGuy.VisualCase != someGuy.ExpectedVisualCase)";
     } else {
@@ -3638,7 +3638,7 @@ $("#varyingLineStyle_CB").change(function() {
 });
 
 function drawYoungPeople(minAge, maxAge){
-    console.log("age range: " + minAge + " to " + maxAge)
+    // console.log("age range: " + minAge + " to " + maxAge)
 
     //var minAge = document.getElementById("userMinInput").value;
     //var maxAge = document.getElementById("userMaxInput").value;
@@ -3658,7 +3658,7 @@ function drawYoungPeople(minAge, maxAge){
 
        
     } else if (minAge > 1 || maxAge < 100) {
-            console.log("age_CB clicked")
+            // console.log("age_CB clicked")
             // set radio button
             // document.getElementById("age_CB").checked = true;
             //update the current case values
@@ -3689,7 +3689,7 @@ function drawYoungPeople(minAge, maxAge){
 
 
 function drawAliveDuring(minYear, maxYear){
-    console.log("alive during: " + minYear + " to " + maxYear)
+    // console.log("alive during: " + minYear + " to " + maxYear)
 
     //var minYear = document.getElementById("userMinInput").value;
     //var maxYear = document.getElementById("userMaxInput").value;
@@ -3753,7 +3753,7 @@ function drawGender(gender){
     }
 
     buildFullFilterQuery();
-    console.log(F_gender)
+    // console.log(F_gender)
     setLoadingUI();
     setTimeout(function() {
         filterPeople(allPeople, globalFilterString);
@@ -3834,7 +3834,7 @@ function examplePeople2(){
 
 // functions for drawing by case (line style), using the dropdown
 function drawCase(num){
-    console.log("click line style") 
+    // console.log("click line style") 
     // set radio button
    // document.getElementById("line_CB").checked = true;
    
@@ -4081,7 +4081,7 @@ function userNameFunction() {
             });
         }
 
-        console.log(x);
+        // console.log(x);
         setTimeout(function() {
             filterPeople(allPeople, filterString);
             document.body.classList.remove('waiting');
@@ -4561,7 +4561,7 @@ function compilePeopleFilterPredicate(peopleFilter) {
     try {
         return new Function("someGuy", "return (" + peopleFilter + ");");
     } catch (error) {
-        console.log("filter compile failed", error);
+        // console.log("filter compile failed", error);
         return function() { return true; };
     }
 }
@@ -4574,7 +4574,7 @@ function getForegroundPeople(keys) {
     });
 }
 
-console.log("middle of JS")
+// console.log("middle of JS")
 
 function clearSelectedPeople(){
     mouseOut(); // close the tooltip
@@ -4613,7 +4613,7 @@ function restoreSelectedPeople() {
 
 function logChartReady(sourceLabel) {
     var now = new Date();
-    console.log(now.toUTCString() + " chart ready: " + sourceLabel);
+    // console.log(now.toUTCString() + " chart ready: " + sourceLabel);
 }
 
 
@@ -5066,7 +5066,7 @@ function clearCheckBoxes(){
 }
 
 function resultUnClicked(e){
-    console.log(e) // debug
+    // console.log(e) // debug
     var  id = e;
     
     mouseOut(); // close the tooltip
@@ -5185,7 +5185,7 @@ let dragStartPanY;
 
 // SET descriptive text in the element
 function setDescriptiveText(UOID) {
-	console.log("looking for UOID: " + UOID)
+	// console.log("looking for UOID: " + UOID)
     
     if(UOID == "-99"){
         document.getElementById("descriptive_text").innerHTML = "Click another name to view text.";
@@ -5248,13 +5248,13 @@ function setDescriptiveText(UOID) {
         // allPeople[UOID][0].Name is the name in the field "Name"
         // allPeople[UOID][0].alternateName is the name in the field "alternateName"
         // NOTE: lost the bio text title with this setup, the old sheets
-        console.log(BioName)
+        // console.log(BioName)
         if (BioName && BioName != "" && allPeople[UOID][0].Name.toUpperCase() !=  BioName.toUpperCase()){
             alternateName = ` or <span style='text-transform:uppercase'>${BioName} </span>`
             // set description
             document.getElementById("descriptive_text").innerHTML = pName + alternateName + linkText + "<br>"+ `${biography}<br>—(${source})`;
         } else { // no name found at all
-                console.log("No descriptive text found")
+                // console.log("No descriptive text found")
                 // set description
                 document.getElementById("descriptive_text").innerHTML = pName + linkText + "<br>No descriptive text found. Click another name to view text.";
         }
@@ -5271,7 +5271,7 @@ svg.call(d3.drag() // call specific function when circle is dragged
 
 
 function dragstarted(d) {
-    console.log("drag start")
+    // console.log("drag start")
 //    console.log(d3.event)
   d3.select(this).style("cursor", "move"); 
     dragStartX = d3.event.x;
@@ -5315,7 +5315,7 @@ function dragended(d) {
 
 
 function changeFont(thisFont){
-    console.log(thisFont)
+    // console.log(thisFont)
     const collection = document.getElementsByClassName("timeline-text");
 //    const collection2 = document.getElementsByClassName("timeline-text-background");
     
@@ -5356,4 +5356,4 @@ d3.select(window).on("resize", sizeChange(1.0)); // 11/5/2020 needs a different 
 setProfessionDropDownColors();
 
 
-console.log("end of JS");
+// console.log("end of JS");
