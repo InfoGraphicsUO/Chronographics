@@ -5196,7 +5196,7 @@ function setDescriptiveText(UOID) {
         
     //watkinsID = allPeople[UOID][0].Watkins_ID
     var alternateName= ""
-    var link = allPeople[UOID][0].Link
+    var link = (allPeople[UOID][0].Link) ? allPeople[UOID][0].Link : '';
     var biography = allPeople[UOID][0].Biography
     var source = allPeople[UOID][0].BioSource
     var BioName = allPeople[UOID][0].BioName
