@@ -435,6 +435,7 @@ function flyToChartPosition(chartX, chartY) {
         var scale = (viewport.wide / outerWidth) * currentZoom;
         clampPan(scale, viewport);
         applyChartTransform(scale);
+        syncZoomSlider(currentZoom);
 
         if (t >= 1) {
             timer.stop();
