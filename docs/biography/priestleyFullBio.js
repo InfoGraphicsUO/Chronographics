@@ -4924,20 +4924,21 @@ var indexLineChoices = [
 ];
 
 var visualLineChoices = [
-    { value: "A", label: "3 dots line 2 dots", image: "biography/img/case3.png" },
-    { value: "B", label: "7 dots", image: "biography/img/case13.png" },
-    { value: "C", label: "solid line", image: "biography/img/case1.png" },
-    { value: "D", label: "3 dots solid line", image: "biography/img/case2.png" },
-    { value: "E", label: "3 dots solid line 1 dot under end", image: "biography/img/CaseE.png" },
-    { value: "F", label: "3 dots solid line 1 dot after end", image: "biography/img/case5.png" },
-    { value: "G", label: "solid line 1 dot under end", image: "biography/img/case5.png" },
-    { value: "H", label: "1 dot under start solid line", image: "biography/img/case4.png" },
-    { value: "I", label: "1 dot under start solid line 1 dot under end", image: "biography/img/CaseI.png" },
-    { value: "J", label: "1 dot under start solid line 1 dot after end", image: "biography/img/caseJ.png" },
-    { value: "K", label: "solid line 1 dot after end", image: "biography/img/case14.png" },
-    { value: "L", label: "solid line 3 dots after", image: "biography/img/case15.png" },
-    { value: "M", label: "solid line 1 dot after end", image: "biography/img/case14.png" },
-    { value: "N", label: "one dot under before solid line 3 dots after", image: "biography/img/CaseN.png" }
+    { value: 0, label: "Any", image: "" },
+    { value: "A", label: "Exact flourished year", image: "biography/img/case3.png" },
+    { value: "B", label: "Approx flourished year", image: "biography/img/case13.png" },
+    { value: "C", label: "Exact death year & exact lifespan", image: "biography/img/case1.png" },
+    { value: "D", label: "Exact death year", image: "biography/img/case2.png" },
+    { value: "E", label: "Approx death year", image: "biography/img/CaseE.png" },
+    { value: "F", label: "Died after (death year exact)", image: "biography/img/case5.png" },
+    { value: "G", label: "Approx death year + exact lifespan", image: "biography/img/case5.png" },
+    { value: "H", label: "Exact death year + approx lifespan", image: "biography/img/case4.png" },
+    { value: "I", label: "Approx death year + approx lifespan", image: "biography/img/CaseI.png" },
+    { value: "J", label: "Died after + approx lifespan", image: "biography/img/caseJ.png" },
+    { value: "K", label: "Died after + exact/above lifespan", image: "biography/img/case14.png" },
+    { value: "L", label: "Exact birth year", image: "biography/img/case15.png" },
+    { value: "M", label: "Exact birth year + alive after", image: "biography/img/case14.png" },
+    { value: "N", label: "Approx birth year", image: "biography/img/CaseN.png" }
 ];
 
 function getCurrentLineChoices() {
