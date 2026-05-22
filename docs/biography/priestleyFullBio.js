@@ -1443,6 +1443,19 @@ function getIndexDates(someGuy) {
     };
 }
 
+// place the name label at the midpoint of the life line (or the mouse band when there is no line)
+function applyCenteredLabelX(config) {
+    if (config.drawLine !== false) {
+        config.textX = (config.lineStart + config.lineEnd) / 2;
+        return;
+    }
+    if (config.mouseStart !== null && config.mouseEnd !== null) {
+        config.textX = (config.mouseStart + config.mouseEnd) / 2;
+        return;
+    }
+    config.textX = config.lineStart;
+}
+
 // build a draw config for one person on the index chart (same shape as getVisualCaseConfig)
 function getIndexCaseConfig(someGuy) {
     var dates = getIndexDates(someGuy);
@@ -1457,7 +1470,6 @@ function getIndexCaseConfig(someGuy) {
         drawLine: true,
         lineStart: deathDate - lifeLength,
         lineEnd: deathDate,
-        textX: null,
         startDots: [],
         endDots: [],
         fixedDots: [],
@@ -1475,7 +1487,6 @@ function getIndexCaseConfig(someGuy) {
         case 1: // solid line | Death year and life span; unknown birth, exact death date, certain life length (engraved ~C)
             config.lineStart = deathDate - lifeLength;
             config.lineEnd = deathDate;
-            config.textX = config.lineStart + (lifeLength / 2);
             config.mouseStart = config.lineStart;
             config.mouseEnd = config.lineEnd;
             config.tooltipLabel = "d. " + formatDeathYear(deathDate) + ". " + lifeLength;
@@ -1485,7 +1496,6 @@ function getIndexCaseConfig(someGuy) {
             config.lineStart = deathDate - 45;
             config.lineEnd = deathDate;
             config.fixedDots = [{ field: "DeathDate", offsets: [-60, -55, -50] }];
-            config.textX = deathDate - 30;
             config.mouseStart = deathDate - 60;
             config.mouseEnd = deathDate;
             config.tooltipLabel = "d." + formatDeathYear(deathDate);
@@ -1495,7 +1505,6 @@ function getIndexCaseConfig(someGuy) {
             config.lineEnd = aliveDate + 10;
             config.startDots = [-15, -10, -5];
             config.endDots = [5, 10];
-            config.textX = aliveDate;
             config.mouseStart = aliveDate - 30;
             config.mouseEnd = aliveDate + 30;
             config.tooltipLabel = (someGuy.AlivePrecision || "") + " " + (aliveDate > 0 ? aliveDate : Math.abs(aliveDate) + " BC.");
@@ -1504,7 +1513,6 @@ function getIndexCaseConfig(someGuy) {
             config.lineStart = deathDate - lifeLength;
             config.lineEnd = deathDate;
             config.underStart = 2;
-            config.textX = config.lineStart + (lifeLength / 2);
             config.mouseStart = config.lineStart;
             config.mouseEnd = config.lineEnd;
             config.tooltipLabel = "d. " + formatDeathYear(deathDate) + " " + (someGuy.LifePrecision || "") + " " + lifeLength;
@@ -1513,7 +1521,6 @@ function getIndexCaseConfig(someGuy) {
             config.lineStart = deathDate - lifeLength;
             config.lineEnd = deathDate;
             config.underEnd = 2;
-            config.textX = config.lineStart + (lifeLength / 2);
             config.mouseStart = config.lineStart;
             config.mouseEnd = config.lineEnd;
             config.tooltipLabel = "d. ab. " + formatDeathYear(deathDate) + " ab. " + lifeLength;
@@ -1521,7 +1528,6 @@ function getIndexCaseConfig(someGuy) {
         case 6: // solid line | same menu filter as case 1; unknown birth, approx death date, certain life length (engraved ~G)
             config.lineStart = deathDate;
             config.lineEnd = deathDate - lifeLength;
-            config.textX = (deathDate - lifeLength) + (lifeLength / 2);
             config.mouseStart = deathDate - lifeLength;
             config.mouseEnd = deathDate;
             config.tooltipLabel = "d. ab. " + formatDeathYear(deathDate) + ". " + lifeLength;
@@ -1530,7 +1536,6 @@ function getIndexCaseConfig(someGuy) {
             config.lineStart = birthDate;
             config.lineEnd = deathDate;
             config.afterDots = [2];
-            config.textX = birthDate + ((deathDate - birthDate) / 2);
             config.mouseStart = birthDate;
             config.mouseEnd = deathDate + 5;
             config.tooltipLabel = birthDate > 0
@@ -1541,7 +1546,6 @@ function getIndexCaseConfig(someGuy) {
             config.lineStart = deathDate - 45;
             config.lineEnd = deathDate;
             config.fixedDots = [{ field: "DeathDate", offsets: [-60, -55, -50, 5] }];
-            config.textX = deathDate - 30;
             config.mouseStart = deathDate - 60;
             config.mouseEnd = deathDate + 5;
             config.tooltipLabel = "d. af. " + formatDeathYear(deathDate);
@@ -1550,7 +1554,6 @@ function getIndexCaseConfig(someGuy) {
             config.lineStart = birthDate + lifeLength;
             config.lineEnd = birthDate;
             config.underEnd = 2;
-            config.textX = birthDate + (lifeLength / 2);
             config.mouseStart = birthDate;
             config.mouseEnd = birthDate + lifeLength;
             config.tooltipLabel = birthDate > 0
@@ -1560,7 +1563,6 @@ function getIndexCaseConfig(someGuy) {
         case 13: // 7 dots | Approx flourished year; unknown birth, unknown death, approx flourished date (engraved ~B)
             config.drawLine = false;
             config.fixedDots = [{ field: "AliveDate", offsets: [-32, -22, -12, -2, 8, 18, 28] }];
-            config.textX = aliveDate - 2;
             config.mouseStart = aliveDate - 40;
             config.mouseEnd = aliveDate + 20;
             config.tooltipLabel = "fl. ab. " + (aliveDate > 0 ? aliveDate : Math.abs(aliveDate) + " BC.");
@@ -1569,7 +1571,6 @@ function getIndexCaseConfig(someGuy) {
             config.lineStart = birthDate;
             config.lineEnd = aliveDate;
             config.afterDots = [3];
-            config.textX = birthDate + ((aliveDate - birthDate) / 2);
             config.mouseStart = birthDate;
             config.mouseEnd = aliveDate + 5;
             config.tooltipLabel = birthDate > 0
@@ -1580,7 +1581,6 @@ function getIndexCaseConfig(someGuy) {
             config.lineStart = birthDate;
             config.lineEnd = birthDate - 13;
             config.afterDots = [7, 12, 17];
-            config.textX = birthDate;
             config.mouseStart = birthDate;
             config.mouseEnd = birthDate + 60;
             config.tooltipLabel = "b. " + formatBirthYear(birthDate);
@@ -1592,10 +1592,6 @@ function getIndexCaseConfig(someGuy) {
             return null;
     }
 
-    // fill in anything the case block left blank
-    if (config.textX === null) {
-        config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
-    }
     if (config.mouseStart === null) {
         config.mouseStart = Math.min(config.lineStart, config.lineEnd);
     }
@@ -1603,6 +1599,7 @@ function getIndexCaseConfig(someGuy) {
         config.mouseEnd = Math.max(config.lineStart, config.lineEnd);
     }
 
+    applyCenteredLabelX(config);
     return config;
 }
 
@@ -1817,7 +1814,6 @@ function getVisualCaseConfig(someGuy) {
         drawLine: true,
         lineStart: birthDate,
         lineEnd: deathDate,
-        textX: null,
         textY: null,
         startDots: [],
         endDots: [],
@@ -1837,7 +1833,6 @@ function getVisualCaseConfig(someGuy) {
             config.lineEnd = aliveDate + 10;
             config.startDots = [-15, -10, -5];
             config.endDots = [5, 10];
-            config.textX = aliveDate - 7;
             config.mouseStart = aliveDate - 40;
             config.mouseEnd = aliveDate + 20;
             config.tooltipLabel = "fl. " + aliveDate;
@@ -1848,7 +1843,6 @@ function getVisualCaseConfig(someGuy) {
             config.lineStart = aliveDate - 40;
             config.lineEnd = aliveDate - 40;
             config.afterDots = [0, 10, 20, 30, 40, 50, 60];
-            config.textX = aliveDate - 10;
             config.mouseStart = aliveDate - 40;
             config.mouseEnd = aliveDate + 20;
             config.tooltipLabel = "fl. ab. " + aliveDate;
@@ -1856,7 +1850,6 @@ function getVisualCaseConfig(someGuy) {
         case "C": // solid line | unknown birth, exact death date, certain life length
             config.lineStart = deathDate - lifeLength;
             config.lineEnd = deathDate;
-            config.textX = config.lineStart + (lifeLength / 2);
             config.mouseStart = config.lineStart;
             config.mouseEnd = config.lineEnd;
             config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
@@ -1866,7 +1859,6 @@ function getVisualCaseConfig(someGuy) {
             config.lineStart = deathDate - 60;
             config.lineEnd = deathDate;
             config.startDots = [-15, -10, -5];
-            config.textX = deathDate - 30;
             config.mouseStart = deathDate - 75;
             config.mouseEnd = deathDate;
             config.tooltipLabel = "d. " + deathDate;
@@ -1876,7 +1868,6 @@ function getVisualCaseConfig(someGuy) {
             config.lineEnd = deathDate;
             config.startDots = [-15, -10, -5];
             config.underEnd = 0;
-            config.textX = deathDate - 30;
             config.mouseStart = deathDate - 75;
             config.mouseEnd = deathDate;
             config.tooltipLabel = "d. " + deathDate;
@@ -1886,7 +1877,6 @@ function getVisualCaseConfig(someGuy) {
             config.lineEnd = deathDate;
             config.startDots = [-15, -10, -5];
             config.afterDots = [5];
-            config.textX = deathDate - 30;
             config.mouseStart = deathDate - 75;
             config.mouseEnd = deathDate + 5;
             config.tooltipLabel = "d. " + deathDate;
@@ -1895,7 +1885,6 @@ function getVisualCaseConfig(someGuy) {
             config.lineStart = birthDate;
             config.lineEnd = deathDate;
             config.underEnd = 0;
-            config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
             config.mouseStart = config.lineStart;
             config.mouseEnd = config.lineEnd;
             config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
@@ -1904,7 +1893,6 @@ function getVisualCaseConfig(someGuy) {
             config.lineStart = birthDate;
             config.lineEnd = deathDate;
             config.underStart = 0;
-            config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
             config.mouseStart = config.lineStart;
             config.mouseEnd = config.lineEnd;
             config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
@@ -1914,7 +1902,6 @@ function getVisualCaseConfig(someGuy) {
             config.lineEnd = deathDate;
             config.underStart = 0;
             config.underEnd = 0;
-            config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
             config.mouseStart = config.lineStart;
             config.mouseEnd = config.lineEnd;
             config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
@@ -1924,7 +1911,6 @@ function getVisualCaseConfig(someGuy) {
             config.lineEnd = deathDate;
             config.underStart = 0;
             config.afterDots = [5];
-            config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
             config.mouseStart = config.lineStart;
             config.mouseEnd = config.lineEnd + 5;
             config.tooltipLabel = "d. " + deathDate + ". " + lifeLength;
@@ -1933,7 +1919,6 @@ function getVisualCaseConfig(someGuy) {
             config.lineStart = birthDate;
             config.lineEnd = lineEnd;
             config.afterDots = [5];
-            config.textX = birthDate + ((lineEnd - birthDate) / 2);
             config.mouseStart = birthDate;
             config.mouseEnd = lineEnd + 3;
             config.tooltipLabel = "b. " + birthDate + " d. af. " + deathDate;
@@ -1942,7 +1927,6 @@ function getVisualCaseConfig(someGuy) {
             config.lineStart = birthDate;
             config.lineEnd = birthDate + Math.max(13, lifeLength);
             config.afterDots = [10, 15, 20];
-            config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
             config.mouseStart = birthDate;
             config.mouseEnd = config.lineEnd + 20;
             config.tooltipLabel = "b. " + birthDate;
@@ -1951,7 +1935,6 @@ function getVisualCaseConfig(someGuy) {
             config.lineStart = birthDate;
             config.lineEnd = lineEnd;
             config.afterDots = [5];
-            config.textX = birthDate + ((lineEnd - birthDate) / 2);
             config.mouseStart = birthDate;
             config.mouseEnd = lineEnd + 20;
             config.tooltipLabel = "b. " + birthDate + " d. af. " + deathDate;
@@ -1961,7 +1944,6 @@ function getVisualCaseConfig(someGuy) {
             config.lineEnd = birthDate + 5;
             config.underStart = 0;
             config.afterDots = [10, 15, 20];
-            config.textX = birthDate + 10;
             config.mouseStart = birthDate;
             config.mouseEnd = birthDate + 20;
             config.tooltipLabel = "b. " + birthDate;
@@ -1969,16 +1951,13 @@ function getVisualCaseConfig(someGuy) {
         default:
             config.lineStart = deathDate - lifeLength;
             config.lineEnd = deathDate;
-            config.textX = config.lineStart + (lifeLength / 2);
             config.mouseStart = config.lineStart;
             config.mouseEnd = config.lineEnd;
             config.tooltipLabel = someGuy.DisplayName;
             break;
     }
 
-    if (config.textX === null) {
-        config.textX = config.lineStart + ((config.lineEnd - config.lineStart) / 2);
-    }
+    applyCenteredLabelX(config);
 
     return config;
 }
