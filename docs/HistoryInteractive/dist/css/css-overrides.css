@@ -229,9 +229,9 @@ rect {
 }
 .frame {
     border: 5px solid transparent;
-    -webkit-border-image: url(../../pages/img/border2.png) 50 stretch; /* Safari 3.1-5 */
-    -o-border-image: url(../../pages/img/border2.png) 50 stretch; /* Opera 11-12.1 */
-    border-image: url(../../pages/img/border2.png) 50 stretch;
+    -webkit-border-image: url(../../img/border2.png) 50 stretch; /* Safari 3.1-5 */
+    -o-border-image: url(../../img/border2.png) 50 stretch; /* Opera 11-12.1 */
+    border-image: url(../../img/border2.png) 50 stretch;
     outline: 1px solid #3F3418;
     outline-offset: -5px;
     background-size:100% 100%;

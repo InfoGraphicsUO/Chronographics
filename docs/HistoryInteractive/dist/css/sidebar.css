@@ -31,7 +31,7 @@ body {
 
 #sidebar-wrapper {
   box-shadow: inset 0 0 0 1000px rgba(255, 250, 243, 0.849), 3px 0px 7px grey;
-  background-image: url(../../pages/img/navbar-bg.jpg);
+  background-image: url(../../img/navbar-bg.jpg);
   margin-left: 0;
   -webkit-transition: margin .25s ease-out;
   -moz-transition: margin .25s ease-out;
