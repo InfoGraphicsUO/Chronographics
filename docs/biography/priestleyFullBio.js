@@ -1653,9 +1653,10 @@ function getIndexCaseConfig(someGuy) {
                 : "b. " + Math.abs(birthDate) + " BC. " + (someGuy.AlivePrecision || "") + " " + Math.abs(aliveDate) + " BC.";
             break;
         case 15: // solid line 3 dots after | Birth year; exact birth date, unknown death (engraved ~L)
+            // mirror of case D: 45-year line from birth, three dots after the line end
             config.lineStart = birthDate;
-            config.lineEnd = birthDate - 13;
-            config.afterDots = [7, 12, 17];
+            config.lineEnd = birthDate + 45;
+            config.afterDots = [5, 10, 15];
             config.tooltipLabel = "b. " + formatBirthYear(birthDate);
             config.strokeColor = notBlack;
             config.lineWidth = backgroundLineWidths;
@@ -1897,10 +1898,7 @@ function getVisualCaseConfig(someGuy) {
             break;
         case "B": // 7 dots | unknown birth, unknown death, approx flourished date; unknown birth, unknown death, alive after
             config.drawLine = false;
-            // seven dots span the same full visual window
-            config.lineStart = aliveDate - 40;
-            config.lineEnd = aliveDate - 40;
-            config.afterDots = [0, 10, 20, 30, 40, 50, 60];
+            config.fixedDots = [{ field: "AliveDate", offsets: [-32, -22, -12, -2, 8, 18, 28] }];
             config.tooltipLabel = "fl. ab. " + aliveDate;
             break;
         case "C": // solid line | unknown birth, exact death date, certain life length
@@ -1910,20 +1908,20 @@ function getVisualCaseConfig(someGuy) {
             break;
         case "D": // 3 dots solid line | unknown birth, exact death date; unknown birth, exact death date (?)
             // three dots at the start then the line to death
-            config.lineStart = deathDate - 60;
+            config.lineStart = deathDate - 45;
             config.lineEnd = deathDate;
             config.startDots = [-15, -10, -5];
             config.tooltipLabel = "d. " + deathDate;
             break;
         case "E": // 3 dots solid line 1 dot under end | unknown birth, approx death date
-            config.lineStart = deathDate - 60;
+            config.lineStart = deathDate - 45;
             config.lineEnd = deathDate;
             config.startDots = [-15, -10, -5];
             config.underEnd = 0;
             config.tooltipLabel = "d. " + deathDate;
             break;
         case "F": // 3 dots solid line 1 dot after end | unknown birth, died after
-            config.lineStart = deathDate - 60;
+            config.lineStart = deathDate - 45;
             config.lineEnd = deathDate;
             config.startDots = [-15, -10, -5];
             config.afterDots = [5];
@@ -1962,9 +1960,10 @@ function getVisualCaseConfig(someGuy) {
             config.tooltipLabel = "b. " + birthDate + " d. af. " + deathDate;
             break;
         case "L": // solid line 3 dots after | exact birth date, unknown death
+            // mirror of case D: 45-year line from birth, three dots after the line end
             config.lineStart = birthDate;
-            config.lineEnd = birthDate + Math.max(13, lifeLength);
-            config.afterDots = [10, 15, 20];
+            config.lineEnd = birthDate + 45;
+            config.afterDots = [5, 10, 15];
             config.tooltipLabel = "b. " + birthDate;
             break;
         case "M": // solid line 1 dot after end | exact birth date, unknown death, alive after
@@ -2939,7 +2938,17 @@ if (tooltipCaseKey == "case2" ||  tooltipCaseKey == "case8") {
     startDateText = "" // no text before line
     A = "unknown" // replace age
 
-} 
+}
+
+if (tooltipCaseKey == "case15" || thisCase == "L") {
+    endDateText = "" // unknown death — line extent is symbolic, not a date
+    A = "unknown";
+    if (fromDate < 0) {
+        startDateText = Math.abs(fromDate) + " BC ";
+    } else {
+        startDateText = fromDate;
+    }
+}
      
 if (tooltipCaseKey == "case3"||  tooltipCaseKey == "case13") {
      startDateText = "" // no text before line
