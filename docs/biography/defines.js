@@ -47,8 +47,15 @@ function parseDate(dateString) {
             year = +dateString;
         }
         if (year < 0 || year > 99) {
-            // 'Normal' dates
-            date = new Date(year, 6, 1);
+            // 'Normal' dates; fractional years like 99.5 must not use new Date(99, ...)
+            // because JS treats years 0-99 as 1900-1999 unless UTC is used
+            var intYear = Math.floor(year);
+            if (intYear > 0 && intYear <= 99) {
+                date = new Date(intYear, 6, 1);
+                date.setUTCFullYear(("0000" + intYear).slice(-4));
+            } else {
+                date = new Date(year, 6, 1);
+            }
         } else if (year == 0) {
             // Year 0 is '1 BC'
             date = new Date(-1, 6, 1);
