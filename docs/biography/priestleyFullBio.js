@@ -61,26 +61,28 @@ var container = chart.parent(),
     containerParent = container.parent();
 
 // Math out the parts of the plot
-outerWidth = container.width();
-outerHeight = container.height()-70; // minus the header
-var aspect = outerWidth/outerHeight;
+// using fixed layout coordinates so the chart always lays out this size consistently between viewport sizes
+var CHART_ASPECT = 1.8;
+var CHART_BASE_WIDTH = 1450;
+var CHART_BASE_HEIGHT = Math.round(CHART_BASE_WIDTH / CHART_ASPECT);
+var CHART_VIEWPORT_MAX_HEIGHT = 685;
 
-// adjust aspect ratio to keep to timeline shape
-// console.log("aspect:"+ aspect)
-if (aspect > 1.8){
-    aspect = 1.8
+function setChartLayoutDimensions() {
+    aspect = CHART_ASPECT;
+    outerWidth = CHART_BASE_WIDTH;
+    outerHeight = CHART_BASE_HEIGHT;
+    width = outerWidth - margin.left - margin.right;
+    height = outerHeight - margin.top - margin.bottom;
+    innerWidth = width - padding.left - padding.right;
+    innerHeight = height - padding.top - padding.bottom;
+    endX = startX + width;
+    endY = startY + height;
+    endInX = startInX + innerWidth;
+    endInY = startInY + innerHeight;
+    categoryX = endInX + padding.right + (margin.right / 9);
 }
-outerHeight = outerWidth/aspect
 
-width = outerWidth - margin.left - margin.right;
-height = outerHeight - margin.top - margin.bottom;
-innerWidth = width - padding.left - padding.right;
-innerHeight = height - padding.top - padding.bottom;
-endX = startX + width;
-endY = startY + height;
-endInX = startInX + innerWidth;
-endInY = startInY + innerHeight;    
-categoryX = endInX + padding.right + (margin.right / 9);
+setChartLayoutDimensions();
 
 var numRows = 164;
 
@@ -249,15 +251,15 @@ setTimeout(buildLineMenu, 0);
 
 function getChartViewport() {
     var wide = container.width();
-    var high = wide / aspect;
+    var high = wide / CHART_ASPECT;
 
     if (high > container.height()){
         high = container.height();
-        wide = high * aspect;
+        wide = high * CHART_ASPECT;
     }
-    if (high > 685){
-        high = 685;
-        wide = high * aspect;
+    if (high > CHART_VIEWPORT_MAX_HEIGHT){
+        high = CHART_VIEWPORT_MAX_HEIGHT;
+        wide = high * CHART_ASPECT;
     }
 
     return {
@@ -526,13 +528,13 @@ var yScale = d3.scalePoint()
 // width: the difference between the row above and the row below
 // row: should change to ...the section row above - 1/2 the section width
 var sectionText = [  
-    {label:"", section:0}, //
-    {label:"Historians, Antiquaries, & Lawyers", section:1},
-    {label:"Orators & Critics",section:2},
-    {label:"Artists & Poets", section:3},
-    {label:"Mathematicians & Physicians",section:4},
-    {label:"Divines & Metaphysicians",section:5},
-    {label:"Statesmen & Warriors", section:6}
+    {label:"", section:0, lines:[""]}, //
+    {label:"Historians, Antiquaries, & Lawyers", section:1, lines:["Historians, Antiquaries,", "& Lawyers"]},
+    {label:"Orators & Critics", section:2, lines:["Orators & Critics"]},
+    {label:"Artists & Poets", section:3, lines:["Artists & Poets"]},
+    {label:"Mathematicians & Physicians", section:4, lines:["Mathematicians", "& Physicians"]},
+    {label:"Divines & Metaphysicians", section:5, lines:["Divines & Metaphysicians"]},
+    {label:"Statesmen & Warriors", section:6, lines:["Statesmen & Warriors"]}
 ];
 
 
@@ -754,10 +756,6 @@ var categoryText = categoryRight.selectAll("div")
     .enter()
     .append("text") // div vs text to allow hover on background?
     .attr("class", "label-text old-looking-font")
-    .html(function(d){
-                    // console.log(d.label)
-                    return d.label
-                })
     .style("writing-mode","vertical-lr")
     .attr("y", function(d){
                    center = (yScale(sectionLines[d.section-1]+1)   + ((yScale(sectionLines[d.section]-1)) - yScale(sectionLines[d.section-1]))/2.0 ); // subtract last line 1 to keep bottom section in range
@@ -770,7 +768,7 @@ var categoryText = categoryRight.selectAll("div")
                 //    console.log(center)
                    return ("rotate(180,0,"+center+")")
                 })
-    .call(wrap, 100)  // hard codded value for max height, need a select each or similar instead of ".call" for this to be calculated based on row height
+    .call(renderCategoryLabelLines)
     .each(function() {
         d3.select(this).classed("label-text-single", d3.select(this).selectAll("tspan").size() === 1);
     })
@@ -786,41 +784,45 @@ var categoryText = categoryRight.selectAll("div")
 
 
 
+/* render category labels with manually chosen line breaks */
+function renderCategoryLabelLines(text) {
+  text.each(function(d) {
+    var text = d3.select(this),
+        lines = d.lines || [d.label],
+        y = text.attr("y");
+
+    text.text(null);
+    lines.forEach(function(line, i) {
+      text.append("tspan")
+          .attr("x", lines.length === 1 ? 0 : 2 - (i * 8))
+          .attr("y", y)
+          .text(line);
+    });
+  });
+}
+
+var SINGLE_LINE_CATEGORY_LABEL_X_NUDGE = 2;
+
 /* center each section label horizontally in the right margin (1- or 2-line stacks) */
 function centerCategoryLabels(text) {
-  text.each(function() {
-    var bbox = this.getBBox();
-    if (!bbox.width) return;
-    d3.select(this).attr("x", -(bbox.x + bbox.width / 2));
+  // Wait one frame so CSS class changes (notably .label-text-single font size) affect getBBox().
+  window.requestAnimationFrame(function() {
+    text.each(function() {
+      var bbox = this.getBBox();
+      if (!bbox.width) return;
+
+      var label = d3.select(this);
+      var singleLineNudge = label.classed("label-text-single") ? SINGLE_LINE_CATEGORY_LABEL_X_NUDGE : 2;
+      var offset = -(bbox.x + bbox.width / 2) + singleLineNudge;
+
+      label.selectAll("tspan").each(function() {
+        var tspan = d3.select(this);
+        var currentX = parseFloat(tspan.attr("x")) || 0;
+        tspan.attr("x", currentX + offset);
+      });
+    });
   });
 }
-
-/* wrapping long labels */
-function wrap(text, width) {
-  text.each(function() {
-    var text = d3.select(this),
-        words = text.text().split(/\s+/).reverse(),
-        word,
-        line = [],
-        lineNumber = 0,
-        lineHeight = 0.5, // ems
-        x = 6, // was 0 in original code, using 6 and -2 for two line wraps in chart of bio
-        y = text.attr("y"),
-        dy = parseFloat(text.attr("dy")),
-        tspan = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
-    while (word = words.pop()) {
-      line.push(word);
-      tspan.text(line.join(" "));
-      if (tspan.node().getComputedTextLength() > width) {
-        line.pop();
-        tspan.text(line.join(" "));
-        line = [word];
-        tspan = text.append("tspan").attr("x", -2).attr("y", y).attr("dy", +lineNumber * lineHeight + dy + "em").text(word);
-      }
-    }
-  });
-}
-
 
 var topDots = middleGroup.selectAll("div")
     .data(timeArray)
@@ -1514,6 +1516,21 @@ function applyMouseBandFromLine(config, someGuy) {
     config.mouseEnd = Math.max(config.lineStart, config.lineEnd) + MOUSE_BAND_BUFFER;
 }
 
+function getTooltipSpan(config, someGuy) {
+    var markerDates = collectOnLineMarkerDates(config, someGuy);
+    if (markerDates.length > 0) {
+        return {
+            start: Math.min.apply(null, markerDates),
+            end: Math.max.apply(null, markerDates)
+        };
+    }
+
+    return {
+        start: Math.min(config.lineStart, config.lineEnd),
+        end: Math.max(config.lineStart, config.lineEnd)
+    };
+}
+
 function applyCenteredLabelX(config, someGuy) {
     if (config.drawLine !== false) {
         config.textX = (config.lineStart + config.lineEnd) / 2;
@@ -1665,7 +1682,8 @@ function renderTimelinePerson(key, config, renderOptions) {
     var fillColor = isBackground ? backgroundLineColor : notBlack;
 
     function showTooltip(element) {
-        mouseOverChartPeople(element, key, config.mouseStart, config.mouseEnd, config.tooltipLabel);
+        var tooltipSpan = getTooltipSpan(config, someGuy);
+        mouseOverChartPeople(element, key, tooltipSpan.start, tooltipSpan.end, config.tooltipLabel);
     }
 
     // life line (skipped for dot-only cases such as 13)
@@ -3848,8 +3866,10 @@ function changeFont(thisFont){
 
 
 
-// Set the resize function
-d3.select(window).on("resize", sizeChange(1.0)); // 11/5/2020 needs a different resize function?
+sizeChange(currentZoom);
+d3.select(window).on("resize", function() {
+    sizeChange(currentZoom);
+});
 
 setProfessionDropDownColors();
 
