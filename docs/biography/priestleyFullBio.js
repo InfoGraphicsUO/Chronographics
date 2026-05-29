@@ -38,6 +38,7 @@ var flyToEnabled = true;
 var flyToDurationMs = 1500;
 var flyToMinZoom = 4; // 1 = 100% zoom, 2 = 200% zoom, etc.
 var isZoomSliderSyncing = false;
+var bioChartInteractionEnabled = false;
 
 
 var globalFilterString = "";
@@ -310,6 +311,7 @@ function clampPan(scale, viewport) {
 }
 
 function zoomChartTo(nextZoom, anchorX, anchorY) {
+    if (!bioChartInteractionEnabled) return;
     // zoom around an anchor point so the chart stays under the cursor or centered slider
     // old scale is the current view before the zoom step and new scale is the target view
     var viewport = getChartViewport();
@@ -991,6 +993,7 @@ function loadBioData(){
   ageSlider.removeAttribute('disabled');
   aliveSlider.removeAttribute('disabled');
   zoomSlider.removeAttribute('disabled');
+  bioChartInteractionEnabled = true;
 
   // allow pointerevents (e.g. tooltips) on rectangles and data  
   $('.middleGroup').css('pointer-events', 'auto');
@@ -3646,6 +3649,7 @@ function resultClicked(){
 
 
 function fullExtentBio(){
+    if (!bioChartInteractionEnabled) return;
     // reset the chart back to its full view and zero pan so the user starts centered
     currentZoom = 1.0;
     currentDragX =  0.0;
@@ -3662,6 +3666,7 @@ function fullExtentBio(){
 }
 
 svg.on("wheel", function(d){
+    if (!bioChartInteractionEnabled) return;
     //console.log("zoom zoom")
     d3.event.preventDefault(); // prevent default page scroll
 
@@ -3787,6 +3792,7 @@ svg.call(d3.drag() // call specific function when circle is dragged
 
 
 function dragstarted(d) {
+    if (!bioChartInteractionEnabled) return;
     // console.log("drag start")
 //    console.log(d3.event)
   d3.select(this).style("cursor", "move"); 
@@ -3797,6 +3803,7 @@ function dragstarted(d) {
 }
 
 function dragged() {
+    if (!bioChartInteractionEnabled) return;
     if (currentZoom <= 1.0) {
         // at full zoom out there is no room to pan so dragging should do nothing
         // reset the pan values so tiny pointer movement cannot leave drift behind
