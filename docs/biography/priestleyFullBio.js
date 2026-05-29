@@ -80,7 +80,7 @@ endX = startX + width;
 endY = startY + height;
 endInX = startInX + innerWidth;
 endInY = startInY + innerHeight;    
-categoryX = endInX + (margin.right/3.0);
+categoryX = endInX + padding.right + (margin.right / 9);
 
 var numRows = 164;
 
@@ -528,11 +528,11 @@ var yScale = d3.scalePoint()
 var sectionText = [  
     {label:"", section:0}, //
     {label:"Historians, Antiquaries, & Lawyers", section:1},
-    {label:"Orators and Critics",section:2},
+    {label:"Orators & Critics",section:2},
     {label:"Artists & Poets", section:3},
-    {label:"Mathematicians and Physicians",section:4},
-    {label:"Divines and Metaphysicians",section:5},
-    {label:"Statesmen and Warriors", section:6}
+    {label:"Mathematicians & Physicians",section:4},
+    {label:"Divines & Metaphysicians",section:5},
+    {label:"Statesmen & Warriors", section:6}
 ];
 
 
@@ -770,7 +770,11 @@ var categoryText = categoryRight.selectAll("div")
                 //    console.log(center)
                    return ("rotate(180,0,"+center+")")
                 })
-    .call(wrap, 85)  // hard codded value for max height, need a select each or similar instead of ".call" for this to be calculated based on row height
+    .call(wrap, 100)  // hard codded value for max height, need a select each or similar instead of ".call" for this to be calculated based on row height
+    .each(function() {
+        d3.select(this).classed("label-text-single", d3.select(this).selectAll("tspan").size() === 1);
+    })
+    .call(centerCategoryLabels)
     .on("mouseover", function(d){
         // console.log(d.label)
              mouseOverSectionTitle(d)
@@ -781,6 +785,15 @@ var categoryText = categoryRight.selectAll("div")
 
 
 
+
+/* center each section label horizontally in the right margin (1- or 2-line stacks) */
+function centerCategoryLabels(text) {
+  text.each(function() {
+    var bbox = this.getBBox();
+    if (!bbox.width) return;
+    d3.select(this).attr("x", -(bbox.x + bbox.width / 2));
+  });
+}
 
 /* wrapping long labels */
 function wrap(text, width) {

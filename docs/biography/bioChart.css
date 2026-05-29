@@ -82,12 +82,16 @@
 .label-text{
     position: absolute;
     font-variant: small-caps;
-    font-size: 0.9em;
+    font-size: 1.05em;
     /*transform: rotate(-90deg);*/
     /*text-align: center;*/
     line-height: 75%;
     text-anchor:middle;
 
+}
+
+.label-text.label-text-single {
+    font-size: 1.3em;
 }
 
 .selectedGuy{
