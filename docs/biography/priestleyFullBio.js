@@ -47,6 +47,8 @@ var clickList= [];
 var currentFilterMatchSet = null; // cached set of ids that match the current filter string
 var nameFilterTimeoutId = null;
 var nameFilterDebounceMs = 250; // search name filter delay (in ms)
+var filterListDomBuilt = false; // true once #filterResultsBox has clickable name rows (buildFilterResultsList)
+var filterListBuildHandle = null; // requestAnimationFrame id when sidebar build is scheduled (scheduleFilterResultsListBuild)
 
 
 // ~ = ~ = ~ = ~ = ~ SVG elements ~ = ~ = ~ = ~ = ~ //
@@ -521,6 +523,18 @@ var xScale = d3.scaleTime()
     .range([startInX, endInX])
     .domain([parseDate(minMaxX[0].toString()), 
 	     parseDate(minMaxX[1].toString())]);
+// pixel X per numeric year; parseDate + xScale are slow when called for every dot, line end, and label
+var chartXCache = Object.create(null);
+function chartX(year) {
+    var y = Number(year);
+    if (y in chartXCache) {
+        return chartXCache[y];
+    }
+    var px = xScale(parseDate(String(year)));
+    chartXCache[y] = px;
+    return px;
+}
+
 var yScale = d3.scalePoint()
     .domain(d3.range(0, numRows))  // number of rows 
     .range([startInY, endInY]);
@@ -1019,7 +1033,7 @@ function loadBioData(){
                 }
                 if(boolCases[testCase]){  
 
-                    var someGuy = [] // dictionary for a single guy
+                    var someGuy = {} // dictionary for a single guy
                     
                     // If displayName and Name are null, this is a blank line. Skip it.
                     if(someGuy["DisplayName"] == "" && someGuy["Name"]== "") return false;
@@ -1077,8 +1091,9 @@ function loadBioData(){
 
                     someGuy["case"] = d["case"].trim(); // original case code from the data
                     someGuy["VisualCase"] = d["VisualCase"].trim(); // visual-case label used for display/menu grouping
-                    someGuy["ExpectedVisualCase"] = lookupExpectedVisualCaseFromOriginalCase(someGuy["case"]); // expected visual case given original index case
+                    someGuy["ExpectedVisualCase"] = lookupExpectedVisualCaseFromOriginalCase(someGuy["case"]);
                     someGuy["lineType"] = someGuy["case"]; // keep existing drawing logic on the original case code
+                    someGuy["_caseNumber"] = parseIndexCaseNumber(someGuy); // cached for sortPeople / drawIndexPerson (avoids regex each pass)
                     someGuy["indexText"] = null; // in tab2 (TO DO, create indext when reading in data instead of on the fly)
 
                     // calculate aprox age
@@ -1117,10 +1132,8 @@ function loadBioData(){
                 }        
             });
             
-            sortPeople(allPeople, true); // second argument is a string that will evaluate to things you want to keep in the chart
-            //sortPeople(allPeople, "someGuy.LifeLength < 50 && someGuy.LifeLength != null"); // second argument is a string that will evaluate to things you want to keep in the chart
-            //drawBackgroundLines(); // just draw the grey lines and names
-            // console.log("calling draw lines");
+            precomputeIndexDrawConfigs(); // cache getIndexCaseConfig() on each person before the first draw
+            sortPeople(allPeople, true, { deferFilterList: true }); // draw chart first; name list fills in on next frame
             drawLines(); // draw all the lines and names
 //            drawCase1();
 //            drawCase2()
@@ -1175,36 +1188,33 @@ d3.csv("biography/csv/Alternate_Dictionary.csv") // when live
 // console.log("someGuy[DisplayName]", someGuy["DisplayName"]); // debug (list everyone!)
 
 // second argument is true OR a STRING that will evaluate to things you want to keep in the chart e.g. true or "someGuy.Name.startsWith('S')"
-function filterPeople(thesePeople, peopleFilter) { 
-   var now = new Date();
-   // console.log(now.toUTCString()+" start of filterPeople");
-  /* turn on the loader */
-    // document.getElementById("loader").style.display = "block";
-    
-   var filterList = d3.selectAll('#filterResultsBox') // just get the filter list once, so we don't have to check the whole DOM for divs within it
+// third argument is optional: { skipMatchSetBuild: true } when sortPeople() already filled currentFilterMatchSet (e.g. refreshChartForCurrentFilters)
+function filterPeople(thesePeople, peopleFilter, options) {
+    options = options || {};
+   var filterList = d3.select('#filterResultsBox');
    
-    // console.log(peopleFilter);
-    // if filter is anything but "true" look at them one by one
-    // set all people as hidden, then remove the "hidden" from people that match the filter
     if(peopleFilter != true){ 
 
-        // Compile predicate and populate currentFilterMatchSet if needed
-        try {
-            var predicate = compilePeopleFilterPredicate(peopleFilter);
-            if (predicate) {
-                currentFilterMatchSet = new Set();
-                Object.keys(thesePeople).forEach(function(key) {
-                    var p = thesePeople[key][0];
-                    try {
-                        if (predicate(p)) currentFilterMatchSet.add(key);
-                    } catch (e) { /* ignore individual eval errors */ }
-                });
-            } else {
+        // sortPeople() may have just built the match set; skip a second full scan when options.skipMatchSetBuild is set
+        if (!options.skipMatchSetBuild) {
+            try {
+                var predicate = compilePeopleFilterPredicate(peopleFilter);
+                if (predicate) {
+                    currentFilterMatchSet = new Set();
+                    var filterKeys = Object.keys(thesePeople);
+                    for (var fi = 0; fi < filterKeys.length; fi++) {
+                        var fkey = filterKeys[fi];
+                        var p = thesePeople[fkey][0];
+                        try {
+                            if (predicate(p)) currentFilterMatchSet.add(fkey);
+                        } catch (e) { /* ignore individual eval errors */ }
+                    }
+                } else {
+                    currentFilterMatchSet = null;
+                }
+            } catch (e) {
                 currentFilterMatchSet = null;
             }
-        } catch (e) {
-            // console.log('Failed to compile filter predicate', e);
-            currentFilterMatchSet = null;
         }
 
         people=[]; //clear out the current people list
@@ -1229,9 +1239,19 @@ function filterPeople(thesePeople, peopleFilter) {
                     .filter(function(d) { return d && currentFilterMatchSet.has(d); })
                     .classed("hiddenGuy", false);
             }
+            // one pass over sidebar rows (faster than selectAll("#list-" + id) per person)
+            if (filterListDomBuilt) {
+                filterList.selectAll(".f-list")
+                    .classed("d-none", function() {
+                        var listId = this.id.slice(5); // element id is "list-" + UO_ID key
+                        return !currentFilterMatchSet.has(listId);
+                    })
+                    .classed("d-block", function() {
+                        var listId = this.id.slice(5);
+                        return currentFilterMatchSet.has(listId);
+                    });
+            }
             currentFilterMatchSet.forEach(function(id) {
-                filterList.selectAll("#list-" + id).classed("d-none", false);
-                filterList.selectAll("#list-" + id).classed("d-block", true);
                 people.push(id);
             });
         }
@@ -1253,40 +1273,40 @@ function filterPeople(thesePeople, peopleFilter) {
         document.getElementById("numPeople").innerHTML =  Object.keys(thesePeople).length + " people";
     }
    // document.getElementById("loader").style.display = "none"; 
-   later = new Date();
-   diff = later-now;
-   // console.log(later.toUTCString()+" end of filterPeople")
     setFilterControlsEnabled(true);
 }
 
 
-function sortPeople(thePeople, peopleFilter) { 
-    // console.log("beginning of sort people" + Date())
+// true when peopleFilter is a filter expression string (not the boolean true / empty = show everyone)
+function isPeopleFilterActive(peopleFilter) {
+    return peopleFilter !== true && peopleFilter !== null && peopleFilter !== "";
+}
+
+// third argument is optional: { deferFilterList: true } builds #filterResultsBox after the chart (initial load)
+function sortPeople(thePeople, peopleFilter, options) {
+    options = options || {};
     
    // clear out lists    
    people = [];
    unsure = [];
     visualPeople = [];
     
-    // console.log("filter "+ peopleFilter);  // logs current filter
-
     var peopleFilterPredicate = compilePeopleFilterPredicate(peopleFilter);
     currentFilterMatchSet = peopleFilterPredicate ? new Set() : null;
     
-    // iterate through the dictionary
-    // access the info about a person using: allPeople[key][0].FIELD_NAME
     var useVisualCases = currentLineSystem === "visual";
-    $.each(allPeople, function(key) {
-        //console.log(key, value[0].Name);
-        
+    var keepAllIndexCases = currentLineSystem === "index";
+    var keys = Object.keys(allPeople);
+    for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
         var person = allPeople[key][0];
-        // evaluate filters against the loaded person record ... keep chart lists keyed by id
         someGuy = person;
-        
-        //thePeople.forEach(function(someGuy){
 
-        var testCase = parseInt(allPeople[key][0].lineType.match(/\d+/)[0]) // this person is in the list of cases we are drawing. e.g. "case3" -> 3. Mostly used to speed drawing during development
-        var keepAllIndexCases = currentLineSystem === "index";
+        var testCase = person._caseNumber;
+        if (testCase === undefined || testCase === null) {
+            testCase = parseIndexCaseNumber(person);
+            person._caseNumber = testCase;
+        }
         var matchesFilter = peopleFilterPredicate ? peopleFilterPredicate(person) : true;
 
         // build the set once here so later passes can reveal only the matching ids without rerunning the filter
@@ -1297,18 +1317,13 @@ function sortPeople(thePeople, peopleFilter) {
         if (useVisualCases) {
             people.push(key);
             if (matchesFilter) visualPeople.push(key);
-        } else if (keepAllIndexCases || (boolCases[testCase] && matchesFilter)){ // only do the rest if the person matches the manual boolean and the current filter
-        people.push(key);
-        if (!isIndexCaseDrawable(testCase)) {
-            unsure.push(key);
+        } else if (keepAllIndexCases || (boolCases[testCase] && matchesFilter)) {
+            people.push(key);
+            if (!isIndexCaseDrawable(testCase)) {
+                unsure.push(key);
+            }
         }
-
-
-
-
-
-      } // if people filter      
-	});
+    }
 
     // console.log("All people: ")
     // console.log(Object.keys(allPeople).length) // all people read in
@@ -1346,22 +1361,16 @@ function sortPeople(thePeople, peopleFilter) {
    //                return a.DisplayName - b.DisplayName;
    //          }).join('');
 
-    people = people.sort((a, b) => d3.ascending(allPeople[a][0].Name, allPeople[b][0].Name)) // sort by name in index
-    
-    var filterList = d3.select("#filterResultsBox")
-    var sectionList = d3.select("#selecctionResultsBox")
-    
-    filterList.text("")// remove "loading people" text
-    filterList.selectAll("element")
-     .data(people)
-     .enter().append("div")
-     .text(function(thisGuy) { return allPeople[thisGuy][0].Name; })
-     .attr("id", function(thisGuy) { return "list-"+ thisGuy; })
-//     .sort(d3.ascending)
-//     .sort((a, b) => d3.descending(a.DisplayName, b.DisplayName)) // sort by displayname
-     .attr('class','d-block f-list')
-     .attr('style','direction: ltr')
-     .attr('onClick','resultClicked()');
+    people = people.sort(function(a, b) {
+        return d3.ascending(allPeople[a][0].Name, allPeople[b][0].Name);
+    });
+
+    // initial load: paint lifelines first, then populate the clickable name list
+    if (options.deferFilterList) {
+        scheduleFilterResultsListBuild();
+    } else {
+        buildFilterResultsList();
+    }
 
 
    // // if there is a filter, put names in the results box.
@@ -1384,15 +1393,62 @@ function sortPeople(thePeople, peopleFilter) {
 
 
 
-   now = new Date();
-   // console.log(now.toUTCString()+ " end of sortPeople()") 
     return;
+}
+
+// fill #filterResultsBox with sorted index names (one div per person, id list-UO_ID)
+function buildFilterResultsList() {
+    var filterList = d3.select("#filterResultsBox");
+    if (filterList.empty()) return;
+
+    filterList.text("");
+    filterList.selectAll("div.f-list").remove();
+
+    // DocumentFragment avoids reflow on each append (faster than d3 enter for thousands of rows)
+    var fragment = document.createDocumentFragment();
+    for (var i = 0; i < people.length; i++) {
+        var key = people[i];
+        var row = document.createElement("div");
+        row.className = "d-block f-list";
+        row.id = "list-" + key;
+        row.style.direction = "ltr";
+        row.setAttribute("onclick", "resultClicked()");
+        row.textContent = allPeople[key][0].Name;
+        fragment.appendChild(row);
+    }
+    filterList.node().appendChild(fragment);
+    filterListDomBuilt = true;
+}
+
+// run buildFilterResultsList on the next animation frame so loadBioData can call drawLines() first
+function scheduleFilterResultsListBuild() {
+    if (filterListBuildHandle !== null) {
+        cancelAnimationFrame(filterListBuildHandle);
+    }
+    filterListBuildHandle = requestAnimationFrame(function() {
+        filterListBuildHandle = null;
+        buildFilterResultsList();
+    });
+}
+
+// store getIndexCaseConfig() on each person as _indexDrawConfig (read once at load, reused on every draw/redraw)
+function precomputeIndexDrawConfigs() {
+    var keys = Object.keys(allPeople);
+    for (var i = 0; i < keys.length; i++) {
+        var person = allPeople[keys[i]][0];
+        if (!person._indexDrawConfig) {
+            var config = getIndexCaseConfig(person);
+            if (config) {
+                person._indexDrawConfig = config;
+            }
+        }
+    }
 }
 
 // draw the grey names first these won't be redrawn
 // % % % % % Index chart drawing (config + shared renderer) % % % % %
 // getIndexCaseConfig() describes each index case; renderTimelinePerson() draws lines, dots, and names.
-// Index uses two passes: grey background for everyone on the chart, then foreground for the current filter.
+// drawIndexChartPasses() runs one foreground pass when unfiltered, or background (grey) + foreground when a filter is active.
 
 // optional line colors when showColors is on (development / debugging)
 var INDEX_CASE_HIGHLIGHT_COLORS = {
@@ -1696,9 +1752,9 @@ function renderTimelinePerson(key, config, renderOptions) {
             .datum(key)
             .attr("class", lineClass)
             .attr("id", key)
-            .attr("x1", xScale(parseDate(config.lineStart.toString())))
+            .attr("x1", chartX(config.lineStart))
             .attr("y1", yScale(someGuy.LineNumber))
-            .attr("x2", xScale(parseDate(config.lineEnd.toString())))
+            .attr("x2", chartX(config.lineEnd))
             .attr("y2", yScale(someGuy.LineNumber))
             .attr("stroke", lineColor)
             .attr("stroke-width", lineWidth);
@@ -1712,7 +1768,7 @@ function renderTimelinePerson(key, config, renderOptions) {
                 .attr("id", key)
                 .attr("text-anchor", "middle")
                 .text(function() { return someGuy.DisplayName; })
-                .attr("x", xScale(parseDate(config.textX.toString())))
+                .attr("x", chartX(config.textX))
                 .attr("y", yScale(someGuy.LineNumber) - lineOffset)
                 .style("fill", backgroundLineColor);
         }
@@ -1723,7 +1779,7 @@ function renderTimelinePerson(key, config, renderOptions) {
             .attr("id", key)
             .attr("text-anchor", "middle")
             .text(function() { return someGuy.DisplayName; })
-            .attr("x", xScale(parseDate(config.textX.toString())))
+            .attr("x", chartX(config.textX))
             .attr("y", yScale(someGuy.LineNumber) - lineOffset);
 
         if (isBackground) {
@@ -1748,7 +1804,7 @@ function renderTimelinePerson(key, config, renderOptions) {
             .datum(key)
             .attr("class", circleClass)
             .attr("id", key)
-            .attr("cx", xScale(parseDate(cxDate.toString())))
+            .attr("cx", chartX(cxDate))
             .attr("cy", yScale(someGuy.LineNumber) + (cyOffset || 0))
             .attr("r", dotSize)
             .attr("stroke-width", isBackground ? "0.4px" : lineWidths)
@@ -1790,9 +1846,9 @@ function renderTimelinePerson(key, config, renderOptions) {
             .datum(key)
             .attr("class", "mouse-lines")
             .attr("id", key)
-            .attr("x1", xScale(parseDate(config.mouseStart.toString())))
+            .attr("x1", chartX(config.mouseStart))
             .attr("y1", yScale(someGuy.LineNumber))
-            .attr("x2", xScale(parseDate(config.mouseEnd.toString())))
+            .attr("x2", chartX(config.mouseEnd))
             .attr("y2", yScale(someGuy.LineNumber))
             .attr("stroke", "transparent")
             .attr("stroke-width", "6px")
@@ -1809,14 +1865,22 @@ function renderTimelinePerson(key, config, renderOptions) {
 // draw one person on the index chart (grey background pass or interactive foreground pass)
 function drawIndexPerson(key, layer) {
     var someGuy = allPeople[key][0];
-    var caseNumber = parseIndexCaseNumber(someGuy);
+    // _caseNumber and _indexDrawConfig are set at load (precomputeIndexDrawConfigs / CSV read)
+    var caseNumber = someGuy._caseNumber;
+    if (caseNumber === undefined || caseNumber === null) {
+        caseNumber = parseIndexCaseNumber(someGuy);
+        someGuy._caseNumber = caseNumber;
+    }
     if (!isIndexCaseDrawable(caseNumber)) {
         return;
     }
 
-    var config = getIndexCaseConfig(someGuy);
+    var config = someGuy._indexDrawConfig || getIndexCaseConfig(someGuy);
     if (!config) {
         return;
+    }
+    if (!someGuy._indexDrawConfig) {
+        someGuy._indexDrawConfig = config;
     }
 
     renderTimelinePerson(key, config, {
@@ -2009,16 +2073,23 @@ function drawVisualPeople() {
     });
 }
 
-// draw the all the names these will be redrawn many times
+// index chart draw: one or two SVG passes depending on whether a filter is active
+// no filter = foreground only (full chart, ~half the DOM vs background+foreground)
+// filter active = grey everyone (background), then black for matches (foreground); filterPeople() hides non-matches
+function drawIndexChartPasses(peopleFilter) {
+    if (isPeopleFilterActive(peopleFilter)) {
+        drawBackgroundLines();
+    }
+    drawForegroundIndexPeople();
+}
+
 function drawLines(){
     mouseOut(); // if a tooltip was open, close it
     if (currentLineSystem === "visual") {
         drawVisualPeople();
         return;
     }
-    // index: grey everyone first, then foreground (refreshChartForCurrentFilters runs filterPeople after both)
-    drawBackgroundLines();
-    drawIndexPeople();
+    drawIndexChartPasses(true); // initial / unfiltered draw: single foreground pass
     var now = new Date();
     // console.log(now.toUTCString()+ " end of drawLines()");
     document.addEventListener("DOMContentLoaded", function(event) { 
@@ -3518,15 +3589,13 @@ function buildLineMenu() {
 
 function refreshChartForCurrentFilters() {
     clearTimeline();
-    sortPeople(allPeople, globalFilterString);
+    sortPeople(allPeople, globalFilterString); // also builds currentFilterMatchSet when globalFilterString is a filter
     if (currentLineSystem === "visual") {
         drawVisualPeople();
     } else {
-        // draw foreground before filterPeople so .hiddenGuy is applied to real SVG nodes
-        drawBackgroundLines();
-        drawForegroundIndexPeople();
+        drawIndexChartPasses(globalFilterString);
     }
-    filterPeople(allPeople, globalFilterString);
+    filterPeople(allPeople, globalFilterString, { skipMatchSetBuild: true }); // match set already built in sortPeople()
     restoreSelectedPeople();
     document.body.classList.remove('waiting');
     document.getElementById("loader").style.display = "none";

@@ -16,7 +16,14 @@ backgroundLineColor ="#c2c0bc";  // notBlack (does not blend well, or is too dar
 lineOffset = 0.9; // the distance for each line below the name
 dotSize = 0.3;
 
+// parseDate() is called many times per lifeline; cache Date objects by year string
+var parseDateCache = Object.create(null);
+
 function parseDate(dateString) {
+        var cacheKey = String(dateString);
+        if (cacheKey in parseDateCache) {
+            return parseDateCache[cacheKey];
+        }
 
         // 'dateString' must either conform to the ISO date format YYYY-MM-DD
         // or be a full year without month and day.
@@ -78,10 +85,8 @@ function parseDate(dateString) {
         // Finally create the date
     
         
+        parseDateCache[cacheKey] = date; // store before return so repeat calls for the same year are cheap
         return date;
-    
-    
-
 }
  function toYear(date, bcString) {
         // bcString is the prefix or postfix for BC dates.
