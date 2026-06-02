@@ -3779,14 +3779,21 @@ function setDescriptiveText(UOID) {
         // allPeople[UOID][0].alternateName is the name in the field "alternateName"
         // NOTE: lost the bio text title with this setup, the old sheets
         // console.log(BioName)
+        var biographyText = (biography || "").trim();
+        var sourceText = (source || "").trim();
+
         if (BioName && BioName != "" && allPeople[UOID][0].Name.toUpperCase() !=  BioName.toUpperCase()){
             alternateName = ` or <span style='text-transform:uppercase'>${BioName} </span>`
+        }
+
+        if (biographyText !== "") {
+            var sourceLine = sourceText !== "" ? "<br>—(" + sourceText + ")" : "";
             // set description
-            document.getElementById("descriptive_text").innerHTML = pName + alternateName + linkText + "<br>"+ `${biography}<br>—(${source})`;
-        } else { // no name found at all
+            document.getElementById("descriptive_text").innerHTML = pName + alternateName + linkText + "<br>" + biographyText + sourceLine;
+        } else {
                 // console.log("No descriptive text found")
                 // set description
-                document.getElementById("descriptive_text").innerHTML = pName + linkText + "<br>No descriptive text found. Click another name to view text.";
+                document.getElementById("descriptive_text").innerHTML = pName + alternateName + linkText + "<br>No descriptive text found. Click another name to view text.";
         }
 
        
