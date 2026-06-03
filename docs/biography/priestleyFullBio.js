@@ -1113,6 +1113,8 @@ function loadBioData(){
                     } else {
                         someGuy["Link"] = "unknown"
                     }
+                    someGuy["WikiLabel"] = wikiLabelFromUrl(someGuy["Link"]); // parse wikipedia article title to grab 'modern' name
+                    someGuy["WikiLabelPlain"] = stripDiacritics(someGuy["WikiLabel"] || "").toLowerCase(); // strip accent marks for search queries
 
         //            console.log (someGuy["Name"] + d["On Chart: Line #"] ); // debug
 
@@ -2647,9 +2649,12 @@ function userNameFunction() {
         clearCheckBoxes();
 
         var x = document.getElementById("userInput").value;
+        var xWikiPlain = stripDiacritics(x).toLowerCase();
         filterString = "someGuy.Name.toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())"; // NameInIndex
         filterString += "|| someGuy.DisplayName.toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())"; // NameOnChart
-        filterString += "|| someGuy.BioName.toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())"; // Bio Name (from source)
+        filterString += "|| (someGuy.BioName || '').toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())"; // Bio Name (from source)
+        filterString += "|| (someGuy.WikiLabelPlain || '').includes('"+ escapeQuotes(xWikiPlain) + "')"; // Wikipedia title with diacritics stripped for searching
+        filterString += "|| (someGuy.Biography || '').toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())"; // Biography text
 
         var peopleFilterPredicate = compilePeopleFilterPredicate(filterString);
         currentFilterMatchSet = peopleFilterPredicate ? new Set() : null;
@@ -2674,6 +2679,25 @@ function userNameFunction() {
 
 function escapeQuotes(str) {
     return String(str).replace(/'/g, "\\'").replace(/"/g, '\\"');
+}
+
+function wikiLabelFromUrl(url) {
+    // function to parse wikipedia article titles to grab 'modern' names
+    if (!url || url === "unknown" || url.indexOf("wikipedia.org/wiki/") === -1) return "";
+    var slug = url.split("/wiki/")[1];
+    if (!slug) return "";
+    slug = slug.split("#")[0].split("?")[0];
+    try {
+        slug = decodeURIComponent(slug);
+    } catch (e) { /* keep raw slug */ }
+    return slug.replace(/_/g, " ").trim();
+}
+
+function stripDiacritics(str) {
+    // strips diacritics from people's names for easier searching
+    return String(str)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
 }
 
 function clearTimeline(){ 
@@ -3855,14 +3879,26 @@ function setDescriptiveText(UOID) {
             alternateName = ` or <span style='text-transform:uppercase'>${BioName} </span>`
         }
 
+        var wikiLabel = (allPeople[UOID][0].WikiLabel || "").trim();
+        var modernNameLine = "";
+        if (wikiLabel !== "") {
+            var indexUpper = allPeople[UOID][0].Name.toUpperCase();
+            var bioUpper = (BioName || "").toUpperCase();
+            var wikiUpper = wikiLabel.toUpperCase();
+            if (wikiUpper !== indexUpper && wikiUpper !== bioUpper) {
+                // if 'modern' name on wikipedia is different from the names we have, display it
+                modernNameLine = "<br><em>Also known today as:</em> " + wikiLabel;
+            }
+        }
+
         if (biographyText !== "") {
             var sourceLine = sourceText !== "" ? "<br>—(" + sourceText + ")" : "";
             // set description
-            document.getElementById("descriptive_text").innerHTML = pName + alternateName + linkText + "<br>" + biographyText + sourceLine;
+            document.getElementById("descriptive_text").innerHTML = pName + alternateName + modernNameLine + linkText + "<br>" + biographyText + sourceLine;
         } else {
                 // console.log("No descriptive text found")
                 // set description
-                document.getElementById("descriptive_text").innerHTML = pName + alternateName + linkText + "<br>No descriptive text found. Click another name to view text.";
+                document.getElementById("descriptive_text").innerHTML = pName + alternateName + modernNameLine + linkText + "<br>No descriptive text found. Click another name to view text.";
         }
 
        
