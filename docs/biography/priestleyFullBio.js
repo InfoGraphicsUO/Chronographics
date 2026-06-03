@@ -271,6 +271,17 @@ function getChartViewport() {
     };
 }
 
+function syncChartLoadingOverlaySize() {
+    var overlay = document.getElementById("chartLoadingOverlay");
+    if (!overlay) return;
+    var size = getChartViewport();
+    var scale = size.wide / outerWidth;
+    overlay.style.width = size.wide + "px";
+    overlay.style.height = size.high + "px";
+    overlay.style.setProperty("--load-offset-x", (((startInX + endInX) / 2) * scale) + "px");
+    overlay.style.setProperty("--load-offset-y", (((startInY + endInY) / 2) * scale) + "px");
+}
+
 // ~ ~ ~ Function to scale the main group ~  ~ ~
 function applyChartTransform(scale) {
     // keep every chart layer on the same transform so zoom and pan stay aligned
@@ -355,6 +366,7 @@ function sizeChange(factor, viewport) {
     applyChartTransform(scale);
 
     $("#svg-chart").height(high);
+    syncChartLoadingOverlaySize();
 
 
     // //get label locations
@@ -917,10 +929,10 @@ var enter = middleGroup.selectAll("div")
 
 //var allPeople = []; // don't reset. this is what we draw from, includes all rows with a line number, read in
 var allPeople = {} // make "all people" a dictionary
-var watkinsDict = {} // make a dictionary for the watkins descriptions
-var alternateDict = {} // make a dictionary for the Aikin descriptions
+// var watkinsDict = {} // make a dictionary for the watkins descriptions
+// var alternateDict = {} // make a dictionary for the Aikin descriptions
 
-var noLineNumber = [];  // don't reset or we lose this count, has those without a line number
+// var noLineNumber = [];  // don't reset or we lose this count, has those without a line number
 var people = [];
 var unsure = [];
 var visualPeople = [];
@@ -967,17 +979,12 @@ boolCases=[0,case1,case2,case3,case4, case5, case6, case7, case8, case9, case10,
 
 // console.log("A");
 
-var dataSheet; // for data loaded via d3
+// var dataSheet; // for data loaded via d3
 
 function loadBioData(){
-    //document.getElementById("loader").style.display = "block";
     setLoadingUI();
     
     document.getElementById("filterResultsBox").innerHTML =  ""; 
-    // console.log("loading bio data");
-    //document.getElementById("loader").style.display = "wait"; /* waiting mouse */
-    //document.getElementById("loaderButton").style.display = "none";  /* turn off the button is reset in setLoadingUI function*/
- /* turn on the loader wheel*/
 // //console.log(ds);
 //     ds.fetch({
 //         success : function() {
@@ -1048,8 +1055,8 @@ function loadBioData(){
                     someGuy["BioName"] = d["Bio Name"];
                     someGuy["BioSource"] = d["BioSource"];
                     someGuy["Biography"] = d["Biography"];
-                    someGuy["Alternate_Name"] = d["Alternate_name"];
-                    someGuy["Alternate_ID"] = parseInt(d["Alternate_ID"]);
+                    // someGuy["Alternate_Name"] = d["Alternate_name"];
+                    // someGuy["Alternate_ID"] = parseInt(d["Alternate_ID"]);
                     someGuy["DisplayName"] = d["NameOnChart"];
                     someGuy["Name"] = d["NameInIndex"]; 
                     // If displayName is null, get the name
@@ -1127,7 +1134,7 @@ function loadBioData(){
                     } else { // we don't know where to draw it
                        // console.log("no On Chart: Line #" + d["On Chart: Line #"])
 
-                        noLineNumber.push(someGuy); // record who it was
+                        // noLineNumber.push(someGuy); // record who it was
                         // console.log (someGuy["Name"] + d["On Chart: Line #"] ); // debug
                         return false; // break out, don't try to draw it.
                     };
@@ -1143,7 +1150,7 @@ function loadBioData(){
             document.getElementById("loader").style.display = "none";  /* turn off the loader */
             document.body.classList.remove('waiting');
                 setFilterControlsEnabled(true);
-                logChartReady("loadBioData");
+                // logChartReady("loadBioData");
 
          // },
          // error: function(e) {
@@ -1174,16 +1181,16 @@ function loadBioData(){
 //     });
 
 //Aikin
-d3.csv("biography/csv/Alternate_Dictionary.csv") // when live
-//d3.request("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/biography/csv/Alternate_Dictionary.csv")
-    .mimeType("text/csv")
-    .response(function (xhr) { return d3.csvParse(xhr.responseText); })
-    .get(function(data) {
-          data.forEach(function(d){
-              var id = d["ALTERNATE_ID"];      
-              alternateDict[id] = [d["ALTERNATE_NAME"],d["BIO"],d["SOURCE"],d["Biography source"]];
-          })
-    });
+// d3.csv("biography/csv/Alternate_Dictionary.csv") // when live
+// //d3.request("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/biography/csv/Alternate_Dictionary.csv")
+//     .mimeType("text/csv")
+//     .response(function (xhr) { return d3.csvParse(xhr.responseText); })
+//     .get(function(data) {
+//           data.forEach(function(d){
+//               var id = d["ALTERNATE_ID"];
+//               alternateDict[id] = [d["ALTERNATE_NAME"],d["BIO"],d["SOURCE"],d["Biography source"]];
+//           })
+//     });
            
 
 // console.log("b");
@@ -2117,7 +2124,7 @@ function setFilterControlsEnabled(enabled) {
     filterPanel.classList.toggle("is-disabled", !enabled);
 }
 
-var F_diffChartName="";
+// var F_diffChartName="";
 var F_gender="";
 var F_profession="";
 var F_continent="";
@@ -2347,6 +2354,7 @@ function drawGender(gender){
 }
 
 
+/*
 function unmatchedNames(){
     //don't redraw if this is already the current case
     if (currentCase != "unmatchedNames" || changeCase == true){
@@ -2354,12 +2362,12 @@ function unmatchedNames(){
         changeCase = false;
     }
 
-    if (document.getElementById('name_CB').checked){ 
+    if (document.getElementById('name_CB').checked){
         //document.getElementById("currentFilter").innerHTML = "Names the appear differently on the chart and in the index";
         //clearTimeline();
          //if (globalFilterString != '') globalFilterString += ' && '
-        F_diffChartName = "someGuy.Name != someGuy.DisplayName";       
-    } 
+        F_diffChartName = "someGuy.Name != someGuy.DisplayName";
+    }
      else {
         F_diffChartName = ''
      }
@@ -2375,7 +2383,9 @@ function unmatchedNames(){
             document.getElementById("loader").style.display = "none";
         }, 0);
 }
+*/
 
+/*
 function examplePeople(){
     // set radio button
     $("input[name=display_switch][value='example']").prop('checked', true);
@@ -2391,10 +2401,12 @@ function examplePeople(){
             filterPeople(allPeople, "someGuy.Name == 'Pindar' || someGuy.Name == 'Sophocles' || someGuy.Name == 'Xenophon' || someGuy.Name == 'Plato' || someGuy.Name == 'Terence'");
             document.body.classList.remove('waiting');
             document.getElementById("loader").style.display = "none";
-        }, 0); 
+        }, 0);
     }
 }
+*/
 
+/*
 function examplePeople2(){
     // set radio button
      $("input[name=display_switch][value='example']").prop('checked', true);
@@ -2404,16 +2416,17 @@ function examplePeople2(){
         changeCase = false;
         //document.getElementById("currentFilter").innerHTML = "Example group created by Preistley";
         //clearTimeline();
-        document.getElementById("userInput").value= ""; 
+        document.getElementById("userInput").value= "";
         setLoadingUI();
         setTimeout(function() {
             filterPeople(allPeople, "someGuy.Name == 'Herodotus' || someGuy.Name == 'Agis' || someGuy.Name == 'Thucydides' || someGuy.Name == 'Abul Pharai' || someGuy.Name == 'Alain' || someGuy.Name == 'Epaminondas' || someGuy.Name == 'Euclid' || someGuy.Name == 'Suidas' || someGuy.Name == 'Hesychius'");
             document.body.classList.remove('waiting');
             document.getElementById("loader").style.display = "none";
         }, 0);
-        //drawLines();   
+        //drawLines();
     }
 }
+*/
 
 
 // functions for drawing by case (line style), using the dropdown
@@ -3087,6 +3100,7 @@ if (tooltipCaseKey == "case3"||  tooltipCaseKey == "case13") {
 }
 
 
+/*
 function lookupCase(inputCase) {
   switch (inputCase){
         case "drawAllPeople":
@@ -3107,6 +3121,7 @@ function lookupCase(inputCase) {
             return userFunction();
   }
 }
+*/
 
 
 // for looking up colors to fill polygons. NOTE if changing, also change lookupColorRGBA()
@@ -3143,6 +3158,7 @@ function lookupColorRGBA(inputColor) {
 }
 
 
+/*
 function lookupSectionColor(inputSection) {
 	switch (inputSection){
 		case "Divines and Metaphysicians &cc":
@@ -3153,7 +3169,7 @@ function lookupSectionColor(inputSection) {
 			return lookupColor(yellow);
 		case "Orators and Critics &cc":
 			return lookupColor(pink);
-        case "Historians and Antiquaries Lawyers":    
+        case "Historians and Antiquaries Lawyers":
             lookupColor(green);
         case "Statesmen and Warriors":
 			return lookupColor(yellow);
@@ -3161,6 +3177,7 @@ function lookupSectionColor(inputSection) {
 			return "black";
  }
 }
+*/
 
 
 function setProfessionDropDownColors(){
@@ -3182,6 +3199,7 @@ function compilePeopleFilterPredicate(peopleFilter) {
     }
 }
 
+/*
 function getForegroundPeople(keys) {
     // use the cached match set to keep only the people that survived the current filter
     if (!currentFilterMatchSet) return keys;
@@ -3189,6 +3207,7 @@ function getForegroundPeople(keys) {
         return currentFilterMatchSet.has(key);
     });
 }
+*/
 
 // console.log("middle of JS")
 
@@ -3227,10 +3246,12 @@ function restoreSelectedPeople() {
     });
 }
 
+/*
 function logChartReady(sourceLabel) {
     var now = new Date();
     // console.log(now.toUTCString() + " chart ready: " + sourceLabel);
 }
+*/
 
 
 // person clicked in chart
@@ -3624,7 +3645,7 @@ function refreshChartForCurrentFilters() {
     document.body.classList.remove('waiting');
     document.getElementById("loader").style.display = "none";
     setFilterControlsEnabled(true);
-    logChartReady("refreshChartForCurrentFilters");
+    // logChartReady("refreshChartForCurrentFilters");
 }
 
 function setLineSystem(mode, redrawChart) {
@@ -3795,16 +3816,18 @@ svg.on("wheel", function(d){
 
 });
 
-const delta = 0.5;
+// const delta = 0.5;
 let dragStartX;
 let dragStartY;
 let dragStartPanX;
 let dragStartPanY;
 
 
+/*
  function redraw() {
      return svg.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")");
  }
+*/
 
 // SET descriptive text in the element
 function setDescriptiveText(UOID) {
@@ -3958,11 +3981,12 @@ function dragended(d) {
 
 
 
+/*
 function changeFont(thisFont){
     // console.log(thisFont)
     const collection = document.getElementsByClassName("timeline-text");
 //    const collection2 = document.getElementsByClassName("timeline-text-background");
-    
+
     for (let i = 0; i < collection.length; i++) {
             collection[i].style.fontFamily = thisFont;
 //            collection2[i].style.fontFamily = thisFont;
@@ -3986,11 +4010,12 @@ function changeFont(thisFont){
                 collection[i].style.letterSpacing= "0px";
 //                collection2[i].style.letterSpacing= "0px";
             }
-            
-            
+
+
     }
-        
+
 }
+*/
 
 
 

@@ -572,8 +572,12 @@
 
             <div id="timeline" class="frame ratio-container-content"
               style="width:100%; margin:0; float:left;  font-size: 0.5em; ">
-              <div id="loaderButton"><button class="btn"><a onclick="loadBioData();">&nbsp;Click to load data&nbsp;</a></button></div>
-              <div id="loader" class="loader"></div>
+              <div id="chartLoadingOverlay">
+                <div class="chart-loading-center">
+                  <div id="loaderButton"><button class="btn"><a onclick="loadBioData();">&nbsp;Click to load data&nbsp;</a></button></div>
+                  <div id="loader" class="loader"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
