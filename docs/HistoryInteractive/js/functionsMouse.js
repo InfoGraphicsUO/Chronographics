@@ -443,7 +443,7 @@ function mouseMove(d) {
 	toolTip.transition()
 		.duration(100)    
 		.style("opacity", .9); 
-	toolTip.html("Year: " + mouseYear.toFixed() + "<br/>Era of: "+ findRuler(mouseYear.toFixed()) +"<br/><span style='color:"+placeColors[2]+"'>Area: " + tempPlace +"</span><br/>Region: " + tempRegion +"<br/>Regime: " + tempRegime)  
+	toolTip.html("Year: " + mouseYear.toFixed() + "<br/>Era of: "+ findRuler(mouseYear) +"<br/><span style='color:"+placeColors[2]+"'>Area: " + tempPlace +"</span><br/>Region: " + tempRegion +"<br/>Regime: " + tempRegime)  
 		.style("left", (d3.event.pageX) + "px")   
 		.style("top", (d3.event.pageY - 28) + "px");
     

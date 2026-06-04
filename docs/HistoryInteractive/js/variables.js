@@ -135,14 +135,15 @@ if (page != "twoCharts.html"){
     // grabs the ruler and year from the csv. handled similar to the regions.
 
 
-//    d3.csv("./csv/rulers.csv", function(error, result) {
-    // use full text location for preventing CORS error
- d3.csv("https://pages.uoregon.edu/infographics/timeline/pages/csv/rulers.csv", function(error, result) {
-        for (var i = 0; i < result.length; i++)
-        {
-            rulerTicks.push(parseInt(result[i].startYear));
+    d3.csv("../csv/rulers.csv", function(error, result) {
+        if (error || !result) {
+            console.warn("rulers.csv failed to load:", error);
+            return;
+        }
+        for (var i = 0; i < result.length; i++) {
+            rulerTicks.push(parseFloat(result[i].startYear));
             rulerTickLabels.push(result[i].ruler);
         }
-    })
+    });
     
 }

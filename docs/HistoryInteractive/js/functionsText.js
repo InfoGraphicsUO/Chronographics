@@ -57,10 +57,26 @@ function setDescriptiveText() {
 }
 
 
-function findRuler(year){
-    // find index of year closest number above the value
-    var rulerIndex = rulerTicks.findIndex(d => d >= year) || rulerTicks[rulerTicks.length - 1]  
-    var rulerName = rulerTickLabels[rulerIndex-1]
-    return rulerName || "";  // return name or empty string if undefined
+function findRuler(year) {
+    var y = +year;
+    if (isNaN(y) || !rulerTicks.length) {
+        return "";
+    }
+    for (var i = rulerTicks.length - 1; i >= 0; i--) {
+        if (y >= rulerTicks[i]) {
+            var name = (rulerTickLabels[i] || "").trim();
+            if (name) {
+                return name;
+            }
+            for (var j = i - 1; j >= 0; j--) {
+                name = (rulerTickLabels[j] || "").trim();
+                if (name) {
+                    return name;
+                }
+            }
+            return "";
+        }
+    }
+    return (rulerTickLabels[0] || "").trim();
 }
 
