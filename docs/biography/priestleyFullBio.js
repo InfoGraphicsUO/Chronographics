@@ -2737,43 +2737,67 @@ function clearTimeline(){
 ////        .style("font-size", "2em");
 //}
 
+function applyChartNameVisibility() {
+    if (!drawNames) { // if not drawing names, hide all names
+        peopleGroup.selectAll(".timeline-text,.timeline-text-background")
+            .classed("d-none", true) // d-none is bootstrap class for display: none
+            .classed("hiddenGuy", true);
+        return;
+    }
+
+    // so drawNames is true ... show all names
+    peopleGroup.selectAll(".timeline-text,.timeline-text-background")
+        .classed("d-none", false);
+
+    if (currentFilterMatchSet) {
+        // if there is a filter applied, show names that match the filter
+        peopleGroup.selectAll(".timeline-text-background").classed("hiddenGuy", false); 
+        peopleGroup.selectAll(".timeline-text").classed("hiddenGuy", true);
+        peopleGroup.selectAll(".timeline-text")
+            .filter(function(d) { return d && currentFilterMatchSet.has(d); })
+            .classed("hiddenGuy", false);
+    } else { // no filter so show all names
+        peopleGroup.selectAll(".timeline-text,.timeline-text-background")
+            .classed("hiddenGuy", false);
+    }
+}
 
 function drawNameFunc() {
     // do draw names
-    if(document.getElementById("drawName_CB").checked){
-        drawNames = true;
+    drawNames = document.getElementById("drawName_CB").checked;
+    applyChartNameVisibility();
+    // if(document.getElementById("drawName_CB").checked){
+    //     drawNames = true;
 
-        var idsToShow = currentFilterMatchSet ? Array.from(currentFilterMatchSet) : null;
+    //     var idsToShow = currentFilterMatchSet ? Array.from(currentFilterMatchSet) : null;
 
-        if (!idsToShow) {
-            // show all names when no filters are active
-            peopleGroup.selectAll(".timeline-text,.timeline-text-background")
-                .classed("d-none", false)
-                .classed("hiddenGuy", false);
-        } else {
-            // show only filtered names
-            peopleGroup.selectAll(".timeline-text,.timeline-text-background")
-                .classed("d-none", true)
-                .classed("hiddenGuy", false);
+    //     if (!idsToShow) {
+    //         // show all names when no filters are active
+    //         peopleGroup.selectAll(".timeline-text,.timeline-text-background")
+    //             .classed("d-none", false)
+    //             .classed("hiddenGuy", false);
+    //     } else {
+    //         // show only filtered names
+    //         peopleGroup.selectAll(".timeline-text,.timeline-text-background")
+    //             .classed("d-none", true)
+    //             .classed("hiddenGuy", false);
 
-            idsToShow.forEach(function(id) {
-                peopleGroup.selectAll("#" + id + ".timeline-text,#" + id + ".timeline-text-background")
-                    .classed("d-none", false)
-                    .classed("hiddenGuy", false);
-            });
-        }
+    //         idsToShow.forEach(function(id) {
+    //             peopleGroup.selectAll("#" + id + ".timeline-text,#" + id + ".timeline-text-background")
+    //                 .classed("d-none", false)
+    //                 .classed("hiddenGuy", false);
+    //         });
+    //     }
 
-    // remove names   
-    } else {
-        drawNames = false;
-       // peopleGroup.selectAll(".timeline-text-background,.timeline-text")
-       // .classed("d-none",true);
-        peopleGroup.selectAll(".timeline-text-background,.timeline-text")
-         .classed("d-none",true);
-
-
-
-    }
+    // // remove names   
+    // } else {
+    //     drawNames = false;
+    //    // peopleGroup.selectAll(".timeline-text-background,.timeline-text")
+    //    // .classed("d-none",true);
+    //     peopleGroup.selectAll(".timeline-text-background,.timeline-text")
+    //      .classed("d-none",true)
+    //      .classed("hiddenGuy", true);
+    // }
 }
 
     // console.log(checkBox.checked);
