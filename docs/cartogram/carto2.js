@@ -1,3 +1,5 @@
+// Paths are relative to docs/*.html (e.g. cartogram2.html), not this script file.
+var CARTOGRAM = "cartogram/";
 
 var pymChild = null;  //******this plugin is for making dynamic iframes - unrelated to the mapping
 var width = 1240; // 1240 or $("svg").parent().width() 
@@ -25,9 +27,8 @@ var projection = d3.geo.equirectangular()
 //    .style("background", "#000")
 //    .text("a simple tooltip, ya");
 
-//d3.csv("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/cartogram/csv/dGrid_12_1_2022.csv", function(error, shift1) { 
-d3.csv("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/cartogram/csv/dGrid_diffs_only_12_1_2022.csv", function(error, shift1) { 
-//d3.csv("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/cartogram/csv/dGrid_Apr2.csv", function(error, shift1) { 
+d3.csv(CARTOGRAM + "csv/dGrid_diffs_only_12_1_2022.csv", function(error, shift1) {
+    if (error) { console.error("cartogram grid CSV:", error); return; } 
 
 	var countries = polygon.features.length;
 	var lines = degree.features.length;
@@ -57,8 +58,6 @@ d3.csv("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/cartogram/cs
 			var x2y1 = (Math.floor(l1[j][1]*50/180) + 50)*100 + Math.floor(l1[j][0]*50/180) + 50 + 1;
 			var x2y2 = (Math.floor(l1[j][1]*50/180) + 50 + 1)*100 + Math.floor(l1[j][0]*50/180) + 50 + 1;				
 			
-            console.log(shift[x1y1])
-            
 			xinterp
 				.domain([Math.floor(l1[j][0]*50/180), Math.floor(l1[j][0]*50/180)+1])
 				.range([shift[x1y1].dx,shift[x2y1].dx]);
@@ -395,7 +394,7 @@ d3.csv("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/cartogram/cs
 //var chart_svg = d3.select("chartImage")
 
 // ** INSERT CHART SVG ** //
-d3.text("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/cartogram/img/TimelineRegions.svg", function(error, externalSVGText) {
+d3.text(CARTOGRAM + "img/TimelineRegions.svg", function(error, externalSVGText) {
          if (error) {console.log(error); return;}
 
        document.getElementById('chartImage').innerHTML=externalSVGText;

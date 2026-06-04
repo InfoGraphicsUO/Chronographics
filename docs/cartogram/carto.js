@@ -1,3 +1,5 @@
+// Paths are relative to docs/*.html (e.g. cartogram.html), not this script file.
+var CARTOGRAM = "cartogram/";
 
 var pymChild = null;  //******this plugin is for making dynamic iframes - unrelated to the mapping
 var width = 1240; // 1240 or $("svg").parent().width() 
@@ -25,7 +27,8 @@ var projection = d3.geo.equirectangular()
 //    .style("background", "#000")
 //    .text("a simple tooltip, ya");
 
-d3.csv("https://pages.uoregon.edu/infographics/dev/timeline/pages/cartogram/csv/dGrid_Apr2.csv", function(error, shift1) { 
+d3.csv(CARTOGRAM + "csv/dGrid_Apr2.csv", function(error, shift1) {
+    if (error) { console.error("cartogram grid CSV:", error); return; } 
 
 	var countries = polygon.features.length;
 	var lines = degree.features.length;
@@ -376,8 +379,8 @@ d3.csv("https://pages.uoregon.edu/infographics/dev/timeline/pages/cartogram/csv/
 //var chart_svg = d3.select("chartImage")
 
 // ** INSERT CHART SVG ** //
-d3.text("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/cartogram/img/TimelineRegions.svg", function(error, externalSVGText) {
-         if (error) {console.log(error); return;}
+d3.text(CARTOGRAM + "img/TimelineRegions.svg", function(error, externalSVGText) {
+         if (error) { console.error("cartogram chart SVG:", error); return; }
 
        document.getElementById('chartImage').innerHTML=externalSVGText;
     
