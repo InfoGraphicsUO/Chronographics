@@ -1083,7 +1083,10 @@ function loadBioData(){
                        someGuy["profession"] = d["Index Category 1"].replace(/\.$/, ""); // remove periods  
                     }else if (d["OnChartCategory"] == "Statesmen and Warriors"){
                         someGuy["profession"] = "X"
-                    }                   
+                    } else {
+                        // on chart but Priestley's index assigns no profession letter (not Statesmen)
+                        someGuy["noIndexProfession"] = true;
+                    }
                     
                     
                     //someGuy["lat"] = d["LAT BP"]; // previously LAT problem with |
@@ -2504,6 +2507,9 @@ function drawProfession(professionCode){
 
        
         switch(professionCode){
+              case 'NoIndexProfession':
+                filterString = "someGuy.noIndexProfession === true";
+                break;
               // HP cases  
               case 'HPAll':
                 filterString = "someGuy.profession != null && someGuy.profession.includes('HP')"; 
@@ -3369,6 +3375,8 @@ function lookupProfessionCode(inputProfession) {
     switch (inputProfession){
         case "Any":
             return "Any";
+        case "NoIndexProfession":
+            return "No index profession";
         case "HPAll":
             return "Heathen philosophers (all)";
         case "HP Ion":
