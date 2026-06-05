@@ -977,9 +977,11 @@ var case10 = 0; // unsure2 //0
 // array for testing which cases to draw to speed up development
 boolCases=[0,case1,case2,case3,case4, case5, case6, case7, case8, case9, case10, case11, case12, case13, case14, case15]
 
-// console.log("A");
-
-// var dataSheet; // for data loaded via d3
+// Priestley index uses a few alternate spellings for the same profession code
+function normalizeProfessionCode(code) {
+    if (code === 'HP Epic') return 'HP Ep';
+    return code;
+}
 
 function loadBioData(){
     setLoadingUI();
@@ -1080,7 +1082,7 @@ function loadBioData(){
                     
                     // profession codes
                      if(d["Index Category 1"] != ""){
-                       someGuy["profession"] = d["Index Category 1"].replace(/\.$/, ""); // remove periods  
+                       someGuy["profession"] = normalizeProfessionCode(d["Index Category 1"].replace(/\.$/, "")); // remove periods  
                     }else if (d["OnChartCategory"] == "Statesmen and Warriors"){
                         someGuy["profession"] = "X"
                     } else {
