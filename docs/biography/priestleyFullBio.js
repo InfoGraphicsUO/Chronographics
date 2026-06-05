@@ -1022,7 +1022,7 @@ function loadBioData(){
   $('.middleGroup').css('pointer-events', 'auto');
 
     // git
-    d3.request("biography/csv/Chronographics Biographies(5_7_2026).csv") 
+    d3.request("biography/csv/Chronographics Biographies(6_5_2026).csv") 
     //local dev
     //d3.request("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/biography/csv/PriestleyBioData_Feb2_2023(2_20_2024).csv")
       .mimeType("text/csv")

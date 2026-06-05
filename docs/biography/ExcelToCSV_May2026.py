@@ -9,8 +9,10 @@ import pandas as pd
 
 #filename = 'PriestleyBioData_Feb2_2023(2_20_2024)'
 #filename = 'Chronographics Biographies(9_18_2024)'
-filename = 'Chronographics Biographies(5_7_2026)'
+filename = 'Chronographics Biographies(6_5_2026)'
 
+print("Read in spreadsheet:", filename)
+print("Running script...")
 
 read_file = pd.read_excel('csv/' + filename + '.xlsx', sheet_name="Data for Website (Dynamic)")
 
@@ -70,3 +72,4 @@ csv_make['Index Category 1'] = csv_make['Index Category 1'].str.replace('.', '')
 csv_make.to_csv('csv/' + filename + '.csv', encoding = 'utf-8', index = None, header = True)
 
 print("Complete")
+print(f"Next: Go update line ~1025 in priestlyFullBio.js to new csv file.")
