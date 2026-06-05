@@ -43,18 +43,19 @@ function setDescriptiveText() {
 	//console.log("TEXT!")
 	//if (document.getElementById("descriptive_text")){ // only run if on the section with a text element to fill
 		document.getElementById("descriptive_text").innerHTML = "Click map or chart to view Priestley's place description.";
-	var place = $("#placeSelector").val(); // get value from selector
+	    var place = $("#placeSelector").val(); // get value from selector
 		 if (place in textDict && textDict[place][1]!="") {
+		    // append consistent source for place descriptions
+		    var sourceText = "Joseph Priestley, Description of a New Chart of History";
+		    var sourceLine = "<br>—(" + sourceText + ")";
 
-		    
-			document.getElementById("descriptive_text").innerHTML = "<span style='text-transform:uppercase'>" + textDict[place][0]+ "</span> — " + textDict[place][1];
-             
-	} else {
+		    document.getElementById("descriptive_text").innerHTML = "<span style='text-transform:uppercase'>" + textDict[place][0]+ "</span> — " + textDict[place][1] + sourceLine;
+
+	    } else {
 			console.log(place + " not in textDict")
 		 	document.getElementById("descriptive_text").innerHTML = "No descriptive text found for "+ place;
 		}
-
-}
+	}
 
 
 function findRuler(year) {
