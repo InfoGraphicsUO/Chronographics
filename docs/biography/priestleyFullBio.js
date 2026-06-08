@@ -129,13 +129,13 @@ mergeTooltips(ageSlider, 15, ' - ');
 // *** ALIVE DUIING SLDIER ***
 var aliveSlider = document.getElementById('aliveSlider');
 noUiSlider.create(aliveSlider, {
-  start: [-1800,1800],
+  start: [-1200,1800],
   tooltips: [true, true],
   connect: true,
   // tooltips: [true],
   step: 1,
   range: {
-    'min': -1800,
+    'min': -1200,
     'max': 1800
   },
   format: { //integer values only
@@ -2290,11 +2290,11 @@ function drawAliveDuring(minYear, maxYear){
     //var minYear = document.getElementById("userMinInput").value;
     //var maxYear = document.getElementById("userMaxInput").value;
 
-    if (minYear == -1800 && maxYear == 1800){
+    if (minYear == -1200 && maxYear == 1800){
         // clear slider
         currentCase = "";
         F_alive = "";
-    } else if (minYear > -1800 || maxYear < 1800) {
+    } else if (minYear > -1200 || maxYear < 1800) {
             //console.log("alive_CB clicked")
             // set radio button
             // document.getElementById("age_CB").checked = true;
@@ -3727,7 +3727,7 @@ function clearCheckBoxes(){
     
     document.getElementById("ageAprox_CB").checked = false;
     aliveSlider.noUiSlider.set([0, 0]);
-    aliveSlider.noUiSlider.set([-1800, 1800]);
+    aliveSlider.noUiSlider.set([-1200, 1800]);
 
     continent_CB = "";
     document.getElementById('continent_label').innerHTML = "Any  ";
