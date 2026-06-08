@@ -49,6 +49,21 @@ var nameFilterTimeoutId = null;
 var nameFilterDebounceMs = 250; // search name filter delay (in ms)
 var filterListDomBuilt = false; // true once #filterResultsBox has clickable name rows (buildFilterResultsList)
 var filterListBuildHandle = null; // requestAnimationFrame id when sidebar build is scheduled (scheduleFilterResultsListBuild)
+var personKeys = []; // stable cache of all allPeople ids; avoids repeated Object.keys(allPeople)
+var filterListRowsById = {}; // id -> sidebar row node, rebuilt when the list is rebuilt
+// Keep the active filters as values, not strings that are evaluated.
+// buildFilterPredicate() turns this into a function each time filters are applied.
+var filterState = {
+    gender: null,
+    profession: null,
+    lineStyle: null,
+    age: null,
+    alive: null,
+    continent: null,
+    region: null,
+    varyingLineStyle: false,
+    text: ""
+};
 
 
 // ~ = ~ = ~ = ~ = ~ SVG elements ~ = ~ = ~ = ~ = ~ //
@@ -983,6 +998,246 @@ function normalizeProfessionCode(code) {
     return code;
 }
 
+// filter comparisons are case/diacritic insensitive where possible
+function normalizeFilterText(value) {
+    return stripDiacritics(value || "").toLowerCase();
+}
+
+// blank, missing, and sheet placeholder values treated the same in filters
+function normalizeNullableValue(value) {
+    if (value === null || value === undefined) return "";
+    var text = String(value).trim();
+    return text === "0" ? "" : text;
+}
+
+// mapping workflow to get a continent from our region information for the continent filter
+function deriveContinentFromRegion(region) {
+    var normalizedRegion = normalizeNullableValue(region);
+    if (normalizedRegion === "") return "";
+
+    var regionToContinent = {
+        "Africa": "Africa",
+        "Arabia": "Asia",
+        "China": "Asia",
+        "Crim Tartary": "Asia",
+        "France": "Europe",
+        "Germany": "Europe",
+        "Great Britain": "Europe",
+        "India": "Asia",
+        "Italy": "Europe",
+        "Northern Crowns": "Europe",
+        "Persia": "Asia",
+        "Poland": "Europe",
+        "Portugal": "Europe",
+        "Prussia": "Europe",
+        "Rome": "Europe",
+        "Russia": "Europe",
+        "Sicily": "Europe",
+        "Spain": "Europe",
+        "Switzerland": "Europe",
+        "Turky in Asia": "Asia",
+        "Turky in Europe": "Europe",
+        "Western Tartary": "Asia"
+    };
+
+    return regionToContinent[normalizedRegion] || "";
+}
+
+function isUnknownFilterValue(value) {
+    var text = normalizeNullableValue(value);
+    return text === "" || text.toLowerCase() === "unknown";
+}
+
+function isFilterStateActive() {
+    return !!(
+        filterState.gender ||
+        filterState.profession ||
+        filterState.lineStyle ||
+        filterState.age ||
+        filterState.alive ||
+        filterState.continent ||
+        filterState.region ||
+        filterState.varyingLineStyle ||
+        filterState.text
+    );
+}
+
+function resetTypedFilterState() {
+    filterState.gender = null;
+    filterState.profession = null;
+    filterState.lineStyle = null;
+    filterState.age = null;
+    filterState.alive = null;
+    filterState.continent = null;
+    filterState.region = null;
+    filterState.varyingLineStyle = false;
+    filterState.text = "";
+}
+
+// caching strings and numbers used by filters so each dropdown does less work
+function cachePersonFilterFields(person) {
+    person._filterNameText = normalizeFilterText(person.Name);
+    person._filterDisplayNameText = normalizeFilterText(person.DisplayName);
+    person._filterBioNameText = normalizeFilterText(person.BioName);
+    person._filterWikiText = normalizeFilterText(person.WikiLabel);
+    person._filterBiographyText = normalizeFilterText(person.Biography);
+    person._filterSearchText = [
+        person._filterNameText,
+        person._filterDisplayNameText,
+        person._filterBioNameText,
+        person._filterWikiText,
+        person._filterBiographyText
+    ].join(" ");
+
+    person._filterProfession = normalizeNullableValue(person.profession);
+    person._filterContinent = normalizeNullableValue(person.Continent);
+    person._filterContinentText = normalizeFilterText(person._filterContinent);
+    person._filterContinentUnknown = isUnknownFilterValue(person.Continent);
+    person._filterRegion = normalizeNullableValue(person.Region);
+    person._filterRegionText = normalizeFilterText(person._filterRegion);
+    person._filterRegionUnknown = isUnknownFilterValue(person.Region);
+    person._filterGender = normalizeFilterText(person.gender);
+    person._filterBirth = getChartValue(person.AproxBirthDate, getChartValue(person.BirthDate, NaN));
+    person._filterDeath = getChartValue(person.AproxDeathDate, getChartValue(person.DeathDate, NaN));
+    person._filterLifeLength = getChartValue(person.LifeLength, NaN);
+    person._filterApproxAge = getChartValue(person.AproxAge, NaN);
+}
+
+function matchesProfessionFilter(person, professionCode) {
+    var profession = person._filterProfession;
+    switch (professionCode) {
+        case "NoIndexProfession":
+            return person.noIndexProfession === true;
+        case "HPAll":
+            return profession.indexOf("HP") !== -1;
+        case "HAL":
+            return ["Ant", "Ch", "Geo", "H", "L", "Trav"].indexOf(profession) !== -1;
+        case "OC":
+            return ["Bel", "Cr", "Or"].indexOf(profession) !== -1;
+        case "AP":
+            return ["Act", "Ar", "Eng", "Engineer", "Mu", "P", "Pa", "Pr", "St"].indexOf(profession) !== -1;
+        case "MP":
+            return ["Chy", "M", "Ph"].indexOf(profession) !== -1;
+        case "DM":
+            return ["D", "F", "HP Sto", "J", "Met", "Moh", "Mor", "Po", "Pol", "HP", "HP Ac", "HP Cyn", "HP Cyr", "HP Eleack", "HP Eleat", "HP Ep", "HP Ion", "HP Ital", "HP Meg", "HP Per", "HP Scept", "HP Soc"].indexOf(profession) !== -1;
+        case "Bel":
+            return ["Bel", "Bell"].indexOf(profession) !== -1;
+        default:
+            return profession === professionCode;
+    }
+}
+
+// Index and engraved chart line menus use different case codes
+function matchesLineStyleFilter(person, lineStyle) {
+    if (currentLineSystem === "visual") {
+        return person.VisualCase === lineStyle;
+    }
+    if (lineStyle === 1 || lineStyle === "1") {
+        return person.lineType === "case1" || person.lineType === "case6";
+    }
+    if (lineStyle === 5 || lineStyle === "5") {
+        return person.lineType === "case5" || person.lineType === "case11";
+    }
+    if (lineStyle === 7 || lineStyle === "7") {
+        return person.lineType === "case7" || person.lineType === "case14";
+    }
+    return person.lineType === "case" + lineStyle;
+}
+
+function matchesAgeFilter(person, ageFilter) {
+    var minAge = ageFilter.min;
+    var maxAge = ageFilter.max;
+    var isCertainLifeSpan = person.lineType === "case1" || person.lineType === "case6";
+    var exactMatch = isCertainLifeSpan && person._filterLifeLength >= minAge && person._filterLifeLength <= maxAge;
+    if (ageFilter.exactOnly) {
+        return exactMatch;
+    }
+    return exactMatch || (person._filterApproxAge >= minAge && person._filterApproxAge <= maxAge);
+}
+
+// "Alive during" means the person's lifespan overlaps the selected range
+function matchesAliveFilter(person, aliveFilter) {
+    var birth = person._filterBirth;
+    var death = person._filterDeath;
+    if (isNaN(birth) || isNaN(death)) return false;
+    return birth <= aliveFilter.max && death >= aliveFilter.min;
+}
+
+function matchesContinentFilter(person, continent) {
+    if (continent === "Unknown") {
+        return person._filterContinentUnknown;
+    }
+    // America will return zero with current data, but keep the menu option for future rows if desired
+    if (continent === "America") {
+        return person._filterContinentText.indexOf("america") !== -1;
+    }
+    if (continent === "Asia") {
+        return person._filterContinentText.indexOf("asia") !== -1 || person._filterContinentText.indexOf("eurasia") !== -1;
+    }
+    return person._filterContinentText.indexOf(normalizeFilterText(continent)) !== -1;
+}
+
+function matchesRegionFilter(person, region) {
+    if (region === "Unknown") {
+        return person._filterRegionUnknown;
+    }
+    return person._filterRegionText.indexOf(normalizeFilterText(region)) !== -1;
+}
+
+//  one predicate built  from all active filter controls
+function buildFilterPredicate(state) {
+    if (!isFilterStateActive()) return null;
+    return function(person) {
+        if (state.gender) {
+            if (state.gender === "male" || state.gender === "female") {
+                if (person._filterGender !== state.gender) return false;
+            } else if (person._filterGender === "male" || person._filterGender === "female") {
+                return false;
+            }
+        }
+        if (state.profession && !matchesProfessionFilter(person, state.profession)) return false;
+        if (state.lineStyle && !matchesLineStyleFilter(person, state.lineStyle)) return false;
+        if (state.varyingLineStyle && !(person.VisualCase !== "" && person.ExpectedVisualCase !== "" && person.VisualCase !== person.ExpectedVisualCase)) return false;
+        if (state.age && !matchesAgeFilter(person, state.age)) return false;
+        if (state.alive && !matchesAliveFilter(person, state.alive)) return false;
+        if (state.continent && !matchesContinentFilter(person, state.continent)) return false;
+        if (state.region && !matchesRegionFilter(person, state.region)) return false;
+        if (state.text && person._filterSearchText.indexOf(state.text) === -1) return false;
+        return true;
+    };
+}
+
+function buildCurrentFilterMatchSet() {
+    var predicate = buildFilterPredicate(filterState);
+    currentFilterMatchSet = predicate ? new Set() : null;
+    if (!predicate) return null;
+
+    for (var i = 0; i < personKeys.length; i++) {
+        var key = personKeys[i];
+        if (predicate(allPeople[key][0])) {
+            currentFilterMatchSet.add(key);
+        }
+    }
+    return currentFilterMatchSet;
+}
+
+// the sidebar list is built once so filters only toggle cached rows
+function setFilterListRowVisible(id, visible) {
+    var row = filterListRowsById[id];
+    if (!row) return;
+    row.classList.toggle("d-none", !visible);
+    row.classList.toggle("d-block", visible);
+    row.classList.toggle("hiddenGuy", !visible);
+}
+
+function setAllFilterListRowsVisible(visible) {
+    for (var id in filterListRowsById) {
+        if (Object.prototype.hasOwnProperty.call(filterListRowsById, id)) {
+            setFilterListRowVisible(id, visible);
+        }
+    }
+}
+
 function loadBioData(){
     setLoadingUI();
     
@@ -1043,16 +1298,11 @@ function loadBioData(){
                 if(boolCases[testCase]){  
 
                     var someGuy = {} // dictionary for a single guy
-                    
-                    // If displayName and Name are null, this is a blank line. Skip it.
-                    if(someGuy["DisplayName"] == "" && someGuy["Name"]== "") return false;
-                    
-                    // If Discrepancy is 1800, this person is only in the 1800 list, skip it.
-                    if(someGuy["discrepancy"] == "1800") return false;
                 
                     // store ID a couple ways
                     someGuy["UO_ID"] = "ID" + parseInt(d["UO_ID"]);
                     var thisID = someGuy["UO_ID"]
+                    someGuy["discrepancy"] = d["Discrepancy"] || d["discrepancy"] || "";
                     // someGuy["Watkins_ID"] = parseInt(d["Watkins_ID"]);
                     someGuy["BioName"] = d["Bio Name"];
                     someGuy["BioSource"] = d["BioSource"];
@@ -1064,6 +1314,12 @@ function loadBioData(){
                     // If displayName is null, get the name
                     if(someGuy["DisplayName"] == "") someGuy["DisplayName"]  = someGuy["Name"];     
 
+                    // If DisplayName and Name are blank, this is a blank line. Skip it.
+                    if(someGuy["DisplayName"] == "" && someGuy["Name"]== "") return false;
+                    
+                    // If Discrepancy is 1800, this person is only in the 1800 list, skip it.
+                    if(someGuy["discrepancy"] == "1800") return false;
+
                     someGuy["DeathPrecision"] = d["DeathPrecision"];
                     someGuy["BornPrecision"] = d["BornPrecision"]; 
                     someGuy["BirthDate"] = parseInt(d["BirthDate"]);
@@ -1072,7 +1328,6 @@ function loadBioData(){
                     someGuy["LifeLength"] = parseInt(d["LifeLength"]); 
                     someGuy["AlivePrecision"] = d["Alive precision"];
                     someGuy["AliveDate"] = parseInt(d["AliveDate"]);
-                    someGuy["Continent"] = d["continent"] // previously continentName
                     someGuy["OnChartCategory"] = d["OnChartCategory"]; // add the full text for profession
                     someGuy["DeathDate"] = parseInt(d["DeathDate"]);
                     someGuy["AproxDeathDate"] = parseInt(d["aproxDeathDate"]);
@@ -1093,13 +1348,12 @@ function loadBioData(){
                     
                     //someGuy["lat"] = d["LAT BP"]; // previously LAT problem with |
                     //someGuy["lon"] = d["LON BP"]; //previously LON
-                    if(d["continent"] != "0"){
-                        someGuy["Continent"] = d["continent"] // previously continentName
-                    }
-                    if(d["country"] != "0"){
+                    someGuy["Region"] = d["Region_final"]//new
+                    // If a future CSV adds continent back, use it; otherwise derive it from Region_final
+                    someGuy["Continent"] = normalizeNullableValue(d["continent"]) || deriveContinentFromRegion(someGuy["Region"]); // current CSV derives continent from Region_final
+                    if(normalizeNullableValue(d["country"]) !== ""){
                         someGuy["Country"] = d["country"] // previously countryName
                     }
-                    someGuy["Region"] = d["Region_final"]//new
 
                     someGuy["case"] = d["case"].trim(); // original case code from the data
                     someGuy["VisualCase"] = d["VisualCase"].trim(); // visual-case label used for display/menu grouping
@@ -1127,6 +1381,8 @@ function loadBioData(){
                     }
                     someGuy["WikiLabel"] = wikiLabelFromUrl(someGuy["Link"]); // parse wikipedia article title to grab 'modern' name
                     someGuy["WikiLabelPlain"] = stripDiacritics(someGuy["WikiLabel"] || "").toLowerCase(); // strip accent marks for search queries
+                    // Filter fields are cached once when the CSV is read instead of being rebuilt on each dropdown click
+                    cachePersonFilterFields(someGuy);
 
         //            console.log (someGuy["Name"] + d["On Chart: Line #"] ); // debug
 
@@ -1146,6 +1402,7 @@ function loadBioData(){
                 }        
             });
             
+            personKeys = Object.keys(allPeople); // cache keys once after all drawable people are loaded
             precomputeIndexDrawConfigs(); // cache getIndexCaseConfig() on each person before the first draw
             sortPeople(allPeople, true, { deferFilterList: true }); // draw chart first; name list fills in on next frame
             drawLines(); // draw all the lines and names
@@ -1201,34 +1458,18 @@ function loadBioData(){
 // console.log("b");
 // console.log("someGuy[DisplayName]", someGuy["DisplayName"]); // debug (list everyone!)
 
-// second argument is true OR a STRING that will evaluate to things you want to keep in the chart e.g. true or "someGuy.Name.startsWith('S')"
+// second argument is kept for old callers, but filterState now decides what to keep in the chart
 // third argument is optional: { skipMatchSetBuild: true } when sortPeople() already filled currentFilterMatchSet (e.g. refreshChartForCurrentFilters)
 function filterPeople(thesePeople, peopleFilter, options) {
     options = options || {};
-   var filterList = d3.select('#filterResultsBox');
+    var activeFilter = isFilterStateActive();
+    var totalPeople = personKeys.length;
    
-    if(peopleFilter != true){ 
+    if(activeFilter){ 
 
         // sortPeople() may have just built the match set; skip a second full scan when options.skipMatchSetBuild is set
         if (!options.skipMatchSetBuild) {
-            try {
-                var predicate = compilePeopleFilterPredicate(peopleFilter);
-                if (predicate) {
-                    currentFilterMatchSet = new Set();
-                    var filterKeys = Object.keys(thesePeople);
-                    for (var fi = 0; fi < filterKeys.length; fi++) {
-                        var fkey = filterKeys[fi];
-                        var p = thesePeople[fkey][0];
-                        try {
-                            if (predicate(p)) currentFilterMatchSet.add(fkey);
-                        } catch (e) { /* ignore individual eval errors */ }
-                    }
-                } else {
-                    currentFilterMatchSet = null;
-                }
-            } catch (e) {
-                currentFilterMatchSet = null;
-            }
+            buildCurrentFilterMatchSet();
         }
 
         people=[]; //clear out the current people list
@@ -1239,8 +1480,7 @@ function filterPeople(thesePeople, peopleFilter, options) {
         // make all people invisible
         peopleGroup.selectAll(".people-lines,.circles,.mouse-lines").classed("hiddenGuy", true);
         if (drawNames) peopleGroup.selectAll(".timeline-text").classed("hiddenGuy", true);
-        filterList.selectAll(".f-list").classed("d-none",true); // add the display-none class to names in the filter list
-        filterList.selectAll(".f-list").classed("d-block",false); // remove the display-block class to names in the filter list
+        setAllFilterListRowsVisible(false);
        // d3.selectAll("#list-" + id).classed("hidden",true); // remove the display-block class from list name
         
         // add back those that match (use datum id — each person has multiple SVG nodes with the same id attribute)
@@ -1253,47 +1493,35 @@ function filterPeople(thesePeople, peopleFilter, options) {
                     .filter(function(d) { return d && currentFilterMatchSet.has(d); })
                     .classed("hiddenGuy", false);
             }
-            // one pass over sidebar rows (faster than selectAll("#list-" + id) per person)
-            if (filterListDomBuilt) {
-                filterList.selectAll(".f-list")
-                    .classed("d-none", function() {
-                        var listId = this.id.slice(5); // element id is "list-" + UO_ID key
-                        return !currentFilterMatchSet.has(listId);
-                    })
-                    .classed("d-block", function() {
-                        var listId = this.id.slice(5);
-                        return currentFilterMatchSet.has(listId);
-                    });
-            }
             currentFilterMatchSet.forEach(function(id) {
                 people.push(id);
+                setFilterListRowVisible(id, true);
             });
         }
 
         // deal with the people filtered
-        document.getElementById("numPeople").innerHTML =  people.length + " of " + Object.keys(thesePeople).length + " people";
+        document.getElementById("numPeople").innerHTML =  people.length + " of " + totalPeople + " people";
         // if (people.length < 10) { console.log(people); } // for debug: print the people that match, only when fewer then 10
     } else {
         // no filter applied
         // Any = no filter
         currentFilterMatchSet = null;
-        filterList.selectAll(".hidden").classed("hiddenGuy",false); // remove the display-none class from listed names
-        filterList.selectAll(".hidden").classed("d-block",true); // add the display-block class to the listed names
-        d3.selectAll(".hidden").classed("hidden",false);  // remove the hidden 
-        peopleGroup.selectAll(".people-lines,.circles").classed("hiddenGuy",false); // remove the display-none class from the chart
+        people = personKeys.slice();
+        setAllFilterListRowsVisible(true);
+        peopleGroup.selectAll(".people-lines,.circles,.mouse-lines").classed("hiddenGuy",false); // remove the display-none class from the chart
         if (drawNames) peopleGroup.selectAll(".timeline-text, .timeline-text-background").classed("hiddenGuy",false); // remove the display-none class for names 
        // if (!drawNames) peopleGroup.selectAll(".timeline-text").classed("d-none",true); // add the display-none class for names 
 
-        document.getElementById("numPeople").innerHTML =  Object.keys(thesePeople).length + " people";
+        document.getElementById("numPeople").innerHTML =  totalPeople + " people";
     }
    // document.getElementById("loader").style.display = "none"; 
     setFilterControlsEnabled(true);
 }
 
 
-// true when peopleFilter is a filter expression string (not the boolean true / empty = show everyone)
+// true when any typed filter control is active
 function isPeopleFilterActive(peopleFilter) {
-    return peopleFilter !== true && peopleFilter !== null && peopleFilter !== "";
+    return isFilterStateActive();
 }
 
 // third argument is optional: { deferFilterList: true } builds #filterResultsBox after the chart (initial load)
@@ -1305,12 +1533,12 @@ function sortPeople(thePeople, peopleFilter, options) {
    unsure = [];
     visualPeople = [];
     
-    var peopleFilterPredicate = compilePeopleFilterPredicate(peopleFilter);
+    var peopleFilterPredicate = buildFilterPredicate(filterState);
     currentFilterMatchSet = peopleFilterPredicate ? new Set() : null;
     
     var useVisualCases = currentLineSystem === "visual";
     var keepAllIndexCases = currentLineSystem === "index";
-    var keys = Object.keys(allPeople);
+    var keys = personKeys.length ? personKeys : Object.keys(allPeople);
     for (var i = 0; i < keys.length; i++) {
         var key = keys[i];
         var person = allPeople[key][0];
@@ -1417,6 +1645,7 @@ function buildFilterResultsList() {
 
     filterList.text("");
     filterList.selectAll("div.f-list").remove();
+    filterListRowsById = {};
 
     // DocumentFragment avoids reflow on each append (faster than d3 enter for thousands of rows)
     var fragment = document.createDocumentFragment();
@@ -1428,6 +1657,7 @@ function buildFilterResultsList() {
         row.style.direction = "ltr";
         row.setAttribute("onclick", "resultClicked()");
         row.textContent = allPeople[key][0].Name;
+        filterListRowsById[key] = row;
         fragment.appendChild(row);
     }
     filterList.node().appendChild(fragment);
@@ -1447,7 +1677,7 @@ function scheduleFilterResultsListBuild() {
 
 // store getIndexCaseConfig() on each person as _indexDrawConfig (read once at load, reused on every draw/redraw)
 function precomputeIndexDrawConfigs() {
-    var keys = Object.keys(allPeople);
+    var keys = personKeys.length ? personKeys : Object.keys(allPeople);
     for (var i = 0; i < keys.length; i++) {
         var person = allPeople[keys[i]][0];
         if (!person._indexDrawConfig) {
@@ -2130,6 +2360,7 @@ function setFilterControlsEnabled(enabled) {
 }
 
 // var F_diffChartName="";
+// F_* variables are left for older UI state / debugging; filterState is the source of truth.
 var F_gender="";
 var F_profession="";
 var F_continent="";
@@ -2139,53 +2370,30 @@ var F_age="";
 var F_alive="";
 
 function buildFullFilterQuery(){
-    globalFilterString = ''; // zero it out and check each switch every time
+    // keep this var for older draw calls,  avoid rebuilding executable filter strings
+    globalFilterString = isFilterStateActive() ? "__typed_filter_state__" : true;
+}
 
+function finishFilterApply() {
+    restoreSelectedPeople();
+    document.body.classList.remove('waiting');
+    document.getElementById("loader").style.display = "none";
+    setFilterControlsEnabled(true);
+}
 
-    // if (document.getElementById("name_CB").checked  == true){
-    //     globalFilterString += F_diffChartName;
-    // }
- 
-   if (F_gender  != ""){
-        if (globalFilterString != '') globalFilterString += ' && '
-        globalFilterString += F_gender;
-    }
-    if (F_profession  != ""){
-        if (globalFilterString != '') globalFilterString += ' && '
-        globalFilterString += F_profession;
-    }
-    if (F_LineStyle  != ""){
-         if (globalFilterString != '') globalFilterString += ' && '
-         globalFilterString += F_LineStyle;
-     }
-    if (F_varyingLineStyle  != ""){
-         if (globalFilterString != '') globalFilterString += ' && '
-         globalFilterString += F_varyingLineStyle;
-     }
-   
-   if (F_age  != ""){
-        if (globalFilterString != '') globalFilterString += ' && '
-        globalFilterString += F_age ;
-    }
-
-    if (F_alive  != ""){
-        if (globalFilterString != '') globalFilterString += ' && '
-        globalFilterString += F_alive ;
-    }
-    
-    if (F_continent!=""){
-        if (globalFilterString != '') globalFilterString += ' && '
-        globalFilterString += F_continent ;
-    }
-    if (F_region!=""){
-        if (globalFilterString != '') globalFilterString += ' && '
-        globalFilterString += F_region;
-    }
-
-    if (globalFilterString  == ''){
-        globalFilterString = true;
-    }
-
+function applyCurrentFilters(options) {
+    options = options || {};
+    buildFullFilterQuery();
+    setLoadingUI();
+    setTimeout(function() {
+        // redraw only when the SVG layer itself changes; most filters just hide/show existing nodes
+        if (options.redraw) {
+            refreshChartForCurrentFilters();
+        } else {
+            filterPeople(allPeople, globalFilterString);
+            finishFilterApply();
+        }
+    }, 0);
 }
 
 
@@ -2199,11 +2407,9 @@ function drawAllPeople(){
 
     // clear all filters and rebuild the chart from the full data set
     clearCheckBoxes();
-    buildFullFilterQuery();
     document.getElementById("userInput").value= "";
-    setLoadingUI();
+    applyCurrentFilters({ redraw: true });
     setTimeout(function() {
-        refreshChartForCurrentFilters();
         d3.selectAll(".f-list").classed("d-none",false); // add the display-none class to names in the filter list
         d3.selectAll(".f-list").classed("d-block",true); // remove the display-block class to names in the filter list
         d3.select("#descriptive_text").html("Click a name to view text."); // clear text description
@@ -2221,16 +2427,15 @@ $("#varyingLineStyle_CB").change(function() {
     // console.log("Varying line style checkbox clicked");
     if (document.getElementById("varyingLineStyle_CB").checked == true) {
         F_varyingLineStyle = "(someGuy.VisualCase != '' && someGuy.ExpectedVisualCase != '' && someGuy.VisualCase != someGuy.ExpectedVisualCase)";
+        filterState.varyingLineStyle = true;
     } else {
         F_varyingLineStyle = "";
+        filterState.varyingLineStyle = false;
     }
 
-    buildFullFilterQuery();
     document.getElementById("userInput").value = "";
-    setLoadingUI();
-    setTimeout(function() {
-        refreshChartForCurrentFilters();
-    }, 0);
+    filterState.text = "";
+    applyCurrentFilters({ redraw: true });
 });
 
 function drawYoungPeople(minAge, maxAge){
@@ -2242,7 +2447,8 @@ function drawYoungPeople(minAge, maxAge){
     if (minAge == 1 && maxAge == 100){
       //full age range, only 'certain' ages
       if (document.getElementById("ageAprox_CB").checked == true){
-        F_age = "(someGuy.lineType == 'case1'|| someGuy.lineType == 'case6')"
+        F_age = "age";
+        filterState.age = { min: 1, max: 100, exactOnly: true };
         currentCase = "drawYoungPeople";
         changeCase = false;
       } else{
@@ -2250,6 +2456,7 @@ function drawYoungPeople(minAge, maxAge){
          // clear slider
           currentCase = "";
           F_age = "";
+          filterState.age = null;
       }
 
        
@@ -2261,24 +2468,19 @@ function drawYoungPeople(minAge, maxAge){
             currentCase = "drawYoungPeople";
             changeCase = false; 
           
-            F_age = " (((someGuy.lineType == 'case1'|| someGuy.lineType == 'case6') && (someGuy.LifeLength > " + minAge + " && someGuy.LifeLength < " + maxAge + '))'
+            F_age = "age";
+            filterState.age = {
+                min: parseInt(minAge),
+                max: parseInt(maxAge),
+                exactOnly: document.getElementById("ageAprox_CB").checked == true
+            };
 
-            if (document.getElementById("ageAprox_CB").checked == false){
-                F_age += "||( someGuy.AproxAge > " + minAge +  " && someGuy.AproxAge < " + maxAge + ')'
-            }
-
-            F_age += ")"
     }
 
     
-    buildFullFilterQuery();
     document.getElementById("userInput").value= "";
-    setLoadingUI();
-    setTimeout(function() {
-        filterPeople(allPeople, globalFilterString);
-        document.body.classList.remove('waiting');
-            document.getElementById("loader").style.display = "none";
-    }, 0);
+    filterState.text = "";
+    applyCurrentFilters({ redraw: false });
 
        
 }
@@ -2294,6 +2496,7 @@ function drawAliveDuring(minYear, maxYear){
         // clear slider
         currentCase = "";
         F_alive = "";
+        filterState.alive = null;
     } else if (minYear > -1200 || maxYear < 1800) {
             //console.log("alive_CB clicked")
             // set radio button
@@ -2302,19 +2505,14 @@ function drawAliveDuring(minYear, maxYear){
             currentCase = "drawAliveDuring";
             changeCase = false; 
           
-            F_alive = " ((someGuy.AproxBirthDate > " + minYear + " && someGuy.AproxBirthDate < " + maxYear + 
-            ") || (someGuy.AproxDeathDate > " + minYear + " && someGuy.AproxDeathDate < " + maxYear + ')) '
+            F_alive = "alive";
+            filterState.alive = { min: parseInt(minYear), max: parseInt(maxYear) };
     }
 
     
-    buildFullFilterQuery();
     document.getElementById("userInput").value= "";
-    setLoadingUI();
-    setTimeout(function() {
-        filterPeople(allPeople, globalFilterString);
-        document.body.classList.remove('waiting');
-            document.getElementById("loader").style.display = "none";
-    }, 0);
+    filterState.text = "";
+    applyCurrentFilters({ redraw: false });
 
        
 }
@@ -2327,6 +2525,7 @@ function drawGender(gender){
 
     if (gender == "Any"){
         F_gender = "";
+        filterState.gender = null;
         currentCase = "";
         currentGender = "";
         changeCase = false;
@@ -2335,27 +2534,13 @@ function drawGender(gender){
         changeCase = false;
         currentGender = gender;
 
-        var filterString;
-        switch(gender.toLowerCase()){
-            case "female":
-            case "male":
-                filterString = "someGuy.gender=='" + gender.toLowerCase() + "'";
-                break;
-            default:
-                filterString = "(someGuy.gender!='male' && someGuy.gender!= 'female')";
-        }
-
-        F_gender = filterString;
+        F_gender = gender;
+        filterState.gender = gender.toLowerCase();
     }
 
-    buildFullFilterQuery();
     // console.log(F_gender)
-    setLoadingUI();
-    setTimeout(function() {
-        filterPeople(allPeople, globalFilterString);
-        document.body.classList.remove('waiting');
-        document.getElementById("loader").style.display = "none";
-    }, 0);
+    filterState.text = "";
+    applyCurrentFilters({ redraw: false });
 }
 
 
@@ -2444,6 +2629,7 @@ function drawCase(num){
 
    if (num == 0 || num == "0"){
         F_LineStyle = "";
+        filterState.lineStyle = null;
         currentCase = "";
         currentGender = "";
         changeCase = false;
@@ -2454,35 +2640,17 @@ function drawCase(num){
         currentCase = "drawCase";
             currentLineStyle = num;
             changeCase = false;
-        if (currentLineSystem === "visual") {
-            filterString = "someGuy.VisualCase =='" + num + "'"
-        } else {
-            filterString = "someGuy.lineType =='case" + num + "'"
-        }
         } 
-        if (currentLineSystem === "visual") {
-            filterString = "someGuy.VisualCase =='" + num + "'"
-        } else if (num == 1){
-            filterString = "someGuy.lineType == 'case1' || someGuy.lineType == 'case6'"; // if drawing case 1, also draw case 6, both are solid line
-        } else if (num == 5){
-            filterString = "someGuy.lineType == 'case5' || someGuy.lineType == 'case11'"; // if drawing case 5, also draw case 11
-        } else if (num == 7){
-            filterString = "someGuy.lineType == 'case7' || someGuy.lineType == 'case14'"; // if drawing case 7, also draw case 14
-        } else {
-            filterString = "someGuy.lineType =='case" + num +"'"
-        }
         //document.getElementById("currentFilter").innerHTML = "Life drawn as " + lookupLineStyle(num);
         //clearTimeline();
-        F_LineStyle = "(" + filterString + ")";
+        F_LineStyle = String(num);
+        filterState.lineStyle = num;
 
     }
     updateLineLabel();
-    buildFullFilterQuery();
     document.getElementById("userInput").value= "";
-    setLoadingUI();
-    setTimeout(function() {
-        refreshChartForCurrentFilters();
-    }, 0);
+    filterState.text = "";
+    applyCurrentFilters({ redraw: true });
        
 }
 // end drawing by case
@@ -2496,6 +2664,7 @@ function drawProfession(professionCode){
    // clear profession
    if (professionCode == "Any"){
         F_profession = "";
+        filterState.profession = null;
         currentCase = "";
         currentProfession = "";
         changeCase = false;
@@ -2508,58 +2677,14 @@ function drawProfession(professionCode){
         currentProfession = professionCode;
 
        
-        switch(professionCode){
-              case 'NoIndexProfession':
-                filterString = "someGuy.noIndexProfession === true";
-                break;
-              // HP cases  
-              case 'HPAll':
-                filterString = "someGuy.profession != null && someGuy.profession.includes('HP')"; 
-                break;
-              // Category cases    
-              case 'HAL':
-                filterString = "['Ant','Ch','Geo','H','L','Trav'].includes(someGuy.profession)";
-                break;
-              case 'OC':
-                filterString = "['Bel','Cr','Or'].includes(someGuy.profession)";
-                break;
-              case 'AP':
-                filterString = "['Act','Ar','Eng','Engineer','Mu','P','Pa','Pr','St'].includes(someGuy.profession)";
-                break;
-              case 'MP':
-                filterString = "['Chy','M','Ph'].includes(someGuy.profession)";
-                break;
-              case 'DM':
-                filterString = "['D','F','HP Sto','J','Met','Moh','Mor','Po','Pol','HP','HP Ac','HP Cyn','HP Cyr','HP Eleack','HP Eleat','HP Ep','HP Ion','HP Ital','HP Meg','HP Per','HP Scept','HP Soc'].includes(someGuy.profession)";
-                break;
-              // Duplicate cases (Just 'bel' at this point. Add 'Eleat' if we list out all HP cases)
-              case 'Bel':
-                filterString = "['Bel','Bell'].includes(someGuy.profession)"; // note 
-                break;
-              default:
-                filterString = "someGuy.profession=='" + professionCode +"'"
-        }
-        
-//        
-//        if (professionCode == 'HPAll'){
-//            filterString = "someGuy.profession != null && someGuy.profession.includes('HP')"; 
-//        } else {
-//            filterString = "someGuy.profession=='" + professionCode +"'"
-//        }        
-
         //clearTimeline();
-        F_profession = filterString;
+        F_profession = professionCode;
+        filterState.profession = professionCode;
     }
 
-        buildFullFilterQuery();
         document.getElementById("userInput").value= "";
-        setLoadingUI();
-        setTimeout(function() {
-            filterPeople(allPeople, globalFilterString);
-            document.body.classList.remove('waiting');
-            document.getElementById("loader").style.display = "none";
-            
-        }, 0);
+        filterState.text = "";
+        applyCurrentFilters({ redraw: false });
     
 }
 
@@ -2570,6 +2695,7 @@ function drawContinent(continent){
     // set radio button
    if (continent == "Any"){
         F_continent = "";
+        filterState.continent = null;
         currentCase = "";
         currentContinent = "";
         changeCase = false;
@@ -2583,30 +2709,14 @@ function drawContinent(continent){
         
         
         currentContinent = continent;
-        if(continent == "Unknown"){
-            filterString = "(someGuy.Continent== null)"; // + continent +"' || someGuy.Continent=='')";
-        } else if(continent == "America"){
-            // test for any one value in the conditions list
-            filterString = "(someGuy.Continent != null && ['Central America', 'North America'].some(el => someGuy.Continent.includes(el)))";
-        }  else if(continent == "Asia"){
-            // test for any one value in the conditions list
-            filterString = "(someGuy.Continent != null && ['Asia', 'Eurasia'].some(el => someGuy.Continent.includes(el)))";
-        }  else {
-            filterString = "(someGuy.Continent != null && someGuy.Continent.includes('" + continent +"'))";
-        }     
-        
         //clearTimeline();
-        F_continent = filterString;
+        F_continent = continent;
+        filterState.continent = continent;
 
     }
-        buildFullFilterQuery();
         document.getElementById("userInput").value= "";
-        setLoadingUI();
-        setTimeout(function() {
-            filterPeople(allPeople, globalFilterString);
-            document.body.classList.remove('waiting');
-            document.getElementById("loader").style.display = "none";
-        }, 0);
+        filterState.text = "";
+        applyCurrentFilters({ redraw: false });
 }
 
 //function for drawing by region
@@ -2616,6 +2726,7 @@ function drawRegion(region){
     // set radio button
    if (region == "Any"){
         F_region = "";
+        filterState.region = null;
         currentCase = "";
         currentRegion = "";
         changeCase = false;
@@ -2634,25 +2745,14 @@ function drawRegion(region){
         
         
         currentRegion = region;
-        if(region == "Unknown"){
-            filterString = "(someGuy.Region== '')"; // + continent +"' || someGuy.Continent=='')";
-            F_region = "";
-        } else {
-            filterString = "(someGuy.Region != '' && someGuy.Region.includes('" + region +"'))";
-        }     
-        
         //clearTimeline();
-        F_region = filterString;
+        F_region = region;
+        filterState.region = region;
 
     }
-        buildFullFilterQuery();
         document.getElementById("userInput").value= "";
-        setLoadingUI();
-        setTimeout(function() {
-            filterPeople(allPeople, globalFilterString);
-            document.body.classList.remove('waiting');
-            document.getElementById("loader").style.display = "none";
-        }, 0);
+        filterState.text = "";
+        applyCurrentFilters({ redraw: false });
 }
 
 // function for drawing by user entered text
@@ -2670,30 +2770,13 @@ function userNameFunction() {
         clearCheckBoxes();
 
         var x = document.getElementById("userInput").value;
-        var xWikiPlain = stripDiacritics(x).toLowerCase();
-        filterString = "someGuy.Name.toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())"; // NameInIndex
-        filterString += "|| someGuy.DisplayName.toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())"; // NameOnChart
-        filterString += "|| (someGuy.BioName || '').toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())"; // Bio Name (from source)
-        filterString += "|| (someGuy.WikiLabelPlain || '').includes('"+ escapeQuotes(xWikiPlain) + "')"; // Wikipedia title with diacritics stripped for searching
-        filterString += "|| (someGuy.Biography || '').toLowerCase().includes('"+ escapeQuotes(x) + "'.toLowerCase())"; // Biography text
-
-        var peopleFilterPredicate = compilePeopleFilterPredicate(filterString);
-        currentFilterMatchSet = peopleFilterPredicate ? new Set() : null;
-
-        if (currentFilterMatchSet) {
-            Object.keys(allPeople).forEach(function(key) {
-                var person = allPeople[key][0];
-                if (peopleFilterPredicate(person)) {
-                    currentFilterMatchSet.add(key);
-                }
-            });
-        }
+        filterState.text = normalizeFilterText(x);
+        buildFullFilterQuery();
 
         // console.log(x);
         setTimeout(function() {
-            filterPeople(allPeople, filterString);
-            document.body.classList.remove('waiting');
-            document.getElementById("loader").style.display = "none";
+            filterPeople(allPeople, globalFilterString);
+            finishFilterApply();
         }, 0);
     }, nameFilterDebounceMs);
 }
@@ -3220,15 +3303,9 @@ function setProfessionDropDownColors(){
 }
 
 function compilePeopleFilterPredicate(peopleFilter) {
-    // compile the filter string once so the person loop can reuse a function instead of repeatedly calling eval
-    if (peopleFilter === true) return null;
-
-    try {
-        return new Function("someGuy", "return (" + peopleFilter + ");");
-    } catch (error) {
-        // console.log("filter compile failed", error);
-        return function() { return true; };
-    }
+    // Legacy compatibility: filters are now built from filterState, not executable strings.
+    if (peopleFilter === true || !isFilterStateActive()) return null;
+    return buildFilterPredicate(filterState);
 }
 
 /*
@@ -3675,10 +3752,7 @@ function refreshChartForCurrentFilters() {
         drawIndexChartPasses(globalFilterString);
     }
     filterPeople(allPeople, globalFilterString, { skipMatchSetBuild: true }); // match set already built in sortPeople()
-    restoreSelectedPeople();
-    document.body.classList.remove('waiting');
-    document.getElementById("loader").style.display = "none";
-    setFilterControlsEnabled(true);
+    finishFilterApply();
     // logChartReady("refreshChartForCurrentFilters");
 }
 
@@ -3693,6 +3767,7 @@ function setLineSystem(mode, redrawChart) {
     currentLineSelection = 0;
     currentLineStyle = "";
     F_LineStyle = "";
+    filterState.lineStyle = null;
     changeCase = true;
     currentCase = "drawCase";
     buildLineMenu();
@@ -3709,6 +3784,7 @@ function setLineSystem(mode, redrawChart) {
 function clearCheckBoxes(){
     //document.getElementById("drawName_CB").checked = true;
     //document.getElementById("name_CB").checked = false;
+    resetTypedFilterState();
     F_gender = "";
     document.getElementById('gender_label').innerHTML = "Any ";
     F_profession = "";
