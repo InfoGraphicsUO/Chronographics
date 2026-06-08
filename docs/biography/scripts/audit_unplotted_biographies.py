@@ -1,11 +1,11 @@
 '''
 This script audits which rows in the spreadsheet are not being drawn on the interactive Chart of Biography
 
-Mirrors loadBioData() inclusion rules in priestleyFullBio.js
+Mirrors loadBioData() inclusion rules in the split priestleyFullBio.js files
 
-Usage (from docs/biography):
+Usage (from docs/biography/scripts):
   python audit_unplotted_biographies.py
-  python audit_unplotted_biographies.py "csv/Chronographics Biographies(6_5_2026).csv"
+  python audit_unplotted_biographies.py "../csv/Chronographics Biographies(6_8_2026).csv"
 
 Requires pandas:
   pip install pandas
@@ -17,10 +17,11 @@ from pathlib import Path
 import pandas as pd
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-DEFAULT_CSV = SCRIPT_DIR / 'csv' / 'Chronographics Biographies(6_5_2026).csv'
-DEFAULT_OUTPUT = SCRIPT_DIR / 'csv' / 'unplotted-biographies-report.csv'
+BIOGRAPHY_DIR = SCRIPT_DIR.parent
+DEFAULT_CSV = BIOGRAPHY_DIR / 'csv' / 'Chronographics Biographies(6_8_2026).csv'
+DEFAULT_OUTPUT = BIOGRAPHY_DIR / 'archive' / 'csv' / 'unplotted-biographies-report.csv'
 
-# Same toggles as priestleyFullBio.js
+# Same toggles as the split priestleyFullBio.js files
 CASE_9 = 0
 CASE_10 = 0
 CASE_12 = 0

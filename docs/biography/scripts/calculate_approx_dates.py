@@ -4,7 +4,7 @@ Calculate approximate birth and death years from the Birth and Death Dates tab
 The script will write a three-column CSV:
     UO_ID, approxBirth, approxDeath
 
-Usage, from docs/biography:
+Usage, from docs/biography/scripts:
     python calculate_approx_dates.py
     python calculate_approx_dates.py "path/to/xlsx/file.xlsx"
     python calculate_approx_dates.py input.xlsx output.csv
@@ -22,8 +22,9 @@ import pandas as pd
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-DEFAULT_INPUT = SCRIPT_DIR / "csv" / "Chronographics Biographies(6_8_2026).xlsx" # change to most recent data download
-DEFAULT_OUTPUT = SCRIPT_DIR / "csv" / "approx_birth_death_dates.csv"
+BIOGRAPHY_DIR = SCRIPT_DIR.parent
+DEFAULT_INPUT = BIOGRAPHY_DIR / "csv" / "Chronographics Biographies(6_8_2026).xlsx" # change to most recent data download
+DEFAULT_OUTPUT = BIOGRAPHY_DIR / "archive" / "csv" / "approx_birth_death_dates.csv"
 SHEET_NAME = "Birth and Death Dates"
 
 # we previously used 45 years as our estimate for life length when Priestly left them unknown

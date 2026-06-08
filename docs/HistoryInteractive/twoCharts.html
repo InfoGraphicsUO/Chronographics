@@ -34,8 +34,8 @@
   <!--  chart of history -->
   <link href="css/historyStyle.css" rel="stylesheet">
   <!-- Biography -->
-  <link rel="stylesheet" href="../pages/biography/bioChart.css" />
-  <link rel="stylesheet" href="../pages/biography/fullBioExtra.css" />
+  <link rel="stylesheet" href="../pages/biography/css/bioChart.css" />
+  <link rel="stylesheet" href="../pages/biography/css/fullBioExtra.css" />
     
 
 
@@ -522,7 +522,7 @@
              </div>
                             
                                                 <!-- filter result -->
-                    <div class="col-md-6 col-sm-4 pr-0" style="direction: rtl max-height:200px;">
+                    <div class="col-md-6 col-sm-4 pr-0" style="direction: rtl; max-height:200px;">
                     <b>Filter result</b>
                     <span id="filterResultsBox" class="old-looking-font test" style="font-size:0.875rem;"><input type="text" id="filterResultPlaceholder" class="col-12 m-0 h-100" disabled></span>
                     <br>
@@ -683,9 +683,21 @@
         <script src="dist/js/sb-admin-2.js"></script>
 
         <!-- Biography Custom JS -->
-<!--        <script src="../pages/biography/src/miso.ds.deps.min.0.4.1.js"></script> old data loading?-->
-        <script src="../pages/biography/defines.js"></script>
-        <script src="../pages/biography/priestleyFullBio.js"></script>
+<!--        <script src="../pages/biography/archive/src/miso.ds.deps.min.0.4.1.js"></script> old data loading?-->
+        <script src="../pages/biography/js/defines.js"></script>
+        <!-- Biography chart scripts are split from the original priestleyFullBio.js. Helper scripts that define shared globals must load before the files that call them at top level. -->
+        <script src="../pages/biography/js/globals.js"></script>
+        <script src="../pages/biography/js/chart-layout.js"></script>
+        <script src="../pages/biography/js/zoom-pan.js"></script>
+        <script src="../pages/biography/js/filter-model.js"></script>
+        <script src="../pages/biography/js/display-selection.js"></script>
+        <script src="../pages/biography/js/lookups-menus.js"></script>
+        <script src="../pages/biography/js/clear-drag-resize.js"></script>
+        <script src="../pages/biography/js/sliders.js"></script>
+        <script src="../pages/biography/js/static-chart.js"></script>
+        <script src="../pages/biography/js/data-load.js"></script>
+        <script src="../pages/biography/js/draw-lines.js"></script>
+        <script src="../pages/biography/js/filter-controls.js"></script>
         <!-- Navbar JavaScript -->
         <script src="../pages/js/navbar.js"></script>
         
