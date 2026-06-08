@@ -9,7 +9,7 @@ import pandas as pd
 
 #filename = 'PriestleyBioData_Feb2_2023(2_20_2024)'
 #filename = 'Chronographics Biographies(9_18_2024)'
-filename = 'Chronographics Biographies(6_5_2026)'
+filename = 'Chronographics Biographies(6_8_2026)'
 
 print("Read in spreadsheet:", filename)
 print("Running script...")
