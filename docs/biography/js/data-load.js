@@ -36,156 +36,400 @@ function loadBioData(){
   // allow pointerevents (e.g. tooltips) on rectangles and data  
   $('.middleGroup').css('pointer-events', 'auto');
 
-    // git
-    d3.request("biography/csv/Chronographics Biographies(6_8_2026).csv") 
-    //local dev
-    //d3.request("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/biography/csv/PriestleyBioData_Feb2_2023(2_20_2024).csv")
-      .mimeType("text/csv")
-      .response(function (xhr) { return d3.csvParse(xhr.responseText); })
-      .get(function(data) {
-          data.forEach(function(d){
-                // check if this case is in the current MANUAL case filter
-                // console.log(d["case"])
-                var testCase="";
-                if (d["case"] != "" && d["case"] != "none") {
-                    testCase = parseInt(d["case"].match(/\d+/)[0]) // get the "case" as an integer
-                } else {
-                     testCase = false;
-                    // while case is missing
-                    // (d["case"]="case1")
-                    // testCase = 1 // 
+
+    // Accessing people from the GSheet
+    d3.request("https://docs.google.com/spreadsheets/d/e/2PACX-1vSL20qPjfq_98YH5qBo17xgiVRUPvCWK-HSQwE_1EA0iMX7r5StdvqEOd-jyWHzIQIwrFN1Jk76m-mS/pub?gid=1049830793&single=true&output=csv")
+    .mimeType("text/csv")
+    .response(function (xhr) { return d3.csvParse(xhr.responseText); })
+    .get(function(data) {
+
+        // ---------- schema validation ----------
+        const ALL_COLUMNS = [
+            // ---- required for identity  ----
+            "UO_ID",
+
+            // ---- line style source aka case ----
+            "VisualCase", // engraved line style
+            "Case", // classification of index data
+
+            // ---- names / display ----
+            "NameInIndex",
+            "NameOnChart",
+
+            // ---- Index entry ----
+            "BirthDate",
+            "approxBirthDate",
+            "DeathDate",
+            "approxDeathDate",
+            "LifeLength",
+            "LifeLength Precision",
+            "AliveDate",
+            "Alive precision",
+            "DeathPrecision",
+            "BornPrecision",
+
+            // ---- classification / chart layout ----
+            "Index Category 1",
+            "OnChartCategory",
+            "Chart Line #",
+
+            // ---- biography ----
+            "Bio Name (from source)",
+            "Source",
+            "Biography",
+
+            // ---- links ----
+            "Link",
+            "Alternate Link", // missing
+
+            // ---- geography ----
+            "Region",
+            "wiki country", // missing
+            "wiki continent", // missing
+
+            // ---- Sex/Gender
+            "Sex-Gender",
+
+            // ---- optional filtering ----
+            // "Discrepancy Category 1" // missing
+        ];
+
+        const REQUIRED_VALUE_FIELDS = [
+            "UO_ID"   // add more if needed
+        ];
+
+        let missingColumnWarnings = {};
+
+        // --- check dataset schema ONCE ---
+        if (data.length > 0) {
+            const detected = Object.keys(data[0]);
+
+            ALL_COLUMNS.forEach(col => {
+                if (!detected.includes(col) && !missingColumnWarnings[col]) {
+                    console.error("Missing column in dataset:", col);
+                    missingColumnWarnings[col] = true;
                 }
-                if(boolCases[testCase]){  
-
-                    var someGuy = {} // dictionary for a single guy
-                
-                    // store ID a couple ways
-                    someGuy["UO_ID"] = "ID" + parseInt(d["UO_ID"]);
-                    var thisID = someGuy["UO_ID"]
-                    someGuy["discrepancy"] = d["Discrepancy"] || d["discrepancy"] || "";
-                    // someGuy["Watkins_ID"] = parseInt(d["Watkins_ID"]);
-                    someGuy["BioName"] = d["Bio Name"];
-                    someGuy["BioSource"] = d["BioSource"];
-                    someGuy["Biography"] = d["Biography"];
-                    // someGuy["Alternate_Name"] = d["Alternate_name"];
-                    // someGuy["Alternate_ID"] = parseInt(d["Alternate_ID"]);
-                    someGuy["DisplayName"] = d["NameOnChart"];
-                    someGuy["Name"] = d["NameInIndex"]; 
-                    // If displayName is null, get the name
-                    if(someGuy["DisplayName"] == "") someGuy["DisplayName"]  = someGuy["Name"];     
-
-                    // If DisplayName and Name are blank, this is a blank line. Skip it.
-                    if(someGuy["DisplayName"] == "" && someGuy["Name"]== "") return false;
-                    
-                    // If Discrepancy is 1800, this person is only in the 1800 list, skip it.
-                    if(someGuy["discrepancy"] == "1800") return false;
-
-                    someGuy["DeathPrecision"] = d["DeathPrecision"];
-                    someGuy["BornPrecision"] = d["BornPrecision"]; 
-                    someGuy["BirthDate"] = parseInt(d["BirthDate"]);
-                    someGuy["AproxBirthDate"] = parseInt(d["aproxBirthDate"]);
-                    someGuy["LifePrecision"] = d["LifeLength Precision"]; 
-                    someGuy["LifeLength"] = parseInt(d["LifeLength"]); 
-                    someGuy["AlivePrecision"] = d["Alive precision"];
-                    someGuy["AliveDate"] = parseInt(d["AliveDate"]);
-                    someGuy["OnChartCategory"] = d["OnChartCategory"]; // add the full text for profession
-                    someGuy["DeathDate"] = parseInt(d["DeathDate"]);
-                    someGuy["AproxDeathDate"] = parseInt(d["aproxDeathDate"]);
-                    if(d["Sex or gender V2"] != "missing from OpenRefine results"){
-                        someGuy["gender"] = d[ "Sex or gender V2"];  // previously gender, "sex or gender"
-                    }
-                    
-                    // profession codes
-                     if(d["Index Category 1"] != ""){
-                       someGuy["profession"] = normalizeProfessionCode(d["Index Category 1"].replace(/\.$/, "")); // remove periods  
-                    }else if (d["OnChartCategory"] == "Statesmen and Warriors"){
-                        someGuy["profession"] = "X"
-                    } else {
-                        // on chart but Priestley's index assigns no profession letter (not Statesmen)
-                        someGuy["noIndexProfession"] = true;
-                    }
-                    
-                    
-                    //someGuy["lat"] = d["LAT BP"]; // previously LAT problem with |
-                    //someGuy["lon"] = d["LON BP"]; //previously LON
-                    someGuy["Region"] = d["Region_final"]//new
-                    // If a future CSV adds continent back, use it; otherwise derive it from Region_final
-                    someGuy["Continent"] = normalizeNullableValue(d["continent"]) || deriveContinentFromRegion(someGuy["Region"]); // current CSV derives continent from Region_final
-                    if(normalizeNullableValue(d["country"]) !== ""){
-                        someGuy["Country"] = d["country"] // previously countryName
-                    }
-
-                    someGuy["case"] = d["case"].trim(); // original case code from the data
-                    someGuy["VisualCase"] = d["VisualCase"].trim(); // visual-case label used for display/menu grouping
-                    someGuy["ExpectedVisualCase"] = lookupExpectedVisualCaseFromOriginalCase(someGuy["case"]);
-                    someGuy["lineType"] = someGuy["case"]; // keep existing drawing logic on the original case code
-                    someGuy["_caseNumber"] = parseIndexCaseNumber(someGuy); // cached for sortPeople / drawIndexPerson (avoids regex each pass)
-                    someGuy["indexText"] = null; // in tab2 (TO DO, create indext when reading in data instead of on the fly)
-
-                    // calculate aprox age
-                    someGuy["AproxAge"]  = someGuy["AproxDeathDate"]- someGuy["AproxBirthDate"];
-
-                    
-                    // someGuy["Link"] = d["WikiLink"] // previously Wiki_Link
-                    // //someGuy["Wikipedia2"] = d["Wikipedia"]
-
-                    
-                    if(d["WikiLink"] != ""){
-                       // check for wikilink
-                       someGuy["Link"] = d["WikiLink"] // previously Wiki_Link
-                    }else if (d["Alternate Link"]!= ""){
-                        //check for google book link
-                        someGuy["Link"] = d["Alternate Link"]
-                    } else {
-                        someGuy["Link"] = "unknown"
-                    }
-                    someGuy["WikiLabel"] = wikiLabelFromUrl(someGuy["Link"]); // parse wikipedia article title to grab 'modern' name
-                    someGuy["WikiLabelPlain"] = stripDiacritics(someGuy["WikiLabel"] || "").toLowerCase(); // strip accent marks for search queries
-                    // Filter fields are cached once when the CSV is read instead of being rebuilt on each dropdown click
-                    cachePersonFilterFields(someGuy);
-
-        //            console.log (someGuy["Name"] + d["On Chart: Line #"] ); // debug
-
-                    if(d["On Chart: Line #"] > 0 && someGuy["lineType"]!= ""){
-                        //console.log("yes On Chart: Line #" + d["On Chart: Line #"])
-                        someGuy["LineNumber"] = parseInt(d["On Chart: Line #"]) + parseInt(lnDict[d["OnChartCategory"]]);
-                        allPeople[thisID] = new Array(); // set thisID as a key in the allPeople Dictionary
-                        allPeople[thisID].push(someGuy); // put the values in the dictionary
-
-                    } else { // we don't know where to draw it
-                       // console.log("no On Chart: Line #" + d["On Chart: Line #"])
-
-                        // noLineNumber.push(someGuy); // record who it was
-                        // console.log (someGuy["Name"] + d["On Chart: Line #"] ); // debug
-                        return false; // break out, don't try to draw it.
-                    };
-                }        
             });
-            
-            personKeys = Object.keys(allPeople); // cache keys once after all drawable people are loaded
-            precomputeIndexDrawConfigs(); // cache getIndexCaseConfig() on each person before the first draw
-            sortPeople(allPeople, true, { deferFilterList: true }); // draw chart first; name list fills in on next frame
-            drawLines(); // draw all the lines and names
-//            drawCase1();
-//            drawCase2()
+        }
 
-            document.getElementById("loader").style.display = "none";  /* turn off the loader */
-            document.body.classList.remove('waiting');
-                setFilterControlsEnabled(true);
-                // logChartReady("loadBioData");
+        data.forEach(function(d){
+            //console.log(d)
+            //console.log(d["Case"])
 
-         // },
-         // error: function(e) {
-         //   // your error callback here!
-         //   console.log("Error in reading data!!");
-         //   console.log(e);
-         //   document.getElementById("loader").style.display = "none";  /* turn off the loader */
-         //   document.body.classList.remove('waiting');
-         // }
-     });
-    var now = new Date();
-    // console.log(now.toUTCString()+ " end of loadBioData()")
+            // ---------- required field check (row-level) ----------
+            for (let col of REQUIRED_VALUE_FIELDS) {
+                if (!(col in d) || d[col] === undefined || d[col] === "") {
+                    console.error("Missing REQUIRED value:", col, "| Row:", d);
+                    return; // skip this row
+                }
+            }
+
+            var testCase = "";
+            if (d["Case"] != "" && d["Case"] != "none") {
+                testCase = parseInt(d["Case"].match(/\d+/)[0]);
+            } else {
+                testCase = false;
+            }
+
+            // ---------------- OPTIONAL GLOBAL FILTERS ----------------
+            // toggle on/off as needed
+            const FILTER_DISCREPANCY = false;
+            const DISCREPANCY_EXCLUDE = ["1800", "NC"];
+
+            // skip rows based on discrepancy if enabled
+            if (FILTER_DISCREPANCY) {
+                const disc = (d["Discrepancy Category 1"] || "").toString();
+                if (DISCREPANCY_EXCLUDE.includes(disc)) {
+                    console.log("Filtered out by discrepancy:", d["NameInIndex"], disc);
+                    return;
+                }
+            }
+            // ---------------------------------------------------------
+
+            if (boolCases[testCase]) { // speeds/focuses development by only loaded some "cases"
+
+                var someGuy = {};
+
+                function getInt(fieldName) {
+                    let val = parseInt(d[fieldName]);
+                    if (isNaN(val)) return 0;
+                    return val;
+                }
+
+                someGuy["UO_ID"] = "ID" + getInt("UO_ID");
+                var thisID = someGuy["UO_ID"];
+
+                someGuy["discrepancy"] = d["Discrepancy Category 1"] || "";
+
+                someGuy["BioName"] = d["Bio Name (from source)"];
+                someGuy["BioSource"] = d["Source"];
+                someGuy["Biography"] = d["Biography"];
+
+                someGuy["DisplayName"] = d["NameOnChart"] || "";
+                someGuy["Name"] = d["NameInIndex"] || "";
+
+                if (someGuy["DisplayName"] === "") {
+                    someGuy["DisplayName"] = someGuy["Name"];
+                }
+
+                // If DisplayName and Name are blank, skip row
+                if (someGuy["DisplayName"] === "" && someGuy["Name"] === "") return false;
+
+                // If Discrepancy is 1800, skip
+                if (someGuy["discrepancy"] === "1800") return false;
+
+                someGuy["DeathPrecision"] = d["DeathPrecision"];
+                someGuy["BornPrecision"] = d["BornPrecision"];
+
+                someGuy["BirthDate"] = getInt("BirthDate");
+                someGuy["AproxBirthDate"] = getInt("approxBirthDate");
+
+                someGuy["LifePrecision"] = d["LifeLength Precision"];
+                someGuy["LifeLength"] = getInt("LifeLength");
+
+                someGuy["AlivePrecision"] = d["Alive precision"];
+                someGuy["AliveDate"] = getInt("AliveDate");
+
+                someGuy["OnChartCategory"] = d["OnChartCategory"];
+
+                someGuy["DeathDate"] = getInt("DeathDate");
+                someGuy["AproxDeathDate"] = getInt("approxDeathDate");
+
+                if (d["Sex-Gender"] != "missing from OpenRefine results") {
+                    someGuy["gender"] = d["Sex-Gender"];
+                }
+
+                // profession cleanup (remove periods inline)
+                let profRaw = (d["Index Category 1"] || "").replace(/\./g, "");
+
+                if (profRaw !== "") {
+                    someGuy["profession"] = normalizeProfessionCode(profRaw);
+                } else if (someGuy["OnChartCategory"] === "Statesmen and Warriors") {
+                    someGuy["profession"] = "X";
+                } else {
+                    someGuy["noIndexProfession"] = true;
+                }
+
+                someGuy["Region"] = d["Region"];
+
+                // If a future CSV adds continent back, use it; otherwise derive it
+                someGuy["Continent"] =
+                    normalizeNullableValue(d["wiki continent"]) ||
+                    deriveContinentFromRegion(someGuy["Region"]);
+
+                if (normalizeNullableValue(d["wiki country"]) !== "") {
+                    someGuy["Country"] = d["wiki country"];
+                }
+
+                someGuy["case"] = (d["Case"] || "").trim(); // original case code
+                someGuy["VisualCase"] = (d["VisualCase"] || "").trim(); // display grouping
+
+                someGuy["ExpectedVisualCase"] =
+                    lookupExpectedVisualCaseFromOriginalCase(someGuy["case"]);
+
+                someGuy["lineType"] = someGuy["case"];
+                someGuy["_caseNumber"] = parseIndexCaseNumber(someGuy);
+                someGuy["indexText"] = null;
+
+                // calculate approx age
+                someGuy["AproxAge"] =  someGuy["AproxDeathDate"] - someGuy["AproxBirthDate"];
+
+                if (d["Link"] !== ""){
+                     someGuy["Link"] = d["Link"];
+                } else {
+                    someGuy["Link"] = "unknown";
+                }
+
+                someGuy["WikiLabel"] = wikiLabelFromUrl(someGuy["Link"]);
+                someGuy["WikiLabelPlain"] =
+                    stripDiacritics(someGuy["WikiLabel"] || "").toLowerCase();
+
+                cachePersonFilterFields(someGuy);
+
+                if (getInt("Chart Line #") > 0 && someGuy["lineType"] != "") {
+
+                    someGuy["LineNumber"] =
+                        getInt("Chart Line #") +
+                        parseInt(lnDict[someGuy["OnChartCategory"]]);
+
+                    allPeople[thisID] = [];
+                    allPeople[thisID].push(someGuy);
+
+                } else {
+                    console.log("Skipped (no line):", someGuy["Name"], "Line:", d["Chart Line #"]);
+                    return false; // don't draw if can't place on chart
+                }
+            }
+        });
+
+        personKeys = Object.keys(allPeople);
+        precomputeIndexDrawConfigs();
+        sortPeople(allPeople, true, { deferFilterList: true });
+        drawLines();
+
+        document.getElementById("loader").style.display = "none";
+        document.body.classList.remove('waiting');
+        setFilterControlsEnabled(true);
+    });
+        var now = new Date();
+        // console.log(now.toUTCString()+ " end of loadBioData()")
+
 }
+
+
+
+//     // git
+//     d3.request("biography/csv/Chronographics Biographies(6_8_2026).csv") 
+//     //local dev
+//     //d3.request("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/biography/csv/PriestleyBioData_Feb2_2023(2_20_2024).csv")
+//       .mimeType("text/csv")
+//       .response(function (xhr) { return d3.csvParse(xhr.responseText); })
+//       .get(function(data) {
+//           data.forEach(function(d){
+//                 // check if this case is in the current MANUAL case filter
+//                 // console.log(d["case"])
+//                 var testCase="";
+//                 if (d["case"] != "" && d["case"] != "none") {
+//                     testCase = parseInt(d["case"].match(/\d+/)[0]) // get the "case" as an integer
+//                 } else {
+//                      testCase = false;
+//                     // while case is missing
+//                     // (d["case"]="case1")
+//                     // testCase = 1 // 
+//                 }
+//                 if(boolCases[testCase]){  
+
+//                     var someGuy = {} // dictionary for a single guy
+                
+//                     // store ID a couple ways
+//                     someGuy["UO_ID"] = "ID" + parseInt(d["UO_ID"]);
+//                     var thisID = someGuy["UO_ID"]
+//                     someGuy["discrepancy"] = d["Discrepancy"] || d["discrepancy"] || "";
+//                     // someGuy["Watkins_ID"] = parseInt(d["Watkins_ID"]);
+//                     someGuy["BioName"] = d["Bio Name"];
+//                     someGuy["BioSource"] = d["BioSource"];
+//                     someGuy["Biography"] = d["Biography"];
+//                     // someGuy["Alternate_Name"] = d["Alternate_name"];
+//                     // someGuy["Alternate_ID"] = parseInt(d["Alternate_ID"]);
+//                     someGuy["DisplayName"] = d["NameOnChart"];
+//                     someGuy["Name"] = d["NameInIndex"]; 
+//                     // If displayName is null, get the name
+//                     if(someGuy["DisplayName"] == "") someGuy["DisplayName"]  = someGuy["Name"];     
+
+//                     // If DisplayName and Name are blank, this is a blank line. Skip it.
+//                     if(someGuy["DisplayName"] == "" && someGuy["Name"]== "") return false;
+                    
+//                     // If Discrepancy is 1800, this person is only in the 1800 list, skip it.
+//                     if(someGuy["discrepancy"] == "1800") return false;
+
+//                     someGuy["DeathPrecision"] = d["DeathPrecision"];
+//                     someGuy["BornPrecision"] = d["BornPrecision"]; 
+//                     someGuy["BirthDate"] = parseInt(d["BirthDate"]);
+//                     someGuy["AproxBirthDate"] = parseInt(d["aproxBirthDate"]);
+//                     someGuy["LifePrecision"] = d["LifeLength Precision"]; 
+//                     someGuy["LifeLength"] = parseInt(d["LifeLength"]); 
+//                     someGuy["AlivePrecision"] = d["Alive precision"];
+//                     someGuy["AliveDate"] = parseInt(d["AliveDate"]);
+//                     someGuy["OnChartCategory"] = d["OnChartCategory"]; // add the full text for profession
+//                     someGuy["DeathDate"] = parseInt(d["DeathDate"]);
+//                     someGuy["AproxDeathDate"] = parseInt(d["aproxDeathDate"]);
+//                     if(d["Sex or gender V2"] != "missing from OpenRefine results"){
+//                         someGuy["gender"] = d[ "Sex or gender V2"];  // previously gender, "sex or gender"
+//                     }
+                    
+//                     // profession codes
+//                      if(d["Index Category 1"] != ""){
+//                        someGuy["profession"] = normalizeProfessionCode(d["Index Category 1"].replace(/\.$/, "")); // remove periods  
+//                     }else if (d["OnChartCategory"] == "Statesmen and Warriors"){
+//                         someGuy["profession"] = "X"
+//                     } else {
+//                         // on chart but Priestley's index assigns no profession letter (not Statesmen)
+//                         someGuy["noIndexProfession"] = true;
+//                     }
+                    
+                    
+//                     //someGuy["lat"] = d["LAT BP"]; // previously LAT problem with |
+//                     //someGuy["lon"] = d["LON BP"]; //previously LON
+//                     someGuy["Region"] = d["Region_final"]//new
+//                     // If a future CSV adds continent back, use it; otherwise derive it from Region_final
+//                     someGuy["Continent"] = normalizeNullableValue(d["continent"]) || deriveContinentFromRegion(someGuy["Region"]); // current CSV derives continent from Region_final
+//                     if(normalizeNullableValue(d["country"]) !== ""){
+//                         someGuy["Country"] = d["country"] // previously countryName
+//                     }
+
+//                     someGuy["case"] = d["case"].trim(); // original case code from the data
+//                     someGuy["VisualCase"] = d["VisualCase"].trim(); // visual-case label used for display/menu grouping
+//                     someGuy["ExpectedVisualCase"] = lookupExpectedVisualCaseFromOriginalCase(someGuy["case"]);
+//                     someGuy["lineType"] = someGuy["case"]; // keep existing drawing logic on the original case code
+//                     someGuy["_caseNumber"] = parseIndexCaseNumber(someGuy); // cached for sortPeople / drawIndexPerson (avoids regex each pass)
+//                     someGuy["indexText"] = null; // in tab2 (TO DO, create indext when reading in data instead of on the fly)
+
+//                     // calculate aprox age
+//                     someGuy["AproxAge"]  = someGuy["AproxDeathDate"]- someGuy["AproxBirthDate"];
+
+                    
+//                     // someGuy["Link"] = d["WikiLink"] // previously Wiki_Link
+//                     // //someGuy["Wikipedia2"] = d["Wikipedia"]
+
+                    
+//                     if(d["WikiLink"] != ""){
+//                        // check for wikilink
+//                        someGuy["Link"] = d["WikiLink"] // previously Wiki_Link
+//                     }else if (d["Alternate Link"]!= ""){
+//                         //check for google book link
+//                         someGuy["Link"] = d["Alternate Link"]
+//                     } else {
+//                         someGuy["Link"] = "unknown"
+//                     }
+//                     someGuy["WikiLabel"] = wikiLabelFromUrl(someGuy["Link"]); // parse wikipedia article title to grab 'modern' name
+//                     someGuy["WikiLabelPlain"] = stripDiacritics(someGuy["WikiLabel"] || "").toLowerCase(); // strip accent marks for search queries
+//                     // Filter fields are cached once when the CSV is read instead of being rebuilt on each dropdown click
+//                     cachePersonFilterFields(someGuy);
+
+//         //            console.log (someGuy["Name"] + d["On Chart: Line #"] ); // debug
+
+//                     if(d["On Chart: Line #"] > 0 && someGuy["lineType"]!= ""){
+//                         //console.log("yes On Chart: Line #" + d["On Chart: Line #"])
+//                         someGuy["LineNumber"] = parseInt(d["On Chart: Line #"]) + parseInt(lnDict[d["OnChartCategory"]]);
+//                         allPeople[thisID] = new Array(); // set thisID as a key in the allPeople Dictionary
+//                         allPeople[thisID].push(someGuy); // put the values in the dictionary
+
+//                     } else { // we don't know where to draw it
+//                        // console.log("no On Chart: Line #" + d["On Chart: Line #"])
+
+//                         // noLineNumber.push(someGuy); // record who it was
+//                         // console.log (someGuy["Name"] + d["On Chart: Line #"] ); // debug
+//                         return false; // break out, don't try to draw it.
+//                     };
+//                 }        
+//             });
+            
+//             personKeys = Object.keys(allPeople); // cache keys once after all drawable people are loaded
+//             precomputeIndexDrawConfigs(); // cache getIndexCaseConfig() on each person before the first draw
+//             sortPeople(allPeople, true, { deferFilterList: true }); // draw chart first; name list fills in on next frame
+//             drawLines(); // draw all the lines and names
+// //            drawCase1();
+// //            drawCase2()
+
+//             document.getElementById("loader").style.display = "none";  /* turn off the loader */
+//             document.body.classList.remove('waiting');
+//                 setFilterControlsEnabled(true);
+//                 // logChartReady("loadBioData");
+
+//          // },
+//          // error: function(e) {
+//          //   // your error callback here!
+//          //   console.log("Error in reading data!!");
+//          //   console.log(e);
+//          //   document.getElementById("loader").style.display = "none";  /* turn off the loader */
+//          //   document.body.classList.remove('waiting');
+//          // }
+//      });
+//     var now = new Date();
+//     // console.log(now.toUTCString()+ " end of loadBioData()")
+// }
+
+
 
 // LOAD people descriptions. 
 // Note: Download from google sheets as XLS then save as csv UTF-8 to include French/special characters e.g check em dashes in  "JANSEN..."
