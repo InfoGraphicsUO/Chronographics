@@ -54,8 +54,8 @@ csv_selection = {"NameInIndex": read_file["NameInIndex"],
                  "LineNumber": read_file["LineNumber"],
                  "FullTextPageNum": read_file["FullTextPageNum"],
                  #"WikiLink in MM10?": read_file["WikiLink in MM10?"],
-                 "WikiLink": read_file["WikiLink"]
-                 #"Alternate Link": read_file["Alternate Link"], note = missing from chronographics, will need to add back in
+                 "WikiLink": read_file["WikiLink"],
+                 "Alternate Link": read_file["Alternate Link"]
                  #"country": read_file["wiki country"], note = missing from chronographics, will need to add back in
                  #"continent": read_file["wiki continent"], note = missing from chronographics, will need to add back in
                  #"discrepancy": read_file["Discrepancy Category 1"] note = missing from chronographics, will need to add back in
