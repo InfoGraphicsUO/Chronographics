@@ -24,7 +24,7 @@
     <!-- more custom CSS -->
     <link href="css/historyStyle.css" rel="stylesheet">
     
-<!--     <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <link href="../lib/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     
       <!-- slider src -->
   <link href="../dist/noUiSlider-14.6.3/distribute/nouislider.min.css" rel="stylesheet"> 
@@ -112,6 +112,9 @@
             padding-top:5px;
             padding-bottom: 5px;
             margin-right:5px;
+        }
+        .fa-question-circle-o {
+            color: #B8B8B8;
         }
     /* for right column */
         .box {
@@ -236,7 +239,7 @@
                         <div class="panel panel-default">
                            <!--  <div class="panel-heading"> -->
                                 
-                                <div class="legendHeading text-center" ><strong><large>Map of chart areas</large>
+                                <div class="legendHeading text-center" title="The map shows the geographic territories associated with the selected chart area and regime. Use the map or chart to make a selection."><strong><large>Map of chart areas</large> <i class="fa fa-question-circle-o" aria-hidden="true"></i>
                                     </strong>
                                     <p class="legend-name legend"><span class="key-dot time">&#9632;</span>Land on Chart <span class="key-dot notime">&#9632;</span>Land not on Chart</p>
                                     
@@ -253,16 +256,16 @@
                                 </div>
                                 <div id="map_buttons" class="small">
 
-                                            <button onclick="fullExtent()">View full map</button>
-                                            <button onclick="clearSelection()">Clear selection</button>
+                                            <button onclick="fullExtent()" title="Reset the map to its full geographic extent.">View full map</button>
+                                            <button onclick="clearSelection()" title="Clear the selected year, area, regime, map highlight, and descriptive text.">Clear selection</button>
                                 </div>       
                                 <table  class="mt-2">
                                   <tr>
-                                    <td><span class="yearText text-center smaller" >&nbsp;|&nbsp;&nbsp;</span><span class="bolder legend">&nbsp;Year&nbsp;&nbsp;</span></td>
+                                    <td><span class="yearText text-center smaller" >&nbsp;|&nbsp;&nbsp;</span><span class="bolder legend" title="Click the chart to select a year.">&nbsp;Year&nbsp;&nbsp;<i class="fa fa-question-circle-o" aria-hidden="true"></i></span></td>
                                     <td><span  id="year_label" style="font-size: 12px smaller;">click chart to select</span></td>
                                   </tr>
                                   <tr>
-                                      <td><span class="m-0 d-block"><span class="key-dot-lg empireText regime">&#9627;&nbsp;&nbsp;</span><span class="bolder legend">Regime&nbsp;</span></span></td>
+                                      <td><span class="m-0 d-block"><span class="key-dot-lg empireText regime">&#9627;&nbsp;&nbsp;</span><span class="bolder legend" title="A regime is the political power controlling the selected area at the selected year. Select one here or click the chart or map.">Regime&nbsp;<i class="fa fa-question-circle-o" aria-hidden="true"></i></span></span></td>
                                      <td>                     
                                         <btn-group>
                                                      <button role="menu" class="btn dropdown-btn m-0 p-0">
@@ -281,7 +284,7 @@
                                                 </td>
                                   </tr>
                                   <tr>
-                                    <td><span class="key-dot-lg placeText">&#9644;&nbsp;</span><span class="bolder legend">&nbsp;Area</span></td>
+                                    <td><span class="key-dot-lg placeText">&#9644;&nbsp;</span><span class="bolder legend" title="Areas are the chart rows for places or geographic divisions. Select one here or click the chart or map.">&nbsp;Area <i class="fa fa-question-circle-o" aria-hidden="true"></i></span></td>
 <!--                                    <td><span class="old-looking-font" id="place_map">click on map/chart</span></td>-->
                                       
                                     <td >
@@ -303,7 +306,7 @@
                             <!-- /.panel-body -->
                         </div><!-- end map viewer -->
                          </div> <!-- end sized to content -->
-                        <div class="row content m-0 mt-1 legendHeading" id="descriptive_text-row"><strong>History of the Region</strong>
+                        <div class="row content m-0 mt-1 legendHeading" id="descriptive_text-row" title="Priestley's descriptive text for the selected chart region."><strong>History of the Region <i class="fa fa-question-circle-o" aria-hidden="true"></i></strong>
                             <div id="descriptive_text" class="old-looking-font">Click map or chart area to view text.</div>
                         </div>
                         
@@ -311,7 +314,7 @@
                     </div> <!-- end left column  -->
 
                     <div class="col-sm-8 legendHeading" style="padding: 17px 0px 0px 0px">
-                        <span style="padding:10px 0px 0px 18px; "><strong>Zoom chart</strong> <button id="fullChartButton" onclick="fullExtent()" class="btn mr-2 small">View full chart</button><small>100%</small> <div id="zoomSlider" ><!--Slider goes here --></div><small>&nbsp;&nbsp;800%&nbsp;&nbsp; </small><label><input type="checkbox" id="regionName_CB" onclick="toggleEra()">&nbsp;Region names</label>
+                        <span style="padding:10px 0px 0px 18px; "><strong title="Use the slider or mouse wheel to zoom the chart. Drag the chart to pan while zoomed.">Zoom chart</strong> <button id="fullChartButton" onclick="fullExtent()" class="btn mr-2 small" title="Reset the chart and map to their full extents.">View full chart</button><small>100%</small> <div id="zoomSlider" ><!--Slider goes here --></div><small>&nbsp;&nbsp;800%&nbsp;&nbsp; </small><label title="Show or hide region labels on the chart."><input type="checkbox" id="regionName_CB" onclick="toggleEra()">&nbsp;Region names <i class="fa fa-question-circle-o" aria-hidden="true"></i></label>
                             
 <!--                            <label>&nbsp;<input type="checkbox" id="RulerName_CB" onclick="toggleRuler()">&nbsp;Ruler names</label></span>-->
                         

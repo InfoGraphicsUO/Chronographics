@@ -9,7 +9,7 @@ $(document).ready(function(){
 	// get regimes from JSON
 	$.each(powerVar, function (key, value) {
         // add regimes *not* including "-NE" aka no empire
-        if(!value.properties.regime.includes("-NE")){
+        if(value.properties.regime.trim() && !value.properties.regime.includes("-NE")){
 		regimes.push(regimeMenuName(value.properties.regime));
         }
 	});
