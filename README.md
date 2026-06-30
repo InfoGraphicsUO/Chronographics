@@ -10,8 +10,8 @@ Developed by the [University of Oregon InfoGraphics Lab](https://infographics.uo
 
 Each chart has its own README with setup instructions, file structure, and data documentation:
 
-- **[Chart of Biography](docs/biography/README.md)** - ~2,500 lifespans across six categories of achievement (1200 BCE–1765 CE). Open `[docs/chartofBiography.html](docs/chartofBiography.html)`.
-- **[Chart of History](docs/HistoryInteractive/README.md)** - Rise and fall of empires across geographic regions (1200 BCE–1800 CE). Open `[docs/chartofHistory.html](docs/chartofHistory.html)`.
+- **[Chart of Biography](docs/biography/README.md)** - ~2,500 lifespans across six categories of achievement (1200 BCE–1765 CE). Open [docs/chartofBiography.html](docs/chartofBiography.html).
+- **[Chart of History](docs/HistoryInteractive/README.md)** - Rise and fall of empires across geographic regions (1200 BCE–1800 CE). Open [docs/chartofHistory.html](docs/chartofHistory.html).
 
 ## Quick start
 
@@ -22,11 +22,11 @@ The site is static HTML, CSS, and JavaScript. Serve the `docs/` directory from a
 
 | Page                                                       | Description                                                |
 | ---------------------------------------------------------- | ---------------------------------------------------------- |
-| `[docs/about.html](docs/about.html)`                       | Project background, team, and sources                      |
-| `[docs/chartofBiography.html](docs/chartofBiography.html)` | Chart of Biography — tour, original, and interactive chart |
-| `[docs/chartofHistory.html](docs/chartofHistory.html)`     | Chart of History — tour, original, and interactive chart   |
-| `[docs/essays.html](docs/essays.html)`                     | Scholarly essays and related artifacts                     |
-| `[docs/sandbox.html](docs/sandbox.html)`                   | Digitizing process and data pipeline                       |
+| [docs/about.html](docs/about.html)                         | Project background, team, and sources                      |
+| [docs/chartofBiography.html](docs/chartofBiography.html)   | Chart of Biography — tour, original, and interactive chart |
+| [docs/chartofHistory.html](docs/chartofHistory.html)       | Chart of History — tour, original, and interactive chart   |
+| [docs/essays.html](docs/essays.html)                       | Scholarly essays and related artifacts                     |
+| [docs/sandbox.html](docs/sandbox.html)                     | Digitizing process and data pipeline                       |
 
 
 
