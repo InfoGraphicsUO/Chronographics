@@ -431,10 +431,11 @@ function dblclick(d) {
 
 function mouseMove(d) {
 	// set tooltip to the info hovered over
-	tempRegime = d.properties.regime
-	if (tempRegime == undefined) {
-		tempRegime = '';
+	var hoveredRegime = d.properties.regime;
+	if (!hoveredRegime || hoveredRegime.includes("-NE")) {
+		return;
 	}
+	tempRegime = hoveredRegime;
     
     tempEra = findEra(mouseYear.toFixed())
 	if (tempEra == undefined) {
@@ -451,6 +452,9 @@ function mouseMove(d) {
 
 function toolYear() {
 	// set tooltip to the info hovered over
+	if (!tempRegime) {
+		return;
+	}
     
     tempEra = findEra(mouseYear.toFixed())
 	if (tempEra == undefined) {
@@ -475,7 +479,6 @@ function mouseOut(d) {
 function mouseOutThru(d) {
 	// https://stackoverflow.com/questions/16799116/handling-mouse-events-in-overlapping-svg-layers
 	if (d3.event.defaultPrevented) return;
-	tempRegime = '';
 	// to lower level svg (regime)
 	var e = d3.event;
 	var prev = this.style.pointerEvents;
@@ -538,16 +541,13 @@ function clickThruBio(d) {
 
 function moveThru(d) {
 	// save temp values
-	tempPlace = d.properties.name;
-	tempRegion = d.properties.region;
-	// error handling
-	if (tempPlace == undefined || tempPlace == "FOOTER") {
-		tempPlace = '';
+	var hoveredPlace = d.properties.name;
+	if (hoveredPlace && hoveredPlace != "FOOTER") {
+		tempPlace = hoveredPlace;
 	}
-	if (tempRegion == undefined) {
-		tempRegion = '';
+	if (d.properties.region) {
+		tempRegion = d.properties.region;
 	}
-	tempRegime = '';
 	// to lower level svg
 	var e = d3.event;
 	var prev = this.style.pointerEvents;
