@@ -1,16 +1,20 @@
  // DROP DOWN MENUS
 $(document).ready(function(){
 
+	function regimeMenuName(regime) {
+		return regime.replace(/\s+\d+$/, "");
+	}
+
 //--------------------------------- regime selector ---------------------------------//	
 	// get regimes from JSON
 	$.each(powerVar, function (key, value) {
         // add regimes *not* including "-NE" aka no empire
         if(!value.properties.regime.includes("-NE")){
-		regimes.push(value.properties.regime);
+		regimes.push(regimeMenuName(value.properties.regime));
         }
 	});
 	// delete duplicates
-	regimes = $.uniqueSort(regimes);
+	regimes = regimes.filter(function(value, index, self) { return self.indexOf(value) === index; });
 	// sort regime alphabetical
 	regimes.sort();
 
@@ -28,7 +32,7 @@ $(document).ready(function(){
 		d3.select("#power_label").text("Empire: " + $("#regimeSelector").val())
 		// select on chart
 		powersGroup.selectAll("path")
-			.filter(function(d){return (d.properties.regime == $("#regimeSelector").val());})
+			.filter(function(d){return (regimeMenuName(d.properties.regime) == $("#regimeSelector").val());})
 				.attr("stroke", powerColors[0] )
 				.attr( "stroke-width","2")
 	});
