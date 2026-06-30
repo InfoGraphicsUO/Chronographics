@@ -1,5 +1,5 @@
-//d3.csv("./csv/placePageNums.csv", function(error, result) {
-d3.csv("https://pages.uoregon.edu/infographics/timeline/pages/csv/placePageNums.csv", function(error, result) {
+d3.csv("./csv/placePageNums.csv", function(error, result) {
+	if (error || !result) return;
 	for (var i = 0; i < result.length; i++)
 	{
 	    ppDict[result[i].place] = result[i].page;
@@ -7,7 +7,8 @@ d3.csv("https://pages.uoregon.edu/infographics/timeline/pages/csv/placePageNums.
 })
 
 
-d3.csv("https://pages.uoregon.edu/infographics/dev/timelineV2/pages/csv/placeDescriptiveText.csv", function(error, result) {
+d3.csv("./csv/placeDescriptiveText.csv", function(error, result) {
+	if (error || !result) return;
 	for (var i = 0; i < result.length; i++)
 	{
 	    textDict[result[i].name] = [result[i].index_text,result[i].index_section];
@@ -58,4 +59,3 @@ function setDescriptiveText() {
 		 }
 	//}
 }
-

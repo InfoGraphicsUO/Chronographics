@@ -124,7 +124,7 @@ samplePlaceGroup.selectAll("path").data(samplePlaceData).enter().append("path" )
 				.attr( "stroke-width",mapLineWidth)
 				.attr("fill",mapLandColor[2]);
 			
-            console.log(d.properties.placeID;)
+            console.log(d.properties.placeID);
             
 			//UPDATE CHART COLORS AND ADD PLACE LABEL
 			placesGroup.selectAll("path")

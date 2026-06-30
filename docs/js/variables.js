@@ -122,9 +122,8 @@ if (page != "biographyMap.html"){
     // grabs the ruler and year from the csv. handles similar to the regions
 
 
-//    d3.csv("./csv/rulers.csv", function(error, result) {
-    // use full text location for preventing CORS error
- d3.csv("https://pages.uoregon.edu/infographics/timeline/pages/csv/rulers.csv", function(error, result) {
+ d3.csv("./csv/rulers.csv", function(error, result) {
+        if (error || !result) return;
         for (var i = 0; i < result.length; i++)
         {
             rulerTicks.push(parseInt(result[i].startYear));
