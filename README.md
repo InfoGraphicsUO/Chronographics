@@ -22,11 +22,11 @@ The site is static HTML, CSS, and JavaScript. Serve the `docs/` directory from a
 
 | Page                                                       | Description                                                |
 | ---------------------------------------------------------- | ---------------------------------------------------------- |
-| `[docs/about.html](docs/about.html)`                       | Project background, team, and sources                      |
-| `[docs/chartofBiography.html](docs/chartofBiography.html)` | Chart of Biography — tour, original, and interactive chart |
-| `[docs/chartofHistory.html](docs/chartofHistory.html)`     | Chart of History — tour, original, and interactive chart   |
-| `[docs/essays.html](docs/essays.html)`                     | Scholarly essays and related artifacts                     |
-| `[docs/sandbox.html](docs/sandbox.html)`                   | Digitizing process and data pipeline                       |
+| [docs/about.html](docs/about.html)                         | Project background, team, and sources                      |
+| [docs/chartofBiography.html](docs/chartofBiography.html)   | Chart of Biography — tour, original, and interactive chart |
+| [docs/chartofHistory.html](docs/chartofHistory.html)       | Chart of History — tour, original, and interactive chart   |
+| [docs/essays.html](docs/essays.html)                       | Scholarly essays and related artifacts                     |
+| [docs/sandbox.html](docs/sandbox.html)                     | Digitizing process and data pipeline                       |
 
 
 
