@@ -194,7 +194,7 @@ function updateData(newVal, redraw=true) {
 	// load the labels for the point events
 	pointsLabel.selectAll("text").data(pointsVar).enter().append("text")
 		.attr("x", function(d) {return xScale(d.geometry.coordinates[0] - coordinateSystemXoffset) + 1; }) // to change JSON x value into screen space
-		.attr("y", function(d) {return yScale(d.geometry.coordinates[1]); }) // JSON y --> screen space
+		.attr("y", function(d) {return yScale(d.geometry.coordinates[1] + rowHeight) + 0.5; }) // nudge point labels up one row, then down 5px
 		.text( function(d) {  return d.properties.regime; })
 		.attr("font-family", "sans-serif")
 		.style("text-anchor", "front")
@@ -264,7 +264,7 @@ function updateData(newVal, redraw=true) {
 	// load the labels for the power data
 	powersLabel.selectAll("text").data(powerVar).enter().append("text")
 		.attr("x", function(d) {return xScale(d.properties.INSIDE_X - coordinateSystemXoffset); }) // to change JSON x value into screen space
-		.attr("y", function(d) {return yScale(d.properties.INSIDE_Y); }) // JSON y --> screen space
+		.attr("y", function(d) {return yScale(d.properties.INSIDE_Y) + 4; }) // nudge regime labels down slightly
 		.text( function(d) { 
             var thislabel = d.properties.regime
             thislabel = thislabel.replace("-NE","") // drop NE off the labels that have it (to replace with point event labels)
@@ -353,6 +353,9 @@ function updateData(newVal, redraw=true) {
 		.enter()
 		.append("path")
 		.attr( "d", geoPath )
+		.attr("transform", function(d) {
+			return "translate(0," + (yScale(d.geometry.coordinates[1] + rowHeight) - yScale(d.geometry.coordinates[1])) + ")";
+		})
 		.attr( "pointer-events", "none" )
 		.on("mousemove", moveThru);
 
