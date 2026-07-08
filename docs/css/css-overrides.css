@@ -366,6 +366,11 @@ label .fa {
     color: #B8B8B8;
 }
 
+.fa-question-circle-o,
+.fa-question-circle {
+    cursor: help;
+}
+
 /*NOTE for small @ media queries, see style.css*/
 
 .old-looking-font {
